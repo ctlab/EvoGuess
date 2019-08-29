@@ -14,7 +14,7 @@ class Task:
             case.mark_solved(report)
             if self.init: case.check_solution()
         except Exception as e:
-            env.comm.debug(0, 2, 'error while solving case:\n%s' % e)
+            env.out.debug(0, 2, 'error while solving case:\n%s' % e)
 
         solution = case.solution if self.init else []
         return case.get_status(short=True), case.time, solution

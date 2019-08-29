@@ -7,7 +7,7 @@ class GuessAndDetermine(Predictor):
     type = "gad"
 
     def __main_phase(self, backdoor, solution, count, solver):
-        env.comm.debug(1, 0, "generating main cases...")
+        env.out.debug(1, 0, "generating main cases...")
 
         main_tasks = []
         for i in range(count):
@@ -18,18 +18,18 @@ class GuessAndDetermine(Predictor):
             )
             main_tasks.append(main_task)
 
-        env.comm.debug(1, 0, "solving...")
+        env.out.debug(1, 0, "solving...")
         solved, time = env.concurrency.solve(main_tasks, solver.get('workers'))
 
-        env.comm.d_debug(1, 0, "has been solved %d cases" % len(solved))
+        env.out.d_debug(1, 0, "has been solved %d cases" % len(solved))
         if count != len(solved):
-            env.comm.d_debug(0, 0, "warning! count != len(solved)")
-        env.comm.debug(1, 0, "spent time: %f" % time)
+            env.out.d_debug(0, 0, "warning! count != len(solved)")
+        env.out.debug(1, 0, "spent time: %f" % time)
 
         return solved, time
 
     def compute(self, backdoor, cases, count):
-        env.comm.debug(1, 0, "compute for backdoor: %s" % backdoor)
+        env.out.debug(1, 0, "compute for backdoor: %s" % backdoor)
 
         # init
         init_task = Task(
@@ -54,27 +54,27 @@ class GuessAndDetermine(Predictor):
             cases.extend(solved)
             all_time += time
 
-        env.comm.debug(1, 0, "spent time: %f" % all_time)
+        env.out.debug(1, 0, "spent time: %f" % all_time)
         return cases, all_time
 
     def calculate(self, backdoor, compute_out):
         cases, time = compute_out
 
-        env.comm.debug(1, 0, "counting time stat...")
+        env.out.debug(1, 0, "counting time stat...")
         time_stat, cases_log = self.get_time_stat(cases)
-        env.comm.d_debug(1, 0, "time stat: %s" % time_stat)
+        env.out.d_debug(1, 0, "time stat: %s" % time_stat)
 
         log = cases_log
         log += "spent time: %f\n" % time
 
-        env.comm.debug(1, 0, "calculating value...")
+        env.out.debug(1, 0, "calculating value...")
         time_sum = 0.
         for _, time in cases:
             time_sum += float(time)
 
-        env.comm.debug(1, 0, "avg time: %f (%f / %d)" % (time_sum / len(cases), time_sum, len(cases)))
+        env.out.debug(1, 0, "avg time: %f (%f / %d)" % (time_sum / len(cases), time_sum, len(cases)))
         value = (2 ** len(backdoor)) * time_sum / len(cases)
-        env.comm.debug(1, 0, "value: %.7g\n" % value)
+        env.out.debug(1, 0, "value: %.7g\n" % value)
 
         log += "%s\n" % time_stat
         return value, log, cases

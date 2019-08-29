@@ -66,18 +66,18 @@ class LimitPool:
                     if res.successful():
                         result.append(res.get())
                     else:
-                        env.comm.debug(0, 1, "Pool solving was completed unsuccessfully")
+                        env.out.debug(0, 1, "Pool solving was completed unsuccessfully")
                         result.append(res.get())
                 else:
                     i += 1
 
-            env.comm.debug(2, 3, "Already solved %d tasks" % len(result))
+            env.out.debug(2, 3, "Already solved %d tasks" % len(result))
 
         return result
 
     def __limit_solve(self, res_list, result, limit):
         wait_time = log(limit, self.size) if self.size > 1 else limit
-        env.comm.debug(2, 3, "base wait time: %f" % wait_time)
+        env.out.debug(2, 3, "base wait time: %f" % wait_time)
         wait_times = [wait_time] * self.size
 
         sync_flag = False
@@ -86,8 +86,7 @@ class LimitPool:
             sleep(wait_time)
             downtime += wait_time
 
-            i = 0
-            res_len = len(res_list)
+            i, res_len = 0, len(res_list)
             while i < len(res_list):
                 if res_list[i].ready():
                     res = res_list.pop(i)
@@ -96,7 +95,7 @@ class LimitPool:
                         time_sum += data[1]
                         result.append(data)
                     else:
-                        env.comm.debug(0, 1, "Pool solving was completed unsuccessfully")
+                        env.out.debug(0, 1, "Pool solving was completed unsuccessfully")
                         result.append(('ERROR', float("inf"), []))
                 else:
                     i += 1
@@ -109,20 +108,21 @@ class LimitPool:
 
                 wait_times[self.rank] = wait_times[self.rank] * len(res_list) / res_len
                 wait_times[self.rank] = max(0.1, wait_times[self.rank])
-                env.comm.debug(2, 3, "Already solved %d tasks" % len(result))
-                env.comm.debug(3, 3, "New wait time: %f" % wait_times[self.rank])
+                env.out.debug(2, 3, "Already solved %d tasks" % len(result))
+                env.out.debug(3, 3, "New wait time: %f" % wait_times[self.rank])
 
             down_sum = downtime * active_count
-            env.comm.debug(3, 3, "Downtime (%d) sum: %f" % (active_count, down_sum))
+            env.out.debug(3, 3, "Downtime (%d) sum: %f" % (active_count, down_sum))
             estimation = time_sum + 0.5 * down_sum
 
             times = self.comm.allgather([estimation, wait_times[self.rank]])
             spent_time = sum([time[0] for time in times])
             wait_times = [time[1] for time in times]
             wait_time = max(wait_times)
+            env.out.debug(3, 3, "Use wait time: %f" % wait_times[self.rank])
 
             if spent_time > limit and active_count > 0:
-                env.comm.debug(2, 3, "Terminate pool (%.2f > %.2f)" % (spent_time, limit))
+                env.out.debug(2, 3, "Terminate pool (%.2f > %.2f)" % (spent_time, limit))
                 self.terminate()
                 del self.pool
 
@@ -134,67 +134,6 @@ class LimitPool:
             sync_flag = all(sync_flags)
 
         return result
-
-    def __universal_solve(self, res_list, result, limit):
-        wait_time = log(limit, self.size) if limit > 0 and self.size > 1 else 0
-        env.comm.debug(2, 3, "base wait time: %f" % wait_time)
-        wait_times = [wait_time] * self.size
-
-        sync_flag = False
-        time_sum, downtime = 0., 0.
-        while sync_flag:
-            timestamp = now()
-            res_list[0].wait(wait_time or None)
-            downtime += now() - timestamp
-
-            i, res_len = 0, len(res_list)
-            while i < len(res_list):
-                if res_list[i].ready():
-                    res = res_list.pop(i)
-                    if res.successful():
-                        data = res.get()
-                        time_sum += data[1]
-                        result.append(data)
-                    else:
-                        env.comm.debug(0, 1, "Pool solving was completed unsuccessfully")
-                        result.append(('ERROR', float("inf"), []))
-                else:
-                    i += 1
-
-            estimation = time_sum
-            active_count = min(self.process_count, res_len)
-            if wait_time != 0:
-                if res_len > len(res_list):
-                    left_count = max(0, active_count - (res_len - len(res_list)))
-                    active_count = min(self.process_count, len(res_list))
-                    downtime = downtime * left_count / active_count if active_count > 0 else 0
-
-                    wait_times[self.rank] = wait_times[self.rank] * len(res_list) / res_len
-                    wait_times[self.rank] = max(0.1, wait_times[self.rank])
-                    env.comm.debug(2, 3, "Already solved %d tasks" % len(result))
-                    env.comm.debug(3, 3, "New wait time: %f" % wait_times[self.rank])
-
-                down_sum = downtime * active_count
-                env.comm.debug(3, 3, "Downtime (%d) sum: %f" % (active_count, down_sum))
-                estimation += 0.5 * down_sum
-
-            times = self.comm.allgather([estimation, wait_times[self.rank]])
-            spent_time = sum([time[0] for time in times])
-            wait_times = [time[1] for time in times]
-            wait_time = max(wait_times)
-            env.comm.debug(3, 3, "Used wait time: %f" % wait_time)
-
-            if 0 < limit < spent_time and active_count > 0:
-                env.comm.debug(2, 3, "Terminate pool (%.2f > %.2f)" % (spent_time, limit))
-                self.terminate()
-                del self.pool
-
-                res_list.clear()
-                active_count = 0
-                wait_times[self.rank] = 0
-
-            sync_flags = self.comm.allgather(not active_count)
-            sync_flag = all(sync_flags)
 
     def terminate(self):
         self.pool.terminate()

@@ -1,3 +1,9 @@
-predictor/solver/errors
+# Python Byte-compiled
 *.pyc
+
+# Log files
+output/_logs
+
+# Solvers
 solvers
+

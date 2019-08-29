@@ -1,3 +1,5 @@
+import argparse
+
 from numpy import concatenate
 from numpy.random import randint, RandomState
 
@@ -12,7 +14,7 @@ from predictor.util.environment import environment as env
 class Gate:
     def __init__(self, **kwargs):
         env.solvers = {}
-        env.comm = kwargs['comm']
+        env.out = kwargs['output']
         env.algorithm = get_algorithm(kwargs['keygen'])
         env.concurrency = get_concurrency(kwargs['method'])
 
@@ -40,10 +42,19 @@ class Gate:
         cases, value = self.comm.gather(mpi_cases, root=0), 0
 
         if self.rank == 0:
-            env.comm.debug(2, 1, "been gathered cases from %d nodes" % len(cases))
+            env.out.debug(2, 1, "been gathered cases from %d nodes" % len(cases))
             cases = concatenate(cases)
 
             value, log, cases = self.calculate(backdoor, (cases, time))
-            env.comm.log(log)
+            env.out.log(log)
 
         return value, time
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='EvoGuess')
+    parser.add_argument('keygen', type=str, help='key generator')
+    parser.add_argument('bds', type=str, help='backdoor\'s file')
+    parser.add_argument('-c', '--conf', metavar='json', type=str, default="{}", help='configuration')
+
+    args = parser.parse_args()

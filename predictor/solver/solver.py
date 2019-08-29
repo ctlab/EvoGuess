@@ -48,14 +48,14 @@ class Solver:
         thread_name = threading.current_thread().name
         for i in range(self.get("attempts")):
             if report is None or report.check():
-                env.comm.debug(4, 2, "%s start solving %s case" % (thread_name, self.tag))
+                env.out.debug(4, 2, "%s start solving %s case" % (thread_name, self.tag))
                 st = now()
                 sp = subprocess.Popen(l_args, encoding='utf8', stdin=subprocess.PIPE,
                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE)
                 output, err = sp.communicate(cnf)
                 time = now() - st
                 if len(err) != 0 and not err.startswith('timelimit'):
-                    env.comm.debug(1, 2, "%s didn't solve %s case:\n%s" % (thread_name, self.tag, err))
+                    env.out.debug(1, 2, "%s didn't solve %s case:\n%s" % (thread_name, self.tag, err))
                     trace_solver_error(thread_name, "Subprocess error", '-', output, err)
 
                 try:
@@ -63,14 +63,14 @@ class Solver:
                     if report.status == "INDETERMINATE":
                         report.time = time
                 except KeyError as e:
-                    env.comm.debug(1, 2, "%s error while parsing %s case" % (thread_name, self.tag))
+                    env.out.debug(1, 2, "%s error while parsing %s case" % (thread_name, self.tag))
                     report = SolverReport("INDETERMINATE", time)
 
                     if len(output) > 0:
                         title = "Key error while parsing output"
                         trace_solver_error(thread_name, title, '-', output, "%s\n\n%s" % (err, e))
 
-                env.comm.debug(4, 2, "%s solved %s case with status: %s" % (thread_name, self.tag, report.status))
+                env.out.debug(4, 2, "%s solved %s case with status: %s" % (thread_name, self.tag, report.status))
                 if report.check():
                     title = "Error while parsing solution"
                     trace_solver_error(thread_name, title, '-', output, "%s in %d attempt" % (report.status, i))

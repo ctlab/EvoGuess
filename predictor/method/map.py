@@ -1,5 +1,5 @@
-from predictor.method.impl.gad import GuessAndDetermine
-from predictor.method.impl.ibs import InverseBackdoorSets
+from predictor.method.impls.gad import GuessAndDetermine
+from predictor.method.impls.ibs import InverseBackdoorSets
 
 methods = {
     'ibs': InverseBackdoorSets,
