@@ -6,9 +6,6 @@ class SolverReport:
         self.time = time
         self.status = status
         self.solution = []
-        self.flags = [
-            False  # preprocessing
-        ]
 
     def parse_solution(self, solution_str, spaces):
         solution_str = solution_str.strip()
@@ -30,11 +27,13 @@ class SolverReport:
             self.status = "BROKEN"
             warnings.warn("Error while parse solution", UserWarning)
 
-    def set_flag(self, i, value):
-        self.flags[i] = value
-
     def check(self):
         return self.status == "BROKEN"
 
     def __str__(self):
         return "%s (%f) with solution: %d" % (self.status, self.time, len(self.solution))
+
+
+__all__ = [
+    'SolverReport'
+]
