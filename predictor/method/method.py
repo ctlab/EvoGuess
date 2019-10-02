@@ -1,30 +1,38 @@
-class Predictor:
+from .models import Estimation
+from ..concurrency.models import Result
+from ..cipher.models.var import Backdoor
+
+from typing import List, Tuple, Dict
+
+
+class Method:
     type = None
+    name = 'Method'
 
     def __init__(self, **kwargs):
         self.chunk_size = kwargs['chunk_size']
+        self.concurrency = kwargs['concurrency']
 
-    def compute(self, backdoor, cases, count):
+    def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         raise NotImplementedError
 
-    def calculate(self, backdoor, compute_out):
+    def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
         raise NotImplementedError
-
-    def get_time_stat(self, cases):
-        time_stat = {
-            'DETERMINATE': 0,
-            'INDETERMINATE': 0
-        }
-        cases_log = 'times:\n'
-        for info in cases:
-            cases_log += '%s %s\n' % (info[0], info[1])
-            self.__update_time_statistic(time_stat, info[0])
-
-        return time_stat, cases_log
 
     @staticmethod
-    def __update_time_statistic(time_stat, status):
-        if status == 'UNSAT' or status == 'SAT':
-            time_stat['DETERMINATE'] += 1
-        else:
-            time_stat['INDETERMINATE'] += 1
+    def _count(results: List[Result]) -> Dict[str, int]:
+        ind = sum([result.status is None for result in results])
+        return {
+            'IND': ind,
+            'DET': len(results) - ind
+        }
+
+
+__all__ = [
+    'List',
+    'Tuple',
+    'Result',
+    'Method',
+    'Backdoor',
+    'Estimation'
+]

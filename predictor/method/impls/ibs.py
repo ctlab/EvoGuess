@@ -1,60 +1,61 @@
-from predictor.concurrency.task import Task
-from predictor.method.method import Predictor
-from predictor.util.environment import environment as env
+from ..method import *
+from ...concurrency.models import Task
+
+from time import time as now
 
 
-class InverseBackdoorSets(Predictor):
+class InverseBackdoorSets(Method):
     type = 'ibs'
+    name = 'Method: Inverse Backdoor Sets'
 
     def __init__(self, **kwargs):
-        Predictor.__init__(self, **kwargs)
+        Method.__init__(self, **kwargs)
+        self.tl = kwargs['time_limit']
         self.corrector = kwargs.get('corrector')
 
-    def __init_phase(self, count, solver):
-        env.out.debug(1, 0, 'generating init cases...')
+    def __init_phase(self, count, **kwargs):
+        output = kwargs['output']
+        rs, cipher = kwargs['rs'], kwargs['cipher']
+        output.debug(1, 0, 'Generating init cases...')
 
-        init_tasks = []
-        for i in range(count):
-            init_task = Task(
-                init=True,
-                solver=solver,
-                case_f=env.case_generator.get_init()
-            )
-            init_tasks.append(init_task)
+        tasks = [Task(i, sk=cipher.secret_key.values(rs=rs)) for i in range(count)]
 
-        solutions, init_time = env.concurrency.solve(init_tasks)
-        env.out.debug(1, 0, 'has been solved %d init cases' % len(solutions))
-        if count != len(solutions):
-            env.out.debug(0, 0, 'warning! count != len(init_solved)')
+        timestamp = now()
+        results = self.concurrency.propagate(tasks, **kwargs)
+        time = now() - timestamp
 
-        return solutions, init_time
+        output.debug(1, 0, 'Has been solved %d init cases by %.2f seconds' % (len(results), time))
+        if count != len(results):
+            output.debug(0, 0, 'Warning! count != len(results)')
 
-    def __main_phase(self, backdoor, inited, solver):
-        env.out.debug(1, 0, 'generating main cases...')
+        return results
 
-        main_tasks = []
-        for _, _, solution in inited:
-            main_case_f = env.case_generator.get_main(backdoor, solution)
-            main_task = Task(
-                solver=solver,
-                case_f=main_case_f
-            )
-            main_tasks.append(main_task)
+    def __main_phase(self, backdoor, inited, **kwargs):
+        output = kwargs['output']
+        rs, cipher = kwargs['rs'], kwargs['cipher']
+        output.debug(1, 0, 'Generating main cases...')
 
-        env.out.debug(1, 0, 'solving...')
-        solved, time = env.concurrency.solve(main_tasks, solver.get('workers'))
-        env.out.d_debug(1, 0, 'has been solved %d cases' % len(solved))
-        if len(inited) != len(solved):
-            env.out.debug(0, 0, 'warning! len(init_solved) != len(solved)')
+        tasks = []
+        for result in inited:
+            tasks.append(Task(result.i, ks=cipher.key_stream.values(solution=result.solution),
+                              bd=backdoor.values(solution=result.solution), tl=self.tl))
 
-        return solved, time
+        output.debug(1, 0, 'Solving...')
+        timestamp = now()
+        results = self.concurrency.solve(tasks, **kwargs)
+        time = now() - timestamp
 
-    def compute(self, backdoor, cases, count, **kwargs):
-        init, main = env.solvers['init'], env.solvers['main']
-        env.out.d_debug(1, 0, 'compute for backdoor: %s' % backdoor)
-        env.out.d_debug(1, 0, 'use time limit: %s' % main.get('tl'))
+        output.debug(1, 0, 'Has been solved %d cases by %.2f seconds' % (len(results), time))
+        if len(inited) != len(results):
+            output.debug(0, 0, 'Warning! len(inited) != len(results)')
 
-        all_time = 0
+        return results
+
+    def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
+        output = kwargs['output']
+        output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
+        output.debug(1, 0, 'Use time limit: %s' % self.tl)
+
         while len(cases) < count:
             all_case_count = count - len(cases)
 
@@ -63,42 +64,33 @@ class InverseBackdoorSets(Predictor):
             else:
                 case_count = all_case_count
 
-            inited, init_time = self.__init_phase(case_count, init)
-            solved, time = self.__main_phase(backdoor, inited, main)
-
+            inited = self.__init_phase(case_count, **kwargs)
+            solved = self.__main_phase(backdoor, inited, **kwargs)
             cases.extend(solved)
-            all_time += init_time + time
 
-        env.out.debug(1, 0, 'spent time: %f' % all_time)
-        return cases, all_time
+        return cases
 
-    def calculate(self, backdoor, compute_out):
-        cases, time = compute_out
+    def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
+        output, cipher = kwargs['output'], kwargs['cipher']
+        output.debug(1, 0, 'Counting statistic...')
 
-        env.out.debug(1, 0, 'counting time stat...')
-        time_stat, log = self.get_time_stat(cases)
-        env.out.d_debug(1, 0, 'time stat: %s' % time_stat)
-
-        tl = env.solvers['main'].get('tl')
+        statistic, tl = self._count(cases), self.tl
+        output.debug(1, 0, 'Statistic: %s' % statistic)
         if self.corrector is not None:
-            env.out.debug(1, 0, 'correcting time limit...')
-            tl, dis_count = self.corrector.correct(cases, tl)
-            log += 'corrected time limit: %f\n' % tl
-            env.out.d_debug(1, 0, 'new time limit: %f' % tl)
+            output.debug(1, 0, 'Correcting time limit...')
+            # later
 
-            env.out.debug(1, 0, 'correcting time stat...')
-            time_stat['DISCARDED'] = dis_count
-            time_stat['DETERMINATE'] -= dis_count
-            env.out.d_debug(1, 0, 'new time stat: %s' % time_stat)
-
-        log += 'spent time: %f\n' % time
-        env.out.debug(1, 0, 'calculating value...')
-        xi = float(time_stat['DETERMINATE']) / float(len(cases))
+        output.debug(1, 0, 'Calculating value...')
+        xi = float(statistic['DET']) / float(len(cases))
         if xi != 0:
             value = (2 ** len(backdoor)) * tl * (3 / xi)
         else:
-            value = (2 ** env.algorithm.secret_key_len) * tl
-        env.out.debug(1, 0, 'value: %.7g' % value)
+            value = (2 ** len(cipher.secret_key)) * tl
+        output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        log += '%s\n' % time_stat
-        return value, log, cases
+        return Estimation(value, statistic)
+
+
+__all__ = [
+    'InverseBackdoorSets'
+]

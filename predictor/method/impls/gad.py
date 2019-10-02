@@ -1,46 +1,42 @@
-from predictor.concurrency.task import Task
-from predictor.method.method import Predictor
-from predictor.util.environment import environment as env
+from ..method import *
+from ...concurrency.models import Task
+
+from time import time as now
 
 
-class GuessAndDetermine(Predictor):
-    type = "gad"
+class GuessAndDetermine(Method):
+    type = 'gad'
 
-    def __main_phase(self, backdoor, solution, count, solver):
-        env.out.debug(1, 0, "generating main cases...")
+    def __main_phase(self, backdoor, solution, count, **kwargs):
+        output = kwargs['output']
+        rs, cipher = kwargs['rs'], kwargs['cipher']
+        output.debug(1, 0, 'Generating main cases...')
 
-        main_tasks = []
+        tasks = []
+        ks = cipher.key_stream.values(solution=solution)
         for i in range(count):
-            main_case_f = env.case_generator.get_main(backdoor, solution, 'b')
-            main_task = Task(
-                solver=solver,
-                case_f=main_case_f
-            )
-            main_tasks.append(main_task)
+            tasks.append(Task(i, bd=backdoor.values(rs=rs), ks=ks))
 
-        env.out.debug(1, 0, "solving...")
-        solved, time = env.concurrency.solve(main_tasks, solver.get('workers'))
+        output.debug(1, 0, 'Solving...')
+        timestamp = now()
+        results = self.concurrency.solve(tasks, **kwargs)
+        time = now() - timestamp
 
-        env.out.d_debug(1, 0, "has been solved %d cases" % len(solved))
-        if count != len(solved):
-            env.out.d_debug(0, 0, "warning! count != len(solved)")
-        env.out.debug(1, 0, "spent time: %f" % time)
+        output.debug(1, 0, 'Has been solved %d cases by %.2f seconds' % (len(results), time))
+        if len(results) != count:
+            output.debug(0, 0, 'Warning! len(results) != count')
 
-        return solved, time
+        return results
 
-    def compute(self, backdoor, cases, count):
-        env.out.debug(1, 0, "compute for backdoor: %s" % backdoor)
+    def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
+        output = kwargs['output']
+        rs, cipher = kwargs['rs'], kwargs['cipher']
+        output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
 
         # init
-        init_task = Task(
-            init=True,
-            solver=env.solvers['main'],
-            substitutions=env.case_generator.get_init(),
-        )
+        task = Task(0, sk=cipher.secret_key.values(rs=rs))
+        result = self.concurrency.single(task, **kwargs)
 
-        _, _, solution = init_task.solve()
-
-        all_time, solver = 0, env.solvers['main']
         while len(cases) < count:
             all_case_count = count - len(cases)
 
@@ -49,32 +45,27 @@ class GuessAndDetermine(Predictor):
             else:
                 case_count = all_case_count
 
-            solved, time = self.__main_phase(backdoor, solution, case_count, solver)
-
+            solved = self.__main_phase(backdoor, result.solution, case_count, **kwargs)
             cases.extend(solved)
-            all_time += time
 
-        env.out.debug(1, 0, "spent time: %f" % all_time)
-        return cases, all_time
+        return cases
 
-    def calculate(self, backdoor, compute_out):
-        cases, time = compute_out
+    def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
+        output, cipher = kwargs['output'], kwargs['cipher']
+        output.debug(1, 0, 'Counting statistic...')
 
-        env.out.debug(1, 0, "counting time stat...")
-        time_stat, cases_log = self.get_time_stat(cases)
-        env.out.d_debug(1, 0, "time stat: %s" % time_stat)
+        statistic = self._count(cases)
+        output.debug(1, 0, 'Statistic: %s' % statistic)
 
-        log = cases_log
-        log += "spent time: %f\n" % time
-
-        env.out.debug(1, 0, "calculating value...")
-        time_sum = 0.
-        for _, time in cases:
-            time_sum += float(time)
-
-        env.out.debug(1, 0, "avg time: %f (%f / %d)" % (time_sum / len(cases), time_sum, len(cases)))
+        time_sum = sum(case.time for case in cases)
+        output.debug(1, 0, 'Calculating value...',
+                     'Averaged time: %f for %d cases' % (time_sum / len(cases), len(cases)))
         value = (2 ** len(backdoor)) * time_sum / len(cases)
-        env.out.debug(1, 0, "value: %.7g\n" % value)
+        output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        log += "%s\n" % time_stat
-        return value, log, cases
+        return Estimation(value, statistic)
+
+
+__all__ = [
+    'GuessAndDetermine'
+]
