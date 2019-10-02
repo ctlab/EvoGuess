@@ -9,7 +9,8 @@ class Elitism(Strategy):
         self.popsize = kwargs['popsize']
         self.crossover = kwargs['crossover']
         self.mobs = self.popsize - self.elites
-        Strategy.__init__(self, self.popsize, **kwargs)
+        super().__init__(self.popsize, **kwargs)
+        self.name = 'Strategy: Elitism (%d over %d)' % (self.elites, self.popsize)
         if self.mobs % 2 != 0:
             warnings.warn('mob\'s count should be even, but equals %d' % self.mobs, UserWarning)
 
@@ -31,7 +32,10 @@ class Elitism(Strategy):
         return self.popsize
 
     def __str__(self):
-        return 'Elitism: %d with %d elites' % (self.popsize, self.elites)
+        return '\n'.join(map(str, [
+            super().__str__(),
+            self.crossover
+        ]))
 
 
 __all__ = ['Elitism']

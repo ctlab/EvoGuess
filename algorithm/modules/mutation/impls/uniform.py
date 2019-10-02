@@ -1,7 +1,9 @@
 from ..mutation import *
 
 
-class UniformMutation(Mutation):
+class Uniform(Mutation):
+    name = 'Mutation: Uniform'
+
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.scale = kwargs.get('scale') or 1.
@@ -22,7 +24,10 @@ class UniformMutation(Mutation):
         return Individual(i.backdoor.get_copy(v))
 
     def __str__(self):
-        return 'Mutation: uniform with scale p = %.2f' % self.scale
+        return ''.join([
+            self.name, ' (scale: %.1f' % self.scale,
+            ', seed: %s)' % self.seed if self.seed else ')'
+        ])
 
 
-__all__ = ['UniformMutation']
+__all__ = ['Uniform']

@@ -3,10 +3,11 @@ from numpy.random.mtrand import RandomState
 
 
 class Roulette(Selection):
-    name = 'Selection: roulette'
+    name = 'Selection: Roulette'
 
     def __init__(self, **kwargs):
-        self.rs = RandomState(seed=kwargs.get('seed'))
+        self.seed = kwargs.get('seed')
+        self.rs = RandomState(seed=self.seed)
 
     def select(self, estimated: Population, size: int) -> Iterable[Individual]:
         ranges, rng, count = [], 0, len(estimated)
@@ -25,6 +26,9 @@ class Roulette(Selection):
 
         while True:
             yield get(self.rs.rand())
+
+    def __str__(self):
+        return self.name + (' (seed: %s)' % self.seed if self.seed else '')
 
 
 __all__ = ['Roulette']

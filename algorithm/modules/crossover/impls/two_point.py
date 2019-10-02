@@ -1,8 +1,8 @@
 from ..crossover import *
 
 
-class TwoPointCrossover(Crossover):
-    name = 'Crossover: two-point'
+class TwoPoint(Crossover):
+    name = 'Crossover: Two-point'
 
     def cross(self, i1: Individual, i2: Individual) -> Tuple[Individual, Individual]:
         vbd, wbd = i1.backdoor, i2.backdoor
@@ -17,4 +17,4 @@ class TwoPointCrossover(Crossover):
         return Individual(vbd.get_copy(v)), Individual(wbd.get_copy(w))
 
 
-__all__ = ['TwoPointCrossover']
+__all__ = ['TwoPoint']

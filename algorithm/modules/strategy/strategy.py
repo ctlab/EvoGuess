@@ -26,7 +26,11 @@ class Strategy:
         raise NotImplementedError
 
     def __str__(self):
-        return self.name
+        return '\n'.join(map(str, [
+            self.name,
+            self.mutation,
+            self.selection
+        ]))
 
 
 __all__ = [

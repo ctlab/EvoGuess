@@ -1,8 +1,8 @@
 from ..crossover import *
 
 
-class UniformCrossover(Crossover):
-    name = 'Crossover: uniform'
+class Uniform(Crossover):
+    name = 'Crossover: Uniform'
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -20,7 +20,10 @@ class UniformCrossover(Crossover):
         return Individual(vbd.get_copy(v)), Individual(wbd.get_copy(w))
 
     def __str__(self):
-        return 'Crossover: uniform with probability p = %.2f' % self.p
+        return ''.join([
+            self.name, ' (p: %.2f' % self.p,
+            ', seed: %s)' % self.seed if self.seed else ')'
+        ])
 
 
-__all__ = ['UniformCrossover']
+__all__ = ['Uniform']

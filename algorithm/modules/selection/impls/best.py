@@ -2,7 +2,7 @@ from ..selection import *
 
 
 class Best(Selection):
-    name = 'Selection: best'
+    name = 'Selection: Best'
 
     def select(self, estimated: Population, size: int) -> Iterable[Individual]:
         estimated.sort()
