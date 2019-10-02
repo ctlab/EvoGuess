@@ -1,51 +1,46 @@
-import warnings
-
-from ..solver import Solver
-from ..report import SolverReport
+from ..solver import *
 
 
-class MapleSATSolver(Solver):
+class MapleSAT(Solver):
+    tag = 'maplesat'
+    name = 'Solver: MapleSAT'
+    script = './untar_maplesat.sh'
     statuses = {
-        "SATISFIABLE": "SATISFIABLE",
-        "UNSATISFIABLE": "UNSATISFIABLE",
-        "UNKNOWN": "INDETERMINATE"
+        'SATISFIABLE': 'SATISFIABLE',
+        'UNSATISFIABLE': 'UNSATISFIABLE',
+        'UNKNOWN': 'INDETERMINATE'
     }
-
     min_time = 0.01
 
-    def __init__(self, **kwargs):
-        info = {
-            "name": "maplesat",
-            "script": "./untar_maplesat.sh"
-        }
-        Solver.__init__(self, info, **kwargs)
-
-    def get_arguments(self, l_args, workers, tl, simp):
-        l_args.append(self.solver_path)
+    def get_args(self, tl: int) -> List[str]:
+        args = [self.solver_path]
 
         if tl > 0:
-            l_args.append("-cpu-lim=%d" % tl)
-        if workers != 1:
-            warnings.warn("workers not support in maplesat", UserWarning)
+            args.append('-cpu-lim=%d' % tl)
 
-        return l_args
+        return args
 
-    def parse_out(self, output):
+    def parse(self, output: str) -> SolverReport:
         output = output.split('\n')
         i = 0
-        while not output[i].startswith("CPU time"):
+        while not output[i].startswith('CPU time'):
             i += 1
 
-        str_time = output[i].split(": ")[1]
+        str_time = output[i].split(': ')[1]
         time = max(float(str_time[:-1]), self.min_time)
 
         status = output[i + 2]
 
         report = SolverReport(self.statuses[status], time)
-        # if status == self.statuses["SATISFIABLE"]:
+        # if status == self.statuses['SATISFIABLE']:
         #     report.parse_solution(solution, self.spaces)
 
         return report
+
+
+__all__ = [
+    'MapleSAT'
+]
 
 # |  Number of variables:          4010                                         |
 # |  Number of clauses:           17658                                         |

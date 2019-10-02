@@ -1,38 +1,29 @@
-import warnings
-
-from ..solver import Solver
-from ..report import SolverReport
+from ..solver import *
 
 
-class RokkSolver(Solver):
+class RoKK(Solver):
+    tag = 'rokk'
+    name = 'Solver: RoKK'
+    script = './untar_rokk.sh'
     statuses = {
         "SATISFIABLE": "SATISFIABLE",
         "UNSATISFIABLE": "UNSATISFIABLE",
         "UNKNOWN": "INDETERMINATE"
     }
-
     min_time = 0.01
 
-    def __init__(self, **kwargs):
-        info = {
-            "name": "rokk",
-            "script": "./untar_rokk.sh"
-        }
-        Solver.__init__(self, info, **kwargs)
-
-    def get_arguments(self, l_args, workers, tl, simp):
-        l_args.append(self.solver_path)
+    def get_args(self, tl: int) -> List[str]:
+        args = [self.solver_path]
 
         if tl > 0:
-            l_args.append("-cpu-lim=%d" % tl)
-        if workers != 1:
-            warnings.warn("workers not support in rokk", UserWarning)
+            args.append('-cpu-lim=%d' % tl)
 
-        return l_args
+        return args
 
-    def parse_out(self, output):
+    def parse(self, output: str) -> SolverReport:
+        time = self.min_time
+        status, solution = '', ''
         output = output.split('\n')
-        status, time, solution = "", self.min_time, ""
         for i in range(len(output)):
             if output[i].startswith("c s") or output[i].startswith("s"):
                 status = output[i].split(' ')[-1]
@@ -49,3 +40,8 @@ class RokkSolver(Solver):
             report.parse_solution(solution, self.spaces)
 
         return report
+
+
+__all__ = [
+    'RoKK'
+]
