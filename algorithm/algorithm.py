@@ -1,38 +1,59 @@
+from .models import *
+
+from typing import List
+from predictor.cipher.models.var import Backdoor
+
+
 class Algorithm:
-    name = None
+    name = 'Algorithm'
 
     def __init__(self, **kwargs):
-        self.limit = kwargs["limit"]
+        self.values = {}
+        self.limit = kwargs['limit']
+        self.output = kwargs['output']
+        self.sampling = kwargs['sampling']
+        self.predictor = kwargs["predictor"]
 
-    def start(self, backdoor, **env):
+    def start(self, backdoor: Backdoor) -> List[Individual]:
         raise NotImplementedError
 
-    def get_info(self):
-        return "-- algorithm: %s\n" % self.name
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.limit,
+            self.predictor
+        ]))
 
-    def print_iteration_header(self, it, s=""):
-        self.out.log("------------------------------------------------------\n",
-                     "iteration step: %d%s\n" % (it, " (%s)" % s if len(s) > 0 else ""))
+    def log_info(self):
+        self.output.log('\n'.join('-- ' + s for s in str(self).split('\n')))
+        return self
 
-    def print_pf_log(self, hashed, key, value, pf_log):
-        self.out.d_log("------------------------------------------------------\n")
-        if hashed:
-            if pf_log == "":
-                self.out.log("hashed backdoor: %s\n" % key,
-                             "with value: %.7g\n" % value)
-            else:
-                self.out.log("update prediction with backdoor: %s\n" % key,
-                             pf_log, "end prediction with value: %.7g\n" % value)
-        else:
-            self.out.log("start prediction with backdoor: %s\n" % key,
-                         pf_log, "end prediction with value: %.7g\n" % value)
+    def log_delim(self):
+        self.output.log('------------------------------------------------------')
+        return self
 
-    def print_local_info(self, local):
-        print("------------------------------------------------------")
-        print("local with backdoor: %s" % local[0])
-        print("and value: %.7g" % local[1])
+    def log_it_header(self, it, more=''):
+        self.output.log('Iteration: %d%s' % (it, ' (%s)' % more if len(more) else ''))
+        return self
+
+    def log_run(self, backdoor, count):
+        self.output.log('Run predictor on backdoor: %s' % backdoor,
+                        'With %d cases:' % count)
+        return self
+
+    def log_end(self, value):
+        self.output.log('End prediction with value: %.7g' % value)
+        return self
+
+    def log_hashed(self, backdoor, value):
+        self.output.log('Hashed backdoor: %s' % backdoor,
+                        'With value: %.7g\n' % value)
+        return self
 
 
 __all__ = [
-    'Algorithm'
+    'List',
+    'Backdoor',
+    'Algorithm',
+    'Individual'
 ]

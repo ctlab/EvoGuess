@@ -1,6 +1,7 @@
 from numpy import sign
 from typing import List
-from predictor.structure.backdoor import Backdoor
+
+from predictor.cipher.models.var import Backdoor
 
 
 class Individual:
