@@ -1,28 +1,21 @@
-from output.module.logger import get_logger as gl
-from output.module.debugger import get_debugger as gdb
+from typing import Iterable
+from os.path import join
 
 
 class Output:
     def __init__(self, **kwargs):
-        from mpi4py import MPI
-        self.comm = MPI.COMM_WORLD
-        self.size = self.comm.Get_size()
-        self.rank = self.comm.Get_rank()
+        self.path = kwargs['path']
+        if isinstance(self.path, list):
+            self.path = join(*self.path)
 
-        log = kwargs['log']
-        verb, debug = kwargs['debug']
-        debug.extend([''] * (self.size - len(debug)))
-        self.logger = gl('' if self.rank else log)
-        self.debugger = gdb(debug[self.rank], verb)
+    def log(self, *strs: Iterable[str]) -> None:
+        raise NotImplementedError
 
-    def log(self, *strs):
-        self.logger.write(*strs)
+    def debug(self, verb: int, level: int, *strs: Iterable[str]) -> None:
+        raise NotImplementedError
 
-    def d_log(self, *strs):
-        self.logger.deferred_write(*strs)
 
-    def debug(self, verb, level, *strs):
-        self.debugger.write(verb, level, *strs)
-
-    def d_debug(self, verb, level, *strs):
-        self.debugger.deferred_write(verb, level, *strs)
+__all__ = [
+    'Output',
+    'Iterable'
+]
