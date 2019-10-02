@@ -1,8 +1,21 @@
 import warnings
-import numpy as np
 
 from copy import copy
-from predictor.structure.interval import get_values
+from numpy import count_nonzero
+from numpy.random.mtrand import RandomState
+
+
+def get_values(variables, **kwargs):
+    if 'solution' in kwargs:
+        solution = kwargs['solution']
+        if len(solution) < variables[-1]:
+            raise Exception('Solution has too few variables: %d' % len(solution))
+
+        return [solution[x - 1] for x in variables]
+    else:
+        random_state = kwargs['rs'] if 'rs' in kwargs else RandomState()
+        values = random_state.randint(2, size=len(variables))
+        return [x if values[i] else -x for i, x in enumerate(variables)]
 
 
 class Backdoor:
@@ -21,7 +34,7 @@ class Backdoor:
             raise Exception('Backdoor contains negative numbers or zero')
 
     def __str__(self):
-        if len(self) == 0: return '[]'
+        if len(self) == 0: return '[](0)'
 
         def itos(il):
             if il[1] - il[0] > 2:
@@ -40,7 +53,7 @@ class Backdoor:
         return ''.join([s, itos(interval), '](%d)' % len(variables)])
 
     def __len__(self):
-        return np.count_nonzero(self.mask)
+        return count_nonzero(self.mask)
 
     def __copy__(self):
         return self.get_copy(self.mask)
@@ -102,47 +115,32 @@ class Backdoor:
             self.max = self.list[-1]
 
     # support
-    def check(self, algorithm):
-        ks_st = algorithm.key_stream_start
-        ks_end = ks_st + algorithm.key_stream_len - 1
-        if hasattr(algorithm, 'public_key_len'):
-            pk_st = algorithm.public_key_start
-            pk_end = pk_st + algorithm.public_key_len - 1
-        else:
-            pk_st, pk_end = 0, 0
-
-        for var in self.list:
-            if ks_st <= var <= ks_end:
-                rng = '%d <= %d <= %d' % (ks_st, var, ks_end)
-                raise Exception('Backdoor intersect with key stream: %s' % rng)
-
-            if pk_st <= var <= pk_end:
-                rng = '%d <= %d <= %d' % (pk_st, var, pk_end)
-                raise Exception('Backdoor intersect with public key: %s' % rng)
+    # def check(self, algorithm):
+    #     ks_st = algorithm.key_stream_start
+    #     ks_end = ks_st + algorithm.key_stream_len - 1
+    #     if hasattr(algorithm, 'public_key_len'):
+    #         pk_st = algorithm.public_key_start
+    #         pk_end = pk_st + algorithm.public_key_len - 1
+    #     else:
+    #         pk_st, pk_end = 0, 0
+    #
+    #     for var in self.list:
+    #         if ks_st <= var <= ks_end:
+    #             rng = '%d <= %d <= %d' % (ks_st, var, ks_end)
+    #             raise Exception('Backdoor intersect with key stream: %s' % rng)
+    #
+    #         if pk_st <= var <= pk_end:
+    #             rng = '%d <= %d <= %d' % (pk_st, var, pk_end)
+    #             raise Exception('Backdoor intersect with public key: %s' % rng)
 
     def snapshot(self):
         return [x for (i, x) in enumerate(self.list) if self.mask[i]]
-
-    def pack(self):
-        array = copy(self.list)
-        array.extend(self.mask)
-
-        return array
-
-    @staticmethod
-    def unpack(array):
-        length = int(len(array) / 2)
-        backdoor = Backdoor(array[:length])
-        backdoor.__set_mask(array[length:])
-
-        return backdoor
 
     @staticmethod
     def load(path):
         with open(path) as f:
             lines = (l.strip() for l in f.readlines())
-            sets = (Backdoor.parse(l) for l in lines if len(l) > 0)
-            return [Backdoor(s) for s in sets]
+            return [Backdoor.parse(l) for l in lines if len(l) > 0]
 
     @staticmethod
     def parse(line):
@@ -154,11 +152,10 @@ class Backdoor:
             else:
                 variables.append(int(lit))
 
-        return variables
+        return Backdoor(variables)
 
 
-class SecretKey(Backdoor):
-    def __init__(self, algorithm):
-        st = algorithm.secret_key_start
-        end = st + algorithm.secret_key_len
-        Backdoor.__init__(self, range(st, end))
+__all__ = [
+    'Backdoor',
+    'get_values'
+]
