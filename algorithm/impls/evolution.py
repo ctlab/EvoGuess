@@ -1,121 +1,109 @@
-import numpy as np
-from copy import copy
+from ..algorithm import *
+
 from time import time as now
 
-from algorithm.algorithm import Algorithm
 
-
-class EvolutionAlgorithm(Algorithm):
-    name = "evolution"
+class Evolution(Algorithm):
+    name = 'Algorithm: Evolution'
 
     def __init__(self, **kwargs):
-        Algorithm.__init__(self, **kwargs)
-        self.strategy = kwargs["strategy"]
-        self.mutation = kwargs["mutation"]
-        self.crossover = kwargs["crossover"]
+        super().__init__(**kwargs)
+        self.strategy = kwargs['strategy']
 
-        from mpi4py import MPI
-        self.comm = MPI.COMM_WORLD
-        self.size = self.comm.Get_size()
-        self.rank = self.comm.Get_rank()
+        try:
+            from mpi4py import MPI
+            self.comm = MPI.COMM_WORLD
+            self.size = self.comm.Get_size()
+            self.rank = self.comm.Get_rank()
+        except ModuleNotFoundError:
+            self.rank, self.size = 0, 1
 
-    def start(self, backdoor, **env):
-        start_time = now()
-        env['out'].debug(0, 0, "Evolution start on %d nodes" % self.size)
+    def start(self, backdoor: Backdoor) -> List[Individual]:
+        timestamp = now()
+        self.output.debug(0, 0, 'Evolution start on %d nodes' % self.size)
 
         if self.rank == 0:
-            self.condition.set("stagnation", 1)
-            max_value = float("inf")
-            updated_logs = {}
+            points = []
+            self.log_info().log_delim()
+            self.limit.set('stagnation', 1)
 
-            P = self.__restart(backdoor)
-            if str(backdoor) in env['values']:
-                env['best'] = (backdoor, env['values'][str(backdoor)][0], [])
-            else:
-                env['best'] = (backdoor, max_value, [])
-            locals_list = []
+            root, count = Individual(backdoor), len(self.sampling)
+            self.log_it_header(0, 'base').log_delim()
+            self.log_run(backdoor, count)
+            value = self.__predict(backdoor, count)
+            self.values[str(backdoor)] = value, count
+            best = root.estimate(value)
+            self.log_end(value).log_delim()
 
-            while not self.condition.check():
-                self.print_iteration_header(self.condition.get("iteration"))
-                P_v = []
-                for p in P:
-                    key = str(p)
-                    if key in env['values']:
-                        hashed = True
-                        if key in updated_logs:
-                            logs = updated_logs[key]
-                            updated_logs.pop(key)
-                        else:
-                            logs = ""
-
-                        (value, _), pf_log = env['values'][key], logs
-
-                        p_v = (p, value)
+            population = self.strategy.breed([best])
+            self.limit.set('time', now() - timestamp)
+            while not self.limit.exhausted():
+                it = self.limit.get('iterations')
+                self.log_it_header(it).log_delim()
+                for i in population:
+                    key = str(i.backdoor)
+                    if key in self.values:
+                        value, _ = self.values[key]
+                        self.log_hashed(i.backdoor, value).log_delim()
                     else:
-                        hashed = False
-                        start_work_time = now()
+                        count = len(self.sampling)
+                        self.log_run(i.backdoor, count)
+                        value = self.__predict(i.backdoor, count)
+                        self.limit.increase('predictions')
+                        self.values[key] = value, count
+                        i.estimate(value)
+                        self.log_end(value).log_delim()
 
-                        env['out'].debug(2, 1, "sending backdoor... %s" % p)
-                        self.comm.bcast(p.pack(), root=0)
-                        c_out = predictive_f.compute(p)
+                        if best > i:
+                            best = i
+                            self.limit.set('stagnation', -1)
 
-                        cases = self.comm.gather(c_out[0], root=0)
-                        env['out'].debug(2, 1, "been gathered cases from %d nodes" % len(cases))
-                        cases = np.concatenate(cases)
+                population = self.strategy.breed(population)
+                self.limit.set('time', now() - timestamp)
+                # todo: restarts
+                self.limit.increase('stagnation')
+                self.limit.increase('iterations')
 
-                        time = now() - start_work_time
-                        r = predictive_f.calculate(p, (cases, time))
+            self.comm.bcast([-1], root=0)
 
-                        value, pf_log = r[0], r[1]
-                        self.condition.increase("pf_calls")
-                        env['values'][key] = value, len(cases)
-                        p_v = (p, value)
+            if best.value < root.value:
+                points.append(best)
+                print('Local: %s' % best)
 
-                        if self.comparator.compare(env['best'], p_v) > 0:
-                            env['best'] = p_v
-                            self.condition.set("stagnation", -1)
+            self.log_delim()
+            self.output.log('Points:')
+            for point in points:
+                self.output.log(str(point))
 
-                    P_v.append(p_v)
-                    self.print_pf_log(hashed, key, value, pf_log)
-
-                self.condition.increase("stagnation")
-                P_v.sort(cmp=self.comparator.compare)
-                P = self.strategy.get_next_P((self.mutation.mutate, self.crossover.cross), P_v)
-
-                self.condition.increase("iteration")
-                self.condition.set("time", now() - start_time)
-
-            self.comm.bcast([-1, True], root=0)
-
-            if env['best'][1] != max_value:
-                locals_list.append(env['best'])
-                self.condition.increase("locals")
-                self.print_local_info(env['best'])
-
-            return locals_list
+            return points
         else:
             while True:
                 array = self.comm.bcast(None, root=0)
-                if array[0] == -1:
-                    break
+                count, variables = array[0], array[1:]
+                if count < 0:
+                    return -1
 
-                p = Backdoor.unpack(array)
-                env['out'].debug(2, 1, "been received backdoor: %s" % p)
-                c_out = predictive_f.compute(p)
+                backdoor = Backdoor(variables)
+                self.output.debug(2, 1, 'Been received backdoor: %s' % backdoor)
+                self.predictor.predict(backdoor, count)
 
-                env['out'].debug(2, 1, "sending %d cases... " % len(c_out[0]))
-                self.comm.gather(c_out[0], root=0)
+    def __predict(self, backdoor, count):
+        if self.size > 1:
+            self.output.debug(2, 1, 'Sending backdoor... %s' % backdoor)
+            self.comm.bcast([count] + backdoor.snapshot(), root=0)
 
-    def get_info(self):
-        info = Algorithm.get_info(self)
-        info += "-- %s\n" % str(self.strategy)
-        info += "-- %s\n" % str(self.mutation)
-        info += "-- %s\n" % str(self.crossover)
-        return info
+        return self.predictor.predict(backdoor, count)
 
-    def __restart(self, backdoor):
-        P = []
-        for i in range(self.strategy.get_P_size()):
-            P.append(copy(backdoor))
+    def __restart(self, i):
+        return [i] * len(self.strategy)
 
-        return P
+    def __str__(self):
+        return '\n'.join(map(str, [
+            super().__str__(),
+            self.strategy
+        ]))
+
+
+__all__ = [
+    'Evolution'
+]
