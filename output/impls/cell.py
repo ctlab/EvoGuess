@@ -14,20 +14,29 @@ class Cell(Output):
         self.logger = kwargs['logger']
         self.debugger = kwargs['debugger']
 
+        try:
+            from mpi4py import MPI
+            self.comm = MPI.COMM_WORLD
+            self.size = self.comm.Get_size()
+            self.rank = self.comm.Get_rank()
+        except ModuleNotFoundError:
+            self.rank, self.size = 0, 1
+
     def open(self, **kwargs):
-        makedirs(self.path, exist_ok=True)
+        if self.rank == 0:
+            makedirs(self.path, exist_ok=True)
 
-        self.name = '%s-?' % self.__now()
-        self.path = join(self.path, self.name)
+            self.name = '%s-?' % self.__now()
+            self.path = join(self.path, self.name)
 
-        mkdir(self.path)
-        if kwargs.get('description'):
-            open(join(self.path, 'DESCR'), 'w+').write(kwargs['description'])
+            mkdir(self.path)
+            if kwargs.get('description'):
+                open(join(self.path, 'DESCR'), 'w+').write(kwargs['description'])
 
-        self.files['log'] = kwargs.get('log_file') or 'log'
-        self.logger.set_out(join(self.path, self.files['log']))
-        self.files['debug'] = kwargs.get('debug_file') or 'debug'
-        self.debugger.set_out(join(self.path, self.files['debug']))
+            self.files['log'] = kwargs.get('log_file') or 'log'
+            self.logger.set_out(join(self.path, self.files['log']))
+            self.files['debug'] = kwargs.get('debug_file') or 'debug'
+            self.debugger.set_out(join(self.path, self.files['debug']))
 
         return self
 
@@ -38,16 +47,19 @@ class Cell(Output):
         self.debugger.write(verb, level, *strs)
 
     def close(self):
-        if self.name.find('?') < 0:
-            raise Exception('Cell already closed')
+        if self.rank == 0:
+            if self.name.find('?') < 0:
+                raise Exception('Cell already closed')
 
-        timestamp = self.__now()
-        new_name = self.name.replace('?', timestamp)
-        new_path = self.path.replace(self.name, new_name)
-        rename(self.path, new_path)
+            timestamp = self.__now()
+            new_name = self.name.replace('?', timestamp)
+            new_path = self.path.replace(self.name, new_name)
+            rename(self.path, new_path)
 
-        self.path = new_path
-        self.name = new_name
+            self.path = new_path
+            self.name = new_name
+
+        return self
 
     def __now(self):
         now = dt.today()

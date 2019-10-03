@@ -3,8 +3,17 @@ import threading
 from datetime import datetime as dt
 
 
+def debugger(verb=0, prefix=''):
+    try:
+        from mpi4py import MPI
+        rank = MPI.COMM_WORLD.Get_rank()
+        return Debugger(verb, prefix) if rank == 0 else DebuggerStub()
+    except ModuleNotFoundError:
+        return Debugger(verb, prefix)
+
+
 class Debugger:
-    def __init__(self, verb=0, prefix='[DEBUG]'):
+    def __init__(self, verb=0, prefix=''):
         self.path = None
         self.verb = verb
         self.prefix = prefix
@@ -46,6 +55,5 @@ class DebuggerStub:
 
 
 __all__ = [
-    'Debugger',
-    'DebuggerStub'
+    'debugger',
 ]
