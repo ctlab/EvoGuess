@@ -6,9 +6,9 @@ class Cadical(Solver):
     name = 'Solver: Cadical'
     script = './untar_cadical.sh'
     statuses = {
-        'SATISFIABLE': 'SATISFIABLE',
-        'UNSATISFIABLE': 'UNSATISFIABLE',
-        'UNKNOWN': 'INDETERMINATE'
+        'SATISFIABLE': True,
+        'UNSATISFIABLE': False,
+        'UNKNOWN': None
     }
     min_time = 0.001
 
@@ -39,7 +39,7 @@ class Cadical(Solver):
         solution = solution[:-1]
 
         report = SolverReport(self.statuses[status], time)
-        if status == self.statuses['SATISFIABLE']:
+        if self.statuses[status]:
             report.parse_solution(solution, self.spaces)
 
         return report

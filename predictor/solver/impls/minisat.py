@@ -7,9 +7,9 @@ class MiniSAT(Solver):
     name = 'Solver: MiniSAT'
     script = './untar_minisat.sh'
     statuses = {
-        'SAT': 'SATISFIABLE',
-        'UNSAT': 'UNSATISFIABLE',
-        'INDET': 'INDETERMINATE'
+        'SAT': True,
+        'UNSAT': False,
+        'INDET': None
     }
     min_time = 0.01
 
@@ -40,7 +40,7 @@ class MiniSAT(Solver):
         solution = output[i + 2][:-1]
 
         report = SolverReport(status, time)
-        if status == self.statuses['SAT']:
+        if self.statuses[status]:
             report.parse_solution(solution, self.spaces)
 
         return report

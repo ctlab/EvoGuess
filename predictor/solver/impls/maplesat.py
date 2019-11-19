@@ -6,9 +6,9 @@ class MapleSAT(Solver):
     name = 'Solver: MapleSAT'
     script = './untar_maplesat.sh'
     statuses = {
-        'SATISFIABLE': 'SATISFIABLE',
-        'UNSATISFIABLE': 'UNSATISFIABLE',
-        'UNKNOWN': 'INDETERMINATE'
+        'SATISFIABLE': True,
+        'UNSATISFIABLE': False,
+        'UNKNOWN': None
     }
     min_time = 0.01
 

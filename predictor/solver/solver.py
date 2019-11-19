@@ -5,20 +5,18 @@ import threading
 from time import time as now
 from typing import List
 
-from ..util.const import solver_paths
+from predictor.util.const import solver_paths
 
-from .tools import *
-from .models import *
+from predictor.solver.tools import *
+from predictor.solver.models import *
 
 
 class Solver:
     tag = None
-    role = None
     script = None
     name = 'Solver'
 
     def __init__(self, **kwargs):
-        self.role = kwargs['role']
         self.interrupter = kwargs['interrupter']
         self.workers = kwargs.get('workers') or 1
         self.attempts = kwargs.get('attempts') or 5
@@ -33,11 +31,6 @@ class Solver:
     def parse(self, output: str) -> SolverReport:
         raise NotImplementedError
 
-    # def exists(self):
-    #     if not os.path.exists(self.solver_path):
-    #         args = (self.name, self.script)
-    #         raise Exception("%s is not installed. Try to run %s script." % args)
-
     # def tune(self, name, value):
     #     option = SolverOption(name, value)
     #     self.options.add(option)
@@ -45,9 +38,6 @@ class Solver:
     def solve(self, cnf):
         args = ArgsBuilder(self)
         self.interrupter.hang(args)
-
-        # if self.role != 'init':
-        #     args.tune(*self.options)
 
         report = None
         l_args = args.build()

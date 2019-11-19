@@ -6,9 +6,9 @@ class RoKK(Solver):
     name = 'Solver: RoKK'
     script = './untar_rokk.sh'
     statuses = {
-        "SATISFIABLE": "SATISFIABLE",
-        "UNSATISFIABLE": "UNSATISFIABLE",
-        "UNKNOWN": "INDETERMINATE"
+        "SATISFIABLE": True,
+        "UNSATISFIABLE": False,
+        "UNKNOWN": None
     }
     min_time = 0.01
 
@@ -36,7 +36,7 @@ class RoKK(Solver):
                     solution += "%s " % var
 
         report = SolverReport(self.statuses[status], time)
-        if status == self.statuses["SATISFIABLE"]:
+        if self.statuses[status]:
             report.parse_solution(solution, self.spaces)
 
         return report

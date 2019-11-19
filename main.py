@@ -1,7 +1,7 @@
 import argparse
 
 from numpy.random.mtrand import RandomState
-from pysat import solvers
+# from pysat import solvers
 
 from output import *
 from algorithm import *
@@ -17,7 +17,7 @@ parser.add_argument('-d', '--description', metavar='str', default='', type=str, 
 args = parser.parse_args()
 
 cell = Cell(
-    path=['output', '_logs', 'test', 'a5_1'],
+    path=['output', '_logs', 'test', args.cipher],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
 ).open(description=args.description)
@@ -28,13 +28,13 @@ predictor = Predictor(
     rs=rs,
     output=cell,
     cipher=a5_1,
-    method=method.InverseBackdoorSets(
-        time_limit=5,
+    method=method.GuessAndDetermine(
+        # time_limit=5,
         chunk_size=1000,
-        concurrency=concurrency.PySATPool(
-            threads=2,
-            solver=solvers.Glucose3,
-            propagator=solvers.Glucose3,
+        concurrency=concurrency.SinglePool(
+            threads=4,
+            solver=solver.Lingeling(interrupter=solver.interrupter.Timelimit(tl=10)),
+            propagator=solver.Lingeling(interrupter=solver.interrupter.Base(tl=0)),
         )
     )
 )
@@ -42,7 +42,7 @@ predictor = Predictor(
 algorithm = Evolution(
     output=cell,
     predictor=predictor,
-    sampling=sampling.Const(100),
+    sampling=sampling.Const(500),
     limit=limit.WallTime(args.walltime),
     strategy=strategy.Plus(
         mu=1, lmbda=1,

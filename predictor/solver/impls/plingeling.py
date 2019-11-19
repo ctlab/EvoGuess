@@ -7,9 +7,9 @@ class Plingeling(Solver):
     name = 'Solver: Plingeling'
     script = './untar_lingeling.sh'
     statuses = {
-        'SATISFIABLE': 'SATISFIABLE',
-        'UNSATISFIABLE': 'UNSATISFIABLE',
-        'UNKNOWN': 'INDETERMINATE'
+        'SATISFIABLE': True,
+        'UNSATISFIABLE': False,
+        'UNKNOWN': None
     }
     min_time = 0.1
 
@@ -40,7 +40,7 @@ class Plingeling(Solver):
         solution = solution[:-1]
 
         report = SolverReport(self.statuses[status], time)
-        if status == self.statuses['SATISFIABLE']:
+        if self.statuses[status]:
             report.parse_solution(solution, self.spaces)
 
         return report

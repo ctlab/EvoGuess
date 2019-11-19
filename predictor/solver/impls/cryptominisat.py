@@ -6,9 +6,9 @@ class CryptoMiniSAT(Solver):
     name = 'Solver: CryptoMiniSAT'
     script = './untar_crypto.sh'
     statuses = {
-        'SATISFIABLE': 'SATISFIABLE',
-        'UNSATISFIABLE': 'UNSATISFIABLE',
-        'INDETERMINATE': 'INDETERMINATE'
+        'SATISFIABLE': True,
+        'UNSATISFIABLE': False,
+        'INDETERMINATE': None
     }
     min_time = 0.01
 
@@ -40,7 +40,7 @@ class CryptoMiniSAT(Solver):
         solution = solution[:-1]
 
         report = SolverReport(self.statuses[status], time)
-        if status == self.statuses['SATISFIABLE']:
+        if self.statuses[status]:
             report.parse_solution(solution, self.spaces)
 
         return report

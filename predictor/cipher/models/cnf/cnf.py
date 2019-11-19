@@ -29,10 +29,10 @@ class Cnf:
             self.edited = False
             self.str = reduce(add, map(ctos, self.clauses))
 
-    def to_str(self, *substitutions):
-        subs = reduce(add, map(str, substitutions), '')
-        length = reduce(add, map(len, substitutions), len(self))
+    def to_str(self, substitution):
+        length = len(self) + len(substitution)
         header = 'p cnf %d %d\n' % (self.max, length)
+        subs = ''.join('%d 0\n' % x for x in substitution)
 
         self.__update_str()
         return reduce(add, [header, self.str, subs])
@@ -70,23 +70,6 @@ class Cnf:
             return cnf
 
 
-class CnfSubstitution:
-    def __init__(self, *args):
-        self.vars = []
-        self.substitute(*args)
-
-    def substitute(self, *args):
-        self.vars.extend(args)
-        return self
-
-    def __len__(self):
-        return len(self.vars)
-
-    def __str__(self):
-        return ''.join('%d 0\n' % x for x in self.vars)
-
-
 __all__ = [
-    'Cnf',
-    'CnfSubstitution'
+    'Cnf'
 ]
