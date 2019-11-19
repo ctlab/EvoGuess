@@ -13,11 +13,6 @@ class Concurrency:
         self.threads = kwargs["threads"]
         self.processes = kwargs["threads"]
 
-        from mpi4py import MPI
-        self.comm = MPI.COMM_WORLD
-        self.size = self.comm.Get_size()
-        self.rank = self.comm.Get_rank()
-
         signal.signal(signal.SIGINT, self.__signal_handler)
 
     def __signal_handler(self, signum: int, frame):
