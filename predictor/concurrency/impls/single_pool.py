@@ -1,5 +1,5 @@
 from ..concurrency import *
-from ..models.solver_process import *
+# from ..models.solver_process import *
 
 from multiprocessing.pool import Pool
 
@@ -17,9 +17,10 @@ def solve(task):
     return task.resolve(report.status, report.time, report.solution)
 
 
-class SolverPool(Pool):
-    def Process(self, *args, **kwds):
-        return SolverProcess(*args, **kwds)
+# class SolverPool(Pool):
+#     @staticmethod
+#     def Process(ctx, *args, **kwargs):
+#         return SolverProcess(*args, **kwargs)
 
 
 class SinglePool(Concurrency):
@@ -28,7 +29,7 @@ class SinglePool(Concurrency):
         super().__init__(**kwargs)
 
     def initialize(self, solver, **kwargs):
-        self.pool = SolverPool(
+        self.pool = Pool(
             processes=self.processes,
             initializer=initializer,
             initargs=(kwargs['cipher'], solver)
