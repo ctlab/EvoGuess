@@ -50,10 +50,10 @@ class SinglePool(Concurrency):
             while i < len(res_list):
                 if res_list[i].ready():
                     res = res_list.pop(i)
-                    if res.successful():
+                    try:
                         results.append(res.get())
-                    else:
-                        output.debug(0, 1, "Pool solving was completed unsuccessfully")
+                    except Exception as e:
+                        output.debug(0, 1, "Pool solving was completed unsuccessfully: %s", e)
                 else:
                     i += 1
 
