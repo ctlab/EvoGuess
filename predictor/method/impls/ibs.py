@@ -15,7 +15,7 @@ class InverseBackdoorSets(Method):
 
     def __init_phase(self, count, **kwargs):
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['cipher']
+        rs, cipher = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Generating init cases...')
 
         tasks = [Task(i, sk=cipher.secret_key.values(rs=rs)) for i in range(count)]
@@ -32,13 +32,13 @@ class InverseBackdoorSets(Method):
 
     def __main_phase(self, backdoor, inited, **kwargs):
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['cipher']
+        rs, cipher = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Generating main cases...')
 
         tasks = []
         for result in inited:
-            tasks.append(Task(result.i, ks=cipher.key_stream.values(solution=result.solution),
-                              bd=backdoor.values(solution=result.solution), tl=self.tl))
+            tasks.append(Task(result.i, tl=self.tl, bd=backdoor.values(solution=result.solution),
+                              **cipher.values(result.solution)))
 
         output.debug(1, 0, 'Solving...')
         timestamp = now()
@@ -71,7 +71,7 @@ class InverseBackdoorSets(Method):
         return cases
 
     def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
-        output, cipher = kwargs['output'], kwargs['cipher']
+        output, cipher = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Counting statistic...')
 
         statistic, tl = self._count(cases), self.tl

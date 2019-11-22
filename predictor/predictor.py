@@ -1,4 +1,4 @@
-from .cipher.models.var import Backdoor
+from .instance.models.var import Backdoor
 
 from time import time as now
 from numpy import concatenate

@@ -38,7 +38,7 @@ class PySATPool(Concurrency):
         self.pool = Pool(
             processes=self.processes,
             initializer=initializer,
-            initargs=(solver, kwargs['cipher'])
+            initargs=(solver, kwargs['instance'])
         )
         kwargs['output'].debug(2, 2, "Init pool with %d processes" % self.processes)
 
@@ -70,7 +70,7 @@ class PySATPool(Concurrency):
         return results
 
     def single(self, task: Task, **kwargs) -> Result:
-        cipher = kwargs['cipher']
+        cipher = kwargs['instance']
         solver = self.propagator(bootstrap_with=cipher.clauses())
         status = solver.solve(assumptions=task.get())
         solution = solver.get_model() if status else None

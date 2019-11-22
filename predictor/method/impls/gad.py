@@ -9,13 +9,12 @@ class GuessAndDetermine(Method):
 
     def __main_phase(self, backdoor, solution, count, **kwargs):
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['cipher']
+        rs, cipher = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Generating main cases...')
 
         tasks = []
-        ks = cipher.key_stream.values(solution=solution)
         for i in range(count):
-            tasks.append(Task(i, bd=backdoor.values(rs=rs), ks=ks))
+            tasks.append(Task(i, bd=backdoor.values(rs=rs), **cipher.values(solution)))
 
         output.debug(1, 0, 'Solving...')
         timestamp = now()
@@ -30,7 +29,7 @@ class GuessAndDetermine(Method):
 
     def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['cipher']
+        rs, cipher = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
 
         # init
@@ -51,7 +50,7 @@ class GuessAndDetermine(Method):
         return cases
 
     def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
-        output, cipher = kwargs['output'], kwargs['cipher']
+        output, cipher = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Counting statistic...')
 
         statistic = self._count(cases)

@@ -1,5 +1,4 @@
 from .models import Task, Result
-from ..cipher.cipher import Cipher
 
 import signal
 from typing import List
@@ -44,6 +43,5 @@ __all__ = [
     'List',
     'Task',
     'Result',
-    'Cipher',
     'Concurrency'
 ]

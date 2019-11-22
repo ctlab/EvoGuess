@@ -1,6 +1,6 @@
 from .models import Estimation
 from ..concurrency.models import Result
-from ..cipher.models.var import Backdoor
+from ..instance.models.var import Backdoor
 
 from typing import List, Tuple, Dict
 
