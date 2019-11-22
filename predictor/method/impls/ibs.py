@@ -15,18 +15,22 @@ class InverseBackdoorSets(Method):
 
     def __init_phase(self, count, **kwargs):
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['instance']
+        rs, instance = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Generating init cases...')
 
-        tasks = [Task(i, sk=cipher.secret_key.values(rs=rs)) for i in range(count)]
+        if instance.has_values():
+            tasks = [Task(i, sk=instance.secret_key.values(rs=rs)) for i in range(count)]
 
-        timestamp = now()
-        results = self.concurrency.propagate(tasks, **kwargs)
-        time = now() - timestamp
+            timestamp = now()
+            results = self.concurrency.propagate(tasks, **kwargs)
+            time = now() - timestamp
 
-        output.debug(1, 0, 'Has been solved %d init cases by %.2f seconds' % (len(results), time))
-        if count != len(results):
-            output.debug(0, 0, 'Warning! count != len(results)')
+            output.debug(1, 0, 'Has been solved %d init cases by %.2f seconds' % (len(results), time))
+            if count != len(results):
+                output.debug(0, 0, 'Warning! count != len(results)')
+        else:
+            results = [Result(i, True, 0, []) for i in range(count)]
+            output.debug(1, 0, 'Skip init phase')
 
         return results
 

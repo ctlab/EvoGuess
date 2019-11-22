@@ -7,14 +7,14 @@ from time import time as now
 class GuessAndDetermine(Method):
     type = 'gad'
 
-    def __main_phase(self, backdoor, solution, count, **kwargs):
+    def __main_phase(self, backdoor, result, count, **kwargs):
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['instance']
+        rs, instance = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Generating main cases...')
 
         tasks = []
         for i in range(count):
-            tasks.append(Task(i, bd=backdoor.values(rs=rs), **cipher.values(solution)))
+            tasks.append(Task(i, bd=backdoor.values(rs=rs), **instance.values(result.solution)))
 
         output.debug(1, 0, 'Solving...')
         timestamp = now()
@@ -29,14 +29,18 @@ class GuessAndDetermine(Method):
 
     def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['instance']
+        rs, instance = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
 
         # init
-        timestamp = now()
-        task = Task(0, sk=cipher.secret_key.values(rs=rs))
-        result = self.concurrency.single(task, **kwargs)
-        output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
+        if instance.has_values():
+            timestamp = now()
+            task = Task(0, sk=instance.secret_key.values(rs=rs))
+            result = self.concurrency.single(task, **kwargs)
+            output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
+        else:
+            result = Result(0, True, 0, [])
+            output.debug(1, 0, 'Skip init phase')
 
         while len(cases) < count:
             all_case_count = count - len(cases)
@@ -46,13 +50,13 @@ class GuessAndDetermine(Method):
             else:
                 case_count = all_case_count
 
-            solved = self.__main_phase(backdoor, result.solution, case_count, **kwargs)
+            solved = self.__main_phase(backdoor, result, case_count, **kwargs)
             cases.extend(solved)
 
         return cases
 
     def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
-        output, cipher = kwargs['output'], kwargs['instance']
+        output = kwargs['output']
         output.debug(1, 0, 'Counting statistic...')
 
         statistic = self._count(cases)

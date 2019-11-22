@@ -36,6 +36,10 @@ class Instance:
     def values(self, solution):
         return {}
 
+    @staticmethod
+    def has_values():
+        return False
+
 
 class Cipher(Instance):
     tag = None
@@ -50,6 +54,10 @@ class Cipher(Instance):
         return {
             'key_stream': self.key_stream.values(solution=solution)
         } if solution is not None else {}
+
+    @staticmethod
+    def has_values():
+        return True
 
 
 StreamCipher = Cipher

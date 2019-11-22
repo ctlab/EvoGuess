@@ -3,9 +3,9 @@ from ..concurrency import *
 from multiprocessing.pool import Pool
 
 
-def initializer(cipher, solver):
+def initializer(instance, solver):
     global g_cnf, g_solver
-    g_cnf = cipher.cnf()
+    g_cnf = instance.cnf()
     g_solver = solver
 
 

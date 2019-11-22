@@ -5,9 +5,9 @@ from time import time as now
 from multiprocessing import Pool
 
 
-def initializer(Solver, cipher):
+def initializer(Solver, instance):
     global g_solver
-    g_solver = Solver(bootstrap_with=cipher.clauses(), use_timer=True)
+    g_solver = Solver(bootstrap_with=instance.clauses(), use_timer=True)
 
 
 def solve(task):
