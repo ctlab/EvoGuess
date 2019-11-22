@@ -33,8 +33,10 @@ class GuessAndDetermine(Method):
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
 
         # init
+        timestamp = now()
         task = Task(0, sk=cipher.secret_key.values(rs=rs))
         result = self.concurrency.single(task, **kwargs)
+        output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
 
         while len(cases) < count:
             all_case_count = count - len(cases)
