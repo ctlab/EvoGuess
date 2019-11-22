@@ -64,7 +64,8 @@ class Evolution(Algorithm):
                 self.limit.increase('stagnation')
                 self.limit.increase('iterations')
 
-            self.comm.bcast([-1], root=0)
+            if self.size > 1:
+                self.comm.bcast([-1], root=0)
 
             if best.value < root.value:
                 points.append(best)
