@@ -31,7 +31,7 @@ predictor = Predictor(
     method=method.GuessAndDetermine(
         chunk_size=1000,
         concurrency=concurrency.SinglePool(
-            threads=32,
+            threads=4,
             solver=solver.Lingeling(interrupter=solver.interrupter.Base(tl=0)),
             propagator=solver.Lingeling(interrupter=solver.interrupter.Base(tl=0)),
         )
@@ -41,7 +41,7 @@ predictor = Predictor(
 algorithm = Evolution(
     output=cell,
     predictor=predictor,
-    sampling=sampling.Const(500),
+    sampling=sampling.Const(40),
     limit=limit.WallTime(args.walltime),
     strategy=strategy.Plus(
         mu=1, lmbda=1,
@@ -52,4 +52,5 @@ algorithm = Evolution(
 )
 
 points = algorithm.start(inst.secret_key.to_backdoor())
+
 cell.close()
