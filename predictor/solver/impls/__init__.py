@@ -2,7 +2,7 @@ from .lingeling import *
 # from .plingeling import *
 # from .treengeling import *
 #
-# from .rokk import *
+from .rokk import *
 # from .minisat import *
 # from .cadical import *
 # from .painless import *
@@ -10,7 +10,7 @@ from .lingeling import *
 # from .cryptominisat import *
 
 __all__ = [
-    # 'RoKK',
+    'RoKK',
     # 'MiniSAT',
     # 'Cadical',
     # 'PainLeSS',
