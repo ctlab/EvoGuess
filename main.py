@@ -14,11 +14,11 @@ parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help=
 
 args = parser.parse_args()
 
-inst = instance.BubbleVsInsert(16, 8)
+inst = instance.A5_1()
 assert inst.check()
 
 cell = Cell(
-    path=['output', '_logs', 'test', inst.tag],
+    path=['output', '_logs', inst.tag],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
 ).open(description=args.description).touch()
