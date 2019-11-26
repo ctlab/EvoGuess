@@ -30,6 +30,8 @@ def solve(task):
 
 
 class PySATPool(Concurrency):
+    name = 'PySATPool'
+
     def __init__(self, **kwargs):
         self.pool = None
         super().__init__(**kwargs)

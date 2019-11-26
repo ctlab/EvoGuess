@@ -5,6 +5,8 @@ from typing import List
 
 
 class Concurrency:
+    name = 'Concurrency'
+
     def __init__(self, **kwargs):
         self.solver = kwargs["solver"]
         self.propagator = kwargs["propagator"]
@@ -37,6 +39,14 @@ class Concurrency:
 
     def terminate(self):
         raise NotImplementedError
+
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.propagator,
+            self.solver
+        ]))
+
 
 
 __all__ = [

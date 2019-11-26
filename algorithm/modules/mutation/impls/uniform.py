@@ -6,7 +6,7 @@ class Uniform(Mutation):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.scale = kwargs.get('scale') or 1.
+        self.scale = kwargs.get('scale', 1.)
 
     def mutate(self, i: Individual) -> Individual:
         v = i.backdoor.get_mask()

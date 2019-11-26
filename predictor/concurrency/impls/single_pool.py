@@ -17,17 +17,22 @@ def solve(task):
 
 
 class SinglePool(Concurrency):
+    name = 'SinglePool'
+
     def __init__(self, **kwargs):
         self.pool = None
         super().__init__(**kwargs)
 
-    def initialize(self, solver, **kwargs):
-        self.pool = Pool(
-            processes=self.processes,
-            initializer=initializer,
-            initargs=(kwargs['instance'], solver)
-        )
-        kwargs['output'].debug(2, 2, "Init pool with %d processes" % self.processes)
+    def __initialize(self, solver, **kwargs):
+        if self.pool is not None:
+            kwargs['output'].debug(2, 2, "Pool already inited")
+        else:
+            self.pool = Pool(
+                processes=self.processes,
+                initializer=initializer,
+                initargs=(kwargs['instance'], solver)
+            )
+            kwargs['output'].debug(2, 2, "Init pool with %d processes" % self.processes)
 
     def __solve(self, tasks, **kwargs):
         output = kwargs['output']
@@ -52,7 +57,9 @@ class SinglePool(Concurrency):
 
             output.debug(2, 3, "Already solved %d tasks" % len(results))
 
-        self.terminate()
+        if not kwargs.get('keep', False):
+            self.terminate()
+
         return results
 
     def single(self, task: Task, **kwargs) -> Result:
@@ -62,16 +69,16 @@ class SinglePool(Concurrency):
         return task.resolve(report.status, report.time, report.solution)
 
     def propagate(self, tasks: List[Task], **kwargs) -> List[Result]:
-        self.initialize(self.propagator, **kwargs)
+        self.__initialize(self.propagator, **kwargs)
         return self.__solve(tasks, **kwargs)
 
     def solve(self, tasks: List[Task], **kwargs) -> List[Result]:
-        self.initialize(self.solver, **kwargs)
+        self.__initialize(self.solver, **kwargs)
         return self.__solve(tasks, **kwargs)
 
     def terminate(self):
         self.pool.terminate()
-        del self.pool
+        self.pool = None
 
 
 __all__ = [

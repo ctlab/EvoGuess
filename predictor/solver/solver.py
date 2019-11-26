@@ -18,8 +18,8 @@ class Solver:
 
     def __init__(self, **kwargs):
         self.interrupter = kwargs['interrupter']
-        self.workers = kwargs.get('workers') or 1
-        self.attempts = kwargs.get('attempts') or 5
+        self.workers = kwargs.get('workers', 1)
+        self.attempts = kwargs.get('attempts', 5)
 
         # self.options = set()
         self.spaces = re.compile('[\t ]+')

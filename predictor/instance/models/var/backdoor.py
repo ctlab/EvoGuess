@@ -135,6 +135,10 @@ class Backdoor:
 
         return Backdoor(variables)
 
+    @staticmethod
+    def empty():
+        return Backdoor([1]).get_copy([0])
+
 
 __all__ = [
     'Backdoor',

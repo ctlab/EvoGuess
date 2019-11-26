@@ -8,3 +8,4 @@ output/_logs
 solvers
 trash
 
+load_logs.sh

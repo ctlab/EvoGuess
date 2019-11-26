@@ -9,6 +9,7 @@ from os import makedirs, mkdir, rename
 class Cell(Output):
     def __init__(self, **kwargs):
         self.name = ''
+        self.count = 0
         self.files = {}
         super().__init__(**kwargs)
         self.logger = kwargs['logger']
@@ -33,10 +34,17 @@ class Cell(Output):
             if kwargs.get('description'):
                 open(join(self.path, 'DESCR'), 'w+').write(kwargs['description'])
 
-            self.files['log'] = kwargs.get('log_file') or 'log'
-            self.logger.set_out(join(self.path, self.files['log']))
-            self.files['debug'] = kwargs.get('debug_file') or 'debug'
-            self.debugger.set_out(join(self.path, self.files['debug']))
+            self.files['log'] = kwargs.get('log_file', 'log')
+            self.files['debug'] = kwargs.get('debug_file', 'debug')
+
+        return self
+
+    def touch(self):
+        log_file = '%s_%s' % (self.files['log'], self.count)
+        debug_file = '%s_%s' % (self.files['debug'], self.count)
+        self.logger.set_out(join(self.path, log_file))
+        self.debugger.set_out(join(self.path, debug_file))
+        self.count += 1
 
         return self
 

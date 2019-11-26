@@ -21,7 +21,7 @@ cell = Cell(
     path=['output', '_logs', 'test', inst.tag],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
-).open(description=args.description)
+).open(description=args.description).touch()
 
 rs = RandomState()
 predictor = Predictor(
