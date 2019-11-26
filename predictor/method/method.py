@@ -27,6 +27,12 @@ class Method:
             'DET': len(results) - ind
         }
 
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.concurrency,
+        ]))
+
 
 __all__ = [
     'List',

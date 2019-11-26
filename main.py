@@ -28,12 +28,13 @@ predictor = Predictor(
     rs=rs,
     output=cell,
     instance=inst,
-    method=method.GuessAndDetermine(
+    method=method.InverseBackdoorSets(
+        time_limit=10,
         chunk_size=1000,
-        concurrency=concurrency.SinglePool(
+        concurrency=concurrency.PySATPool(
             threads=32,
-            solver=solver.Lingeling(interrupter=solver.interrupter.Base(tl=0)),
-            propagator=solver.Lingeling(interrupter=solver.interrupter.Base(tl=0)),
+            solver=solvers.MapleChrono,
+            propagator=solvers.MapleChrono,
         )
     )
 )

@@ -49,7 +49,10 @@ class Predictor:
         self.output.log('Spent time: %.2f s' % time)
 
     def __str__(self):
-        return self.name
+        return '\n'.join(map(str, [
+            self.name,
+            self.method,
+        ]))
 
 
 __all__ = [
