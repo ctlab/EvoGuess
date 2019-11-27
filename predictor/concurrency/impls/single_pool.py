@@ -17,7 +17,7 @@ def solve(task):
 
 
 class SinglePool(Concurrency):
-    name = 'SinglePool'
+    name = 'Concurrency: SinglePool'
 
     def __init__(self, **kwargs):
         self.pool = None

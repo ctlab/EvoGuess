@@ -5,12 +5,18 @@ from time import time as now
 from multiprocessing import Pool
 
 
-def initializer(Solver, instance):
+def incr_initializer(Solver, instance):
     global g_solver
     g_solver = Solver(bootstrap_with=instance.clauses(), use_timer=True)
 
 
-def solve(task):
+def base_initializer(Solver, instance):
+    global g_clauses, g_solver
+    g_clauses = instance.clauses()
+    g_solver = Solver
+
+
+def incr_solve(task):
     if task.tl > 0:
         timer = Timer(task.tl, g_solver.interrupt, ())
         timer.start()
@@ -29,14 +35,38 @@ def solve(task):
     return task.resolve(status, time, solution)
 
 
+def base_solve(task):
+    solver = g_solver(bootstrap_with=g_clauses, use_timer=True)
+
+    if task.tl > 0:
+        timer = Timer(task.tl, solver.interrupt, ())
+        timer.start()
+
+    timestamp = now()
+    status = solver.solve_limited(assumptions=task.get())
+    time = now() - timestamp
+
+    if task.tl > 0:
+        if timer.is_alive():
+            timer.cancel()
+        else:
+            solver.clear_interrupt()
+
+    solution = solver.get_model() if status else None
+    solver.delete()
+    return task.resolve(status, time, solution)
+
+
 class PySATPool(Concurrency):
-    name = 'PySATPool'
+    name = 'Concurrency: PySATPool'
 
     def __init__(self, **kwargs):
         self.pool = None
         super().__init__(**kwargs)
+        self.incr = kwargs.get('incremental', False)
 
     def initialize(self, solver, **kwargs):
+        initializer = incr_initializer if self.incr else base_initializer
         self.pool = Pool(
             processes=self.processes,
             initializer=initializer,
@@ -47,6 +77,7 @@ class PySATPool(Concurrency):
     def __solve(self, tasks, **kwargs):
         output = kwargs['output']
         res_list, results = [], []
+        solve = incr_solve if self.incr else base_solve
         for task in tasks:
             res = self.pool.apply_async(solve, (task,))
             res_list.append(res)

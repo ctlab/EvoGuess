@@ -21,8 +21,7 @@ class Algorithm:
         return '\n'.join(map(str, [
             self.name,
             self.limit,
-            self.sampling,
-            self.predictor
+            self.sampling
         ]))
 
     def log_info(self):

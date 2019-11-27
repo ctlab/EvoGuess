@@ -110,7 +110,8 @@ class Evolution(Algorithm):
     def __str__(self):
         return '\n'.join(map(str, [
             super().__str__(),
-            self.strategy
+            self.strategy,
+            self.predictor
         ]))
 
 
