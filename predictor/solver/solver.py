@@ -56,11 +56,11 @@ class Solver:
 
                 try:
                     report = self.parse(output)
-                    if report.status == "INDETERMINATE":
+                    if report.status is None:
                         report.time = time
                 except KeyError as e:
                     # env.out.debug(1, 2, "%s error while parsing %s case" % (thread_name, self.tag))
-                    report = SolverReport("INDETERMINATE", time)
+                    report = SolverReport(None, time)
 
                     if len(output) > 0:
                         title = "Key error while parsing output"
@@ -72,7 +72,7 @@ class Solver:
                     trace(thread_name, title, '-', output, "%s in %d attempt" % (report.status, i))
 
         if report.check():
-            report = SolverReport("INDETERMINATE", self.interrupter.tl)
+            report = SolverReport(None, self.interrupter.tl)
 
         return report
 

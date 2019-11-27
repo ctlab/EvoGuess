@@ -42,6 +42,7 @@ predictor = Predictor(
 algorithm = Evolution(
     output=cell,
     predictor=predictor,
+    stagnation_limit=100,
     sampling=sampling.Const(500),
     limit=limit.WallTime(args.walltime),
     strategy=strategy.Plus(

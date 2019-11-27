@@ -8,4 +8,6 @@ output/_logs
 solvers
 trash
 
+# Other
+test.py
 load_logs.sh

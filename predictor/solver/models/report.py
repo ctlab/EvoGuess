@@ -10,7 +10,7 @@ class SolverReport:
     def parse_solution(self, solution_str, spaces):
         solution_str = solution_str.strip()
         if len(solution_str) == 0:
-            self.status = None
+            self.status = 'BROKEN'
             warnings.warn("Solution string is empty", UserWarning)
             return
 
@@ -23,7 +23,7 @@ class SolverReport:
             warnings.warn("Error while parse solution", UserWarning)
 
     def check(self):
-        return self.status is None
+        return self.status == 'BROKEN'
 
     def __str__(self):
         return "%s (%f) with solution: %d" % (self.status, self.time, len(self.solution))
