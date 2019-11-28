@@ -82,7 +82,7 @@ class InverseBackdoorSets(Method):
         output.debug(1, 0, 'Statistic: %s' % statistic)
         if self.corrector is not None:
             output.debug(1, 0, 'Correcting time limit...')
-            # later
+            # todo: later
 
         output.debug(1, 0, 'Calculating value...')
         xi = float(statistic['DET']) / float(len(cases))

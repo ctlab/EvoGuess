@@ -9,10 +9,9 @@ statuses = {
 
 
 class Result:
-    def __init__(self, i: int, status: Optional[bool],
-                 time: int, solution: Optional[List[int]]):
-        self.time = time
+    def __init__(self, i: int, status: Optional[bool], time: int, solution: Optional[List[int]]):
         self.i = i
+        self.time = time
         self.pid = getpid()
         self.status = status
         self.solution = solution

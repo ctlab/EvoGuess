@@ -10,4 +10,5 @@ trash
 
 # Other
 test.py
+parse.py
 load_logs.sh
