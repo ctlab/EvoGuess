@@ -63,6 +63,7 @@ class Evolution(Algorithm):
                 self.limit.increase('stagnation')
                 if self.limit.get("stagnation") >= self.stagnation_limit:
                     points.append(best)
+                    best = root
                     population = self.strategy.breed([root])
                     self.limit.set("stagnation", 0)
 

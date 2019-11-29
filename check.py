@@ -21,7 +21,7 @@ assert inst.check()
 backdoors = Backdoor.load(args.backdoors)
 
 cell = Cell(
-    path=['output', '_true_logs', inst.tag],
+    path=['output', '_check_logs', inst.tag],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
 ).open(description=args.description)

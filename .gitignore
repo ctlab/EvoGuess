@@ -3,6 +3,8 @@
 
 # Log files
 output/_logs
+output/_check_logs
+output/_verify_logs
 
 # Solvers
 solvers

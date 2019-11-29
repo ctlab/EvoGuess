@@ -13,11 +13,11 @@ parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help=
 
 args = parser.parse_args()
 
-inst = instance.BubbleVsSelection(6, 4)
+inst = instance.BubbleVsSelection(6, 7)
 assert inst.check()
 
 cell = Cell(
-    path=['output', '_logs', 'test', inst.tag, 'verify'],
+    path=['output', '_verify_logs', 'test', inst.tag],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
 ).open(description=args.description)
@@ -29,7 +29,7 @@ pool = concurrency.SinglePool(
 )
 
 times = []
-bd = Backdoor([11, 12, 19, 23, 24])
+bd = Backdoor([2, 6, 7, 12, 18, 26, 34, 35, 41, 42])
 for i in range(10):
     cell.touch()
     verifier = Verifier(
