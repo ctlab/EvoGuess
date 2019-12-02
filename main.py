@@ -33,6 +33,7 @@ predictor = Predictor(
         chunk_size=1000,
         concurrency=concurrency.PySATPool(
             threads=32,
+            incremental=False,
             solver=solvers.MapleChrono,
             propagator=solvers.MapleChrono,
         )
