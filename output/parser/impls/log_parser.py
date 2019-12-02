@@ -20,7 +20,7 @@ class LogParser(Parser):
         self.float = re.compile(r'[^\d.]+')
 
     def parse(self, data):
-        self.hash, i = {}, 0
+        i = 0
         while not data[i].startswith('---'):
             i += 1
 
@@ -33,6 +33,9 @@ class LogParser(Parser):
         return iterations
 
     def parse_iteration(self, data, i):
+        if len(data) <= i:
+            return None, i
+
         if data[i].startswith('Iteration'):
             cases = []
             case, i = self.parse_case(data, i + 2)
@@ -44,6 +47,9 @@ class LogParser(Parser):
             return None, i
 
     def parse_case(self, data, i):
+        if len(data) <= i:
+            return None, i
+
         if data[i].startswith('Run'):
             backdoor = Backdoor.parse(self.bd.split(data[i])[1])
 
