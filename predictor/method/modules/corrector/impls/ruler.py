@@ -8,7 +8,7 @@ class Ruler(Corrector):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.limiter = kwargs.get("limiter", 0.1)
+        self.limiter = kwargs.get('limiter', 0.1)
 
     def correct(self, results: List[Result], tl: int) -> Tuple[int, int]:
         det_times, ind_times = [], []

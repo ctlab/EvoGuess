@@ -12,7 +12,7 @@ class Algorithm:
         self.limit = kwargs['limit']
         self.output = kwargs['output']
         self.sampling = kwargs['sampling']
-        self.predictor = kwargs["predictor"]
+        self.predictor = kwargs['predictor']
 
     def start(self, backdoor: Backdoor) -> List[Individual]:
         raise NotImplementedError

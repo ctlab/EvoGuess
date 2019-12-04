@@ -1,5 +1,5 @@
 class Sampling:
-    name = "Sampling"
+    name = 'Sampling'
 
     def __len__(self):
         raise NotImplementedError

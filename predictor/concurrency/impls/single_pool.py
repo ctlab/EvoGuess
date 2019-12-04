@@ -25,14 +25,14 @@ class SinglePool(Concurrency):
 
     def __initialize(self, solver, **kwargs):
         if self.pool is not None:
-            kwargs['output'].debug(2, 2, "Pool already inited")
+            kwargs['output'].debug(2, 2, 'Pool already inited')
         else:
             self.pool = Pool(
                 processes=self.processes,
                 initializer=initializer,
                 initargs=(kwargs['instance'], solver)
             )
-            kwargs['output'].debug(2, 2, "Init pool with %d processes" % self.processes)
+            kwargs['output'].debug(2, 2, 'Init pool with %d processes' % self.processes)
 
     def __solve(self, tasks, **kwargs):
         output = kwargs['output']
@@ -51,11 +51,11 @@ class SinglePool(Concurrency):
                     try:
                         results.append(res.get())
                     except Exception as e:
-                        output.debug(0, 1, "Pool solving was completed unsuccessfully: %s", e)
+                        output.debug(0, 1, 'Pool solving was completed unsuccessfully: %s', e)
                 else:
                     i += 1
 
-            output.debug(2, 3, "Already solved %d tasks" % len(results))
+            output.debug(2, 3, 'Already solved %d tasks' % len(results))
 
         if not kwargs.get('keep', False):
             self.terminate()

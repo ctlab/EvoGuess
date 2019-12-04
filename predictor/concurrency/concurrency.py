@@ -8,11 +8,11 @@ class Concurrency:
     name = 'Concurrency'
 
     def __init__(self, **kwargs):
-        self.solver = kwargs["solver"]
-        self.propagator = kwargs["propagator"]
+        self.solver = kwargs['solver']
+        self.propagator = kwargs['propagator']
 
-        self.threads = kwargs["threads"]
-        self.processes = kwargs["threads"]
+        self.threads = kwargs['threads']
+        self.processes = kwargs['threads']
 
         signal.signal(signal.SIGINT, self.__signal_handler)
 

@@ -30,7 +30,7 @@ class Debugger:
 
         self.lock.acquire()
         if self.path:
-            with open(self.path, "a") as f:
+            with open(self.path, 'a') as f:
                 [f.write(self.__line(lvl, s)) for s in strs]
         else:
             [print(self.__line(lvl, s)) for s in strs]

@@ -61,11 +61,11 @@ class Evolution(Algorithm):
 
                 # restart
                 self.limit.increase('stagnation')
-                if self.limit.get("stagnation") >= self.stagnation_limit:
+                if self.limit.get('stagnation') >= self.stagnation_limit:
                     points.append(best)
                     best = root
                     population = self.strategy.breed([root])
-                    self.limit.set("stagnation", 0)
+                    self.limit.set('stagnation', 0)
 
                     # create new log file
                     if not self.limit.exhausted():

@@ -30,7 +30,7 @@ class Predictor:
             g_cases = self.comm.gather(cases, root=0)
 
             if self.rank == 0:
-                self.output.debug(2, 1, "Been gathered cases from %d nodes" % len(cases))
+                self.output.debug(2, 1, 'Been gathered cases from %d nodes' % len(cases))
                 cases = concatenate(g_cases)
 
         value, time = 0, now() - timestamp

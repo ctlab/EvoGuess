@@ -11,11 +11,11 @@ def trace(name, title, cnf, output, error):
 
     with open(path, 'w+') as f:
         f.write(__check_n(title))
-        f.write("------------------------- CNF -------------------------\n")
+        f.write('------------------------- CNF -------------------------\n')
         f.write(__check_n(cnf))
-        f.write("------------------------ OUTPUT ------------------------\n")
+        f.write('------------------------ OUTPUT ------------------------\n')
         f.write(__check_n(output))
-        f.write("------------------------ ERROR ------------------------\n")
+        f.write('------------------------ ERROR ------------------------\n')
         f.write(__check_n(error))
 
 

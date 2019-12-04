@@ -3,7 +3,7 @@ from algorithm.models.individual import Individual, Population
 
 
 class Selection:
-    name = "Selection"
+    name = 'Selection'
 
     def select(self, estimated: Population, size: int) -> Iterable[Individual]:
         raise NotImplementedError

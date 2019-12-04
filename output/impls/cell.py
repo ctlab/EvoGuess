@@ -71,11 +71,11 @@ class Cell(Output):
 
     def __now(self):
         now = dt.today()
-        z = lambda n: ("0%s" if n <= 9 else "%s") % n
+        z = lambda n: ('0%s' if n <= 9 else '%s') % n
 
-        date = "%s.%s.%s" % (now.year, z(now.month), z(now.day))
-        time = "%s:%s:%s" % (z(now.hour), z(now.minute), z(now.second))
-        return "%s_%s" % (date, time)
+        date = '%s.%s.%s' % (now.year, z(now.month), z(now.day))
+        time = '%s:%s:%s' % (z(now.hour), z(now.minute), z(now.second))
+        return '%s_%s' % (date, time)
 
 
 __all__ = [

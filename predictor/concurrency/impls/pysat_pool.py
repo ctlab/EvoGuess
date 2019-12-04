@@ -72,7 +72,7 @@ class PySATPool(Concurrency):
             initializer=initializer,
             initargs=(solver, kwargs['instance'])
         )
-        kwargs['output'].debug(2, 2, "Init pool with %d processes" % self.processes)
+        kwargs['output'].debug(2, 2, 'Init pool with %d processes' % self.processes)
 
     def __solve(self, tasks, **kwargs):
         output = kwargs['output']
@@ -93,11 +93,11 @@ class PySATPool(Concurrency):
                     if res.successful():
                         results.append(res.get())
                     else:
-                        output.debug(0, 1, "Pool solving was completed unsuccessfully")
+                        output.debug(0, 1, 'Pool solving was completed unsuccessfully')
                 else:
                     i += 1
 
-            output.debug(2, 3, "Already solved %d tasks" % len(results))
+            output.debug(2, 3, 'Already solved %d tasks' % len(results))
 
         self.terminate()
         return results

@@ -26,7 +26,7 @@ class Logger:
 
         self.lock.acquire()
         if self.path:
-            with open(self.path, "a") as f:
+            with open(self.path, 'a') as f:
                 [f.write(self.__line(s)) for s in strs]
         else:
             [print(self.__line(s)) for s in strs]

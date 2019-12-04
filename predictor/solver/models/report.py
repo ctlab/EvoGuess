@@ -11,7 +11,7 @@ class SolverReport:
         solution_str = solution_str.strip()
         if len(solution_str) == 0:
             self.status = 'BROKEN'
-            warnings.warn("Solution string is empty", UserWarning)
+            warnings.warn('Solution string is empty', UserWarning)
             return
 
         data = spaces.split(solution_str)
@@ -20,13 +20,13 @@ class SolverReport:
             self.solution = [int(var) for var in data]
         except ValueError:
             self.status = None
-            warnings.warn("Error while parse solution", UserWarning)
+            warnings.warn('Error while parse solution', UserWarning)
 
     def check(self):
         return self.status == 'BROKEN'
 
     def __str__(self):
-        return "%s (%f) with solution: %d" % (self.status, self.time, len(self.solution))
+        return '%s (%f) with solution: %d' % (self.status, self.time, len(self.solution))
 
 
 __all__ = [
