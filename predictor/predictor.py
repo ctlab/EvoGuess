@@ -51,6 +51,7 @@ class Predictor:
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
+            self.kwargs['instance'],
             self.method,
         ]))
 

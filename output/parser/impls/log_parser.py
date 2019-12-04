@@ -66,7 +66,7 @@ class LogParser(Parser):
             assert data[i + 2].startswith('End prediction')
             value = float(data[i + 2].split('value: ')[1])
 
-            case = Case(backdoor, value, results, cpu_time)
+            case = Case(backdoor, results, cpu_time).estimate(value)
             self.hash[str(backdoor)] = case
             return case, i + 4
         elif data[i].startswith('Hash'):
@@ -83,3 +83,8 @@ class LogParser(Parser):
             return result, i + 1
         else:
             return None, i
+
+
+__all__ = [
+    'LogParser'
+]

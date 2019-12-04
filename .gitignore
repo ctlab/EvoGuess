@@ -13,6 +13,6 @@ trash
 # Other
 test.py
 parse.py
-list.sh
-load.sh
-load_logs.sh
+tools/sync/list.sh
+tools/sync/load.sh
+sync.*

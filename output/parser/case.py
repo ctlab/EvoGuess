@@ -1,9 +1,11 @@
-class Case:
-    def __init__(self, backdoor, value, results, cpu_time=-1):
-        self.value = value
+from algorithm.models import Individual
+
+
+class Case(Individual):
+    def __init__(self, backdoor, results, cpu_time=-1):
         self.results = results
-        self.backdoor = backdoor
         self.cpu_time = cpu_time
+        super().__init__(backdoor)
 
     def br(self):
         return self.backdoor, self.results
@@ -20,9 +22,6 @@ class Case:
             'IND': ind,
             'DET': len(self.results) - ind
         }
-
-    def __str__(self):
-        return "%.7g for %s" % (self.value, self.backdoor)
 
 
 __all__ = [
