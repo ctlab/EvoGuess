@@ -124,6 +124,11 @@ class PySATPool(Concurrency):
             self.pool.terminate()
             self.pool = None
 
+    def __str__(self):
+        return '\n'.join(map(str, [
+            super().__str__(),
+            'Incremental: %s' % self.incr,
+        ]))
 
 __all__ = [
     'PySATPool'
