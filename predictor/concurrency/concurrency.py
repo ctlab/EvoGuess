@@ -43,10 +43,11 @@ class Concurrency:
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
-            self.propagator,
-            self.solver
+            'Threads: %d' % self.threads,
+            'Processes: %d' % self.processes,
+            'Solver: %s' % self.solver,
+            'Propagator: %s' % self.propagator,
         ]))
-
 
 
 __all__ = [

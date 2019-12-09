@@ -130,6 +130,7 @@ class PySATPool(Concurrency):
             'Incremental: %s' % self.incr,
         ]))
 
+
 __all__ = [
     'PySATPool'
 ]
