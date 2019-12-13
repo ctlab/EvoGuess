@@ -78,11 +78,16 @@ class InverseBackdoorSets(Method):
         output, cipher = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Counting statistic...')
 
-        statistic, tl = self._count(cases), self.tl
+        statistic, strs, tl = self._count(cases), [], self.tl
         output.debug(1, 0, 'Statistic: %s' % statistic)
         if self.corrector is not None:
             output.debug(1, 0, 'Correcting time limit...')
-            # todo: later
+            tl, dis = self.corrector.correct(cases, tl)
+            output.debug(1, 0, "Corrected time limit: %.6f" % tl)
+            statistic['DIS'] = dis
+            statistic['DET'] -= dis
+            output.debug(1, 0, "New statistic: %s" % statistic)
+            strs.append('New time limit: %.6f' % tl)
 
         output.debug(1, 0, 'Calculating value...')
         xi = float(statistic['DET']) / float(len(cases))
@@ -92,7 +97,7 @@ class InverseBackdoorSets(Method):
             value = (2 ** len(cipher.secret_key)) * tl
         output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        return Estimation(value, statistic)
+        return Estimation(value, statistic, *strs)
 
 
 __all__ = [

@@ -1,7 +1,8 @@
-from .pysat_pool import *
 from .single_pool import *
 
+from . import pysat
+
 __all__ = [
-    'PySATPool',
-    'SinglePool'
+    'pysat',
+    'SinglePool',
 ]

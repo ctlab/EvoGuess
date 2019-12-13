@@ -3,6 +3,7 @@
 
 # Log files
 output/_logs
+output/_test_logs
 output/_check_logs
 output/_verify_logs
 
