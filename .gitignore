@@ -3,6 +3,7 @@
 
 # Log files
 output/_logs
+output/_test_logs
 output/_check_logs
 output/_verify_logs
 
@@ -11,8 +12,8 @@ solvers
 trash
 
 # Other
+sync.*
 test.py
 parse.py
-tools/sync/list.sh
-tools/sync/load.sh
-sync.*
+tools/sync
+tools/exps
