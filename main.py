@@ -18,7 +18,7 @@ inst = instance.A5_1()
 assert inst.check()
 
 cell = Cell(
-    path=['output', '_logs', inst.tag],
+    path=['output', '_test_logs', inst.tag],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
 ).open(description=args.description).touch()
@@ -31,8 +31,9 @@ predictor = Predictor(
     method=method.InverseBackdoorSets(
         time_limit=10,
         chunk_size=1000,
-        concurrency=concurrency.PySATPool(
-            threads=32,
+        corrector=method.corrector.Ruler(limiter=0.01),
+        concurrency=concurrency.pysat.PebbleMap(
+            threads=4,
             incremental=False,
             solver=solvers.MapleChrono,
             propagator=solvers.MapleChrono,
@@ -44,7 +45,7 @@ algorithm = Evolution(
     output=cell,
     predictor=predictor,
     stagnation_limit=100,
-    sampling=sampling.Const(500),
+    sampling=sampling.Const(100),
     limit=limit.WallTime(args.walltime),
     strategy=strategy.Plus(
         mu=1, lmbda=1,
