@@ -8,6 +8,7 @@ from algorithm import *
 from predictor import *
 
 parser = argparse.ArgumentParser(description='EvoGuess')
+parser.add_argument('instance', type=str, help='instance of problem')
 parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
@@ -15,7 +16,7 @@ parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help=
 
 args = parser.parse_args()
 
-inst = instance.A5_1()
+inst = instance.get(args.instance)
 assert inst.check()
 
 cell = Cell(
@@ -29,7 +30,7 @@ predictor = Predictor(
     rs=rs,
     output=cell,
     instance=inst,
-    method=method.InverseBackdoorSets(
+    method=method.GuessAndDetermine(
         time_limit=10,
         chunk_size=1000,
         corrector=method.corrector.Ruler(limiter=0.01),

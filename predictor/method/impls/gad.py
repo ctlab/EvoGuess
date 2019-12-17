@@ -6,6 +6,7 @@ from time import time as now
 
 class GuessAndDetermine(Method):
     type = 'gad'
+    name = 'Method: Guess-and-Determine'
 
     def __main_phase(self, backdoor, result, count, **kwargs):
         output = kwargs['output']

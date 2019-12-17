@@ -16,3 +16,33 @@ from .impls.geffe import *
 from .impls.volfram import *
 
 from .impls.sorting import *
+
+
+def get(name):
+    args = []
+    if ':' in name:
+        [name, args] = name.split(':')
+        args = map(int, args.split('_'))
+    return {
+        'e0': E0,
+        'a5': A5_1,
+        # asg
+        'asg72': ASG_72_76,
+        'asg96': ASG_96_112,
+        'asg192': ASG_192_200,
+        # grain
+        'gr0': Grain_v0,
+        'gr1': Grain_v0,
+        # trivium
+        'tr': Trivium,
+        'biv': Bivium,
+        'tr64': Trivium_64,
+        'tr96': Trivium_96,
+        # present
+        'pr5_2': Present_5_2KP,
+        'pr6_1': Present_6_1KP,
+        'pr6_2': Present_6_2KP,
+        # sorting
+        'bvi': BubbleVsInsert,
+        'bvs': BubbleVsSelection,
+    }[name](*args)
