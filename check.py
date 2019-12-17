@@ -17,7 +17,7 @@ parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help=
 
 args = parser.parse_args()
 
-inst = instance.A5_1()
+inst = instance.get(args.instance)
 assert inst.check()
 
 backdoors = Backdoor.load(args.backdoors)
@@ -33,7 +33,7 @@ predictor = Predictor(
     rs=rs,
     output=cell,
     instance=inst,
-    method=method.InverseBackdoorSets(
+    method=method.GuessAndDetermine(
         time_limit=10,
         chunk_size=10000,
         concurrency=concurrency.pysat.PebbleMap(

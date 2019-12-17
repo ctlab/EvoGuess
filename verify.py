@@ -7,13 +7,14 @@ from predictor.verifier import Verifier
 from predictor.instance.models.var import Backdoor
 
 parser = argparse.ArgumentParser(description='EvoGuess')
+parser.add_argument('instance', type=str, help='instance of problem')
 parser.add_argument('-r', '--repeats', metavar='1', type=int, default=1, help='repeats count')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
 
 args = parser.parse_args()
 
-inst = instance.BubbleVsSelection(6, 7)
+inst = instance.get(args.instance)
 assert inst.check()
 
 cell = Cell(
