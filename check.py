@@ -9,6 +9,7 @@ from predictor.instance.models.var import Backdoor
 
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('backdoors', help='load backdoor from specified file')
+parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-c', '--count', metavar='1000', type=int, default=1000, help='count of generated tasks')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
@@ -34,9 +35,9 @@ predictor = Predictor(
     method=method.InverseBackdoorSets(
         time_limit=10,
         chunk_size=10000,
-        concurrency=concurrency.PySATPool(
+        concurrency=concurrency.pysat.PebbleMap(
             threads=32,
-            incremental=True,
+            incremental=args.incremental,
             solver=solvers.MapleChrono,
             propagator=solvers.MapleChrono,
         )

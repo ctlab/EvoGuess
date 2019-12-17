@@ -8,6 +8,7 @@ from algorithm import *
 from predictor import *
 
 parser = argparse.ArgumentParser(description='EvoGuess')
+parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
@@ -18,7 +19,7 @@ inst = instance.A5_1()
 assert inst.check()
 
 cell = Cell(
-    path=['output', '_test_logs', inst.tag],
+    path=['output', '_logs', inst.tag],
     logger=tools.logger(),
     debugger=tools.debugger(verb=args.verbosity)
 ).open(description=args.description).touch()
@@ -33,8 +34,8 @@ predictor = Predictor(
         chunk_size=1000,
         corrector=method.corrector.Ruler(limiter=0.01),
         concurrency=concurrency.pysat.PebbleMap(
-            threads=4,
-            incremental=False,
+            threads=32,
+            incremental=args.incremental,
             solver=solvers.MapleChrono,
             propagator=solvers.MapleChrono,
         )
@@ -44,8 +45,8 @@ predictor = Predictor(
 algorithm = Evolution(
     output=cell,
     predictor=predictor,
-    stagnation_limit=100,
-    sampling=sampling.Const(100),
+    stagnation_limit=150,
+    sampling=sampling.Const(500),
     limit=limit.WallTime(args.walltime),
     strategy=strategy.Plus(
         mu=1, lmbda=1,
