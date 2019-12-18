@@ -127,12 +127,13 @@ class Backdoor:
     @staticmethod
     def parse(line):
         variables = []
-        for lit in line.split(' '):
-            if '.' in lit:
-                var = lit.split('..')
-                variables.extend(range(int(var[0]), int(var[1]) + 1))
-            else:
-                variables.append(int(lit))
+        if len(line) > 0:
+            for lit in line.split(' '):
+                if '.' in lit:
+                    var = lit.split('..')
+                    variables.extend(range(int(var[0]), int(var[1]) + 1))
+                else:
+                    variables.append(int(lit))
 
         return Backdoor(variables)
 

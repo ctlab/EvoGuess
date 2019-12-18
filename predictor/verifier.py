@@ -33,6 +33,7 @@ class Verifier:
         values = [0] * len(backdoor)
         variables = backdoor.snapshot()
 
+        ind, det = 0, 0
         while values is not None:
             while values is not None and len(tasks) < self.chunk_size:
                 assumption = [x if values[i] else -x for i, x in enumerate(variables)]
@@ -45,9 +46,12 @@ class Verifier:
                 for result in results:
                     self.output.log(str(result))
                     time_sum += result.time
+                    ind += 1 if result.status is None else 0
+                    det += 0 if result.status is None else 1
 
                 tasks = []
 
+        self.output.log('{IND: %d, DET: %d}' % (ind, det))
         self.output.log('Spent time: %.2f s' % (now() - timestamp))
         return time_sum
 

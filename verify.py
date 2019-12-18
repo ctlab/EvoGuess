@@ -34,6 +34,8 @@ cell = Cell(
 
 def iteration(i, f, backdoor, *args):
     cell.log('Iteration: %d' % i, '------------------------------------------------------')
+    count = args[0] if len(args) > 0 else 2 ** len(backdoor)
+    cell.log('Run verify for backdoor: %s' % backdoor, 'With %d cases:' % count)
     value = f(backdoor, *args)
     cell.log('End verifier with value: %.7g' % value)
     cell.log('------------------------------------------------------')
@@ -94,8 +96,8 @@ def process(backdoor: Backdoor):
 for bd in backdoors:
     summary = process(bd)
     summary = sum(summary) / len(summary)
-    rate = full / summary
-    cell.log('Rate: %.2g' % rate)
-    print('Rate %.2g with backdoor: %s' % (rate, bd))
+    rate = summary / full
+    cell.log('Rate: %.4g' % rate)
+    print('Rate %.4g with backdoor: %s' % (rate, bd))
 
 cell.close()
