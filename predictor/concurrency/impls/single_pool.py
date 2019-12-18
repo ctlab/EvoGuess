@@ -57,9 +57,8 @@ class SinglePool(Concurrency):
 
             output.debug(2, 3, 'Already solved %d tasks' % len(results))
 
-        if not kwargs.get('keep', False):
+        if not self.keep:
             self.terminate()
-
         return results
 
     def single(self, task: Task, **kwargs) -> Result:

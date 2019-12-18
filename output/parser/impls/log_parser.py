@@ -63,7 +63,7 @@ class LogParser(Parser):
             assert data[i].startswith('{')
             assert data[i + 1].startswith('Spent')
             cpu_time = float(self.float.sub('', data[i + 1]))
-            assert data[i + 2].startswith('End prediction')
+            assert data[i + 2].startswith('End')
             value = float(data[i + 2].split('value: ')[1])
 
             case = Case(backdoor, results, cpu_time).estimate(value)

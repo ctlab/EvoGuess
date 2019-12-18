@@ -13,6 +13,7 @@ class Concurrency:
 
         self.threads = kwargs['threads']
         self.processes = kwargs['threads']
+        self.keep = kwargs.get('keep', False)
 
         signal.signal(signal.SIGINT, self.__signal_handler)
 
@@ -43,6 +44,7 @@ class Concurrency:
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
+            'Keep: %d' % self.keep,
             'Threads: %d' % self.threads,
             'Processes: %d' % self.processes,
             'Solver: %s' % self.solver,

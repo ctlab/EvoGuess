@@ -22,16 +22,17 @@ class Backdoor:
     # overridden methods
     def __init__(self, _list):
         self.list = sorted(list(set(_list)))
-        self.min = self.list[0]
-        self.max = self.list[-1]
         self.length = len(self.list)
         self.mask = [True] * self.length
+        if len(self.list) > 0:
+            self.min = self.list[0]
+            self.max = self.list[-1]
 
-        if len(list(_list)) != self.length:
-            warnings.warn('Repeating variables in backdoor', Warning)
+            if len(list(_list)) != self.length:
+                warnings.warn('Repeating variables in backdoor', Warning)
 
-        if self.min <= 0:
-            raise Exception('Backdoor contains negative numbers or zero')
+            if self.min <= 0:
+                raise Exception('Backdoor contains negative numbers or zero')
 
     def __str__(self):
         if len(self) == 0: return '[](0)'
@@ -137,7 +138,7 @@ class Backdoor:
 
     @staticmethod
     def empty():
-        return Backdoor([1]).get_copy([0])
+        return Backdoor([])
 
 
 __all__ = [

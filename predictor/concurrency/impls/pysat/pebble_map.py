@@ -13,12 +13,15 @@ class PebbleMap(PySAT):
         super().__init__(**kwargs)
 
     def initialize(self, solver, **kwargs):
-        self.pool = ProcessPool(
-            max_workers=self.processes,
-            initializer=self.init_func,
-            initargs=(solver, kwargs['instance'])
-        )
-        kwargs['output'].debug(2, 2, 'Init pool with %d processes' % self.processes)
+        if self.pool is not None:
+            kwargs['output'].debug(2, 2, 'Pool already inited')
+        else:
+            self.pool = ProcessPool(
+                max_workers=self.processes,
+                initializer=self.init_func,
+                initargs=(solver, kwargs['instance'])
+            )
+            kwargs['output'].debug(2, 2, 'Init pool with %d processes' % self.processes)
 
     def process(self, tasks: List[Task], **kwargs) -> List[Result]:
         output = kwargs['output']
@@ -37,7 +40,8 @@ class PebbleMap(PySAT):
         # if timer.is_alive():
         #     timer.cancel()
 
-        self.terminate()
+        if not self.keep:
+            self.terminate()
         return results
 
     def terminate(self):
