@@ -24,6 +24,7 @@ inst = instance.get(args.instance)
 assert inst.check()
 
 backdoors = Backdoor.load(args.backdoors)
+solver = solvers.Glucose4
 
 cell = Cell(
     path=['output', '_verify_logs', inst.tag],
@@ -52,8 +53,8 @@ predictor = Predictor(
         concurrency=concurrency.pysat.MapPool(
             incremental=False,
             threads=args.threads,
-            solver=solvers.MapleChrono,
-            propagator=solvers.MapleChrono,
+            solver=solver,
+            propagator=solver,
         )
     )
 )
@@ -72,8 +73,8 @@ verifier = Verifier(
         keep=True,
         threads=args.threads,
         incremental=args.incremental,
-        solver=solvers.MapleChrono,
-        propagator=solvers.MapleChrono,
+        solver=solver,
+        propagator=solver,
     )
 )
 
