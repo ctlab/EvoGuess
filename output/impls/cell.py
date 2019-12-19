@@ -1,8 +1,8 @@
-from datetime import datetime as dt
-
 from ..output import *
 
-from os.path import join
+from time import sleep
+from os.path import join, exists
+from datetime import datetime as dt
 from os import makedirs, mkdir, rename
 
 
@@ -27,10 +27,16 @@ class Cell(Output):
         if self.rank == 0:
             makedirs(self.path, exist_ok=True)
 
-            self.name = '%s-?' % self.__now()
-            self.path = join(self.path, self.name)
+            name = '%s-?' % self.__now()
+            path = join(self.path, name)
+            while exists(path):
+                sleep(1)
+                name = '%s-?' % self.__now()
+                path = join(self.path, name)
 
-            mkdir(self.path)
+            mkdir(path)
+            self.name = name
+            self.path = path
             if kwargs.get('description'):
                 open(join(self.path, 'DESCR'), 'w+').write(kwargs['description'])
 
