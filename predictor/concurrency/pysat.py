@@ -20,15 +20,18 @@ def incr_solve(task):
         timer = Timer(task.tl, g_solver.interrupt, ())
         timer.start()
 
-    timestamp = now()
-    status = g_solver.solve_limited(assumptions=task.get())
-    time = now() - timestamp
+        timestamp = now()
+        status = g_solver.solve_limited(assumptions=task.get())
+        time = now() - timestamp
 
-    if task.tl > 0:
         if timer.is_alive():
             timer.cancel()
         else:
             g_solver.clear_interrupt()
+    else:
+        timestamp = now()
+        status = g_solver.solve(assumptions=task.get())
+        time = now() - timestamp
 
     solution = g_solver.get_model() if status else None
     return task.resolve(status, time, solution)
@@ -41,15 +44,18 @@ def base_solve(task):
         timer = Timer(task.tl, solver.interrupt, ())
         timer.start()
 
-    timestamp = now()
-    status = solver.solve_limited(assumptions=task.get())
-    time = now() - timestamp
+        timestamp = now()
+        status = solver.solve_limited(assumptions=task.get())
+        time = now() - timestamp
 
-    if task.tl > 0:
         if timer.is_alive():
             timer.cancel()
         else:
             solver.clear_interrupt()
+    else:
+        timestamp = now()
+        status = solver.solve(assumptions=task.get())
+        time = now() - timestamp
 
     solution = solver.get_model() if status else None
     solver.delete()

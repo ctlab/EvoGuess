@@ -24,7 +24,7 @@ inst = instance.get(args.instance)
 assert inst.check()
 
 backdoors = Backdoor.load(args.backdoors)
-solver = solvers.Glucose4
+solver = solvers.Cadical
 
 cell = Cell(
     path=['output', '_verify_logs', inst.tag],

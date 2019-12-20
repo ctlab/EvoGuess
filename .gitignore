@@ -17,3 +17,4 @@ test.py
 parse.py
 tools/sync
 tools/exps
+tools/stat
