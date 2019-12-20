@@ -15,6 +15,8 @@ class Cell(Output):
         self.logger = kwargs['logger']
         self.debugger = kwargs['debugger']
 
+        self.tries = kwargs.get('tries', 50)
+
         try:
             from mpi4py import MPI
             self.comm = MPI.COMM_WORLD
@@ -27,14 +29,19 @@ class Cell(Output):
         if self.rank == 0:
             makedirs(self.path, exist_ok=True)
 
+            tries = 0
             name = '%s-?' % self.__now()
             path = join(self.path, name)
-            while exists(path):
-                sleep(1)
-                name = '%s-?' % self.__now()
-                path = join(self.path, name)
+            while tries < self.tries:
+                tries += 1
+                try:
+                    mkdir(path)
+                    break
+                except FileExistsError:
+                    sleep(1)
+                    name = '%s-?' % self.__now()
+                    path = join(self.path, name)
 
-            mkdir(path)
             self.name = name
             self.path = path
             if kwargs.get('description'):
