@@ -37,8 +37,8 @@ predictor = Predictor(
         concurrency=concurrency.pysat.PebbleMap(
             threads=32,
             incremental=args.incremental,
-            solver=solvers.MapleChrono,
-            propagator=solvers.MapleChrono,
+            solver=solvers.Cadical,
+            propagator=solvers.Cadical,
         )
     )
 )
@@ -46,7 +46,7 @@ predictor = Predictor(
 algorithm = Evolution(
     output=cell,
     predictor=predictor,
-    stagnation_limit=150,
+    stagnation_limit=155,
     sampling=sampling.Const(500),
     limit=limit.tools.Any(
         limit.Stagnation(150),
@@ -54,7 +54,7 @@ algorithm = Evolution(
     ),
     strategy=strategy.Plus(
         mu=1, lmbda=1,
-        selection=selection.Roulette(),
+        selection=selection.Best(),
         mutation=mutation.Uniform(),
         crossover=crossover.Uniform(p=0.2)
     )
