@@ -10,6 +10,7 @@ from predictor import *
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('instance', type=str, help='instance of problem')
 parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
+parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
@@ -35,7 +36,7 @@ predictor = Predictor(
         chunk_size=1000,
         corrector=method.corrector.Ruler(limiter=0.01),
         concurrency=concurrency.pysat.PebbleMap(
-            threads=32,
+            threads=args.threads,
             incremental=args.incremental,
             solver=solvers.Cadical,
             propagator=solvers.Cadical,
