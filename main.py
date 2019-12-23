@@ -48,7 +48,10 @@ algorithm = Evolution(
     predictor=predictor,
     stagnation_limit=150,
     sampling=sampling.Const(500),
-    limit=limit.WallTime(args.walltime),
+    limit=limit.tools.Any(
+        limit.Stagnation(150),
+        limit.WallTime(args.walltime),
+    ),
     strategy=strategy.Plus(
         mu=1, lmbda=1,
         selection=selection.Roulette(),

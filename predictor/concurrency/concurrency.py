@@ -44,7 +44,7 @@ class Concurrency:
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
-            'Keep: %d' % self.keep,
+            'Keep: %s' % self.keep,
             'Threads: %d' % self.threads,
             'Processes: %d' % self.processes,
             'Solver: %s' % self.solver,

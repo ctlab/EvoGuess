@@ -5,8 +5,8 @@ class WallTime(Limit):
     time_scale = [1, 60, 60, 24]
 
     def __init__(self, limit: str):
-        self.limit = self._parse(limit)
         super().__init__()
+        self.limit = self._parse(limit)
         self.name = 'Limit: WallTime (%s)' % limit
 
     def exhausted(self) -> bool:
