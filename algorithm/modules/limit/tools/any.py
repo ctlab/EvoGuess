@@ -11,7 +11,6 @@ class Any(Limit):
             arg.limits = self.limits
 
     def exhausted(self) -> bool:
-        print([arg.exhausted() for arg in self.args])
         return any(arg.exhausted() for arg in self.args)
 
     def __str__(self):
