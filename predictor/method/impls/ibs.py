@@ -12,25 +12,58 @@ class InverseBackdoorSets(Method):
         Method.__init__(self, **kwargs)
         self.tl = kwargs['time_limit']
         self.corrector = kwargs.get('corrector')
+        self.save_init = kwargs.get('save_init', True)
+        self.reset_init = kwargs.get('reset_init', 10)
 
-    def __init_phase(self, count, **kwargs):
+        self.saved = {}
+        self.init_timer = 0
+
+    def __init_phase(self, rng, **kwargs):
         output = kwargs['output']
         rs, instance = kwargs['rs'], kwargs['instance']
         output.debug(1, 0, 'Generating init cases...')
 
-        if instance.has_values():
-            tasks = [Task(i, sk=instance.secret_key.values(rs=rs)) for i in range(count)]
-
-            timestamp = now()
-            results = self.concurrency.propagate(tasks, **kwargs)
-            time = now() - timestamp
-
-            output.debug(1, 0, 'Has been solved %d init cases by %.2f seconds' % (len(results), time))
-            if count != len(results):
-                output.debug(0, 0, 'Warning! count != len(results)')
+        results = [None] * len(rng)
+        if self.save_init:
+            task_rng = []
+            for i, j in enumerate(rng):
+                if j in self.saved:
+                    results[i] = self.saved[j]
+                else:
+                    task_rng.append((i, j))
         else:
-            results = [Result(i, True, 0, []) for i in range(count)]
-            output.debug(1, 0, 'Skip init phase')
+            task_rng = enumerate(rng)
+
+        output.debug(1, 1, 'Use %d saved cases of %d' % (len(rng) - len(task_rng), len(rng)))
+        while len(task_rng) > 0:
+            if instance.has_values():
+                tasks = [Task(i, sk=instance.secret_key.values(rs=rs)) for i in task_rng]
+
+                timestamp = now()
+                c_results = self.concurrency.propagate(tasks, **kwargs)
+                time = now() - timestamp
+
+                output.debug(1, 1, 'Has been solved %d init cases by %.2f seconds' % (len(c_results), time))
+                for result in c_results:
+                    try:
+                        i, j = result.i
+                        task_rng.remove((i, j))
+                        results[i] = result
+                    except ValueError:
+                        output.debug(0, 1, 'Ranged value not in task_rng!')
+
+                if len(task_rng) > 0:
+                    output.debug(0, 1, 'Warning! len(task_rng) > 0')
+            else:
+                for i, j in task_rng:
+                    results[i] = Result((i, j), True, 0, [])
+                output.debug(1, 1, 'Skip init phase')
+                task_rng.clear()
+
+        if self.save_init:
+            for i, j in enumerate(rng):
+                if j not in self.saved:
+                    self.saved[j] = results[i]
 
         return results
 
@@ -60,6 +93,7 @@ class InverseBackdoorSets(Method):
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
         output.debug(1, 0, 'Use time limit: %s' % self.tl)
 
+        self.init_timer += 1
         while len(cases) < count:
             all_case_count = count - len(cases)
 
@@ -68,9 +102,14 @@ class InverseBackdoorSets(Method):
             else:
                 case_count = all_case_count
 
-            inited = self.__init_phase(case_count, **kwargs)
+            rng = range(len(cases), len(cases) + case_count)  # todo: допилить
+            inited = self.__init_phase(rng, **kwargs)
             solved = self.__main_phase(backdoor, inited, **kwargs)
             cases.extend(solved)
+
+        if self.init_timer == self.reset_init:
+            self.saved = {}
+            self.init_timer = 0
 
         return cases
 
