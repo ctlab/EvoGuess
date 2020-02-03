@@ -26,7 +26,7 @@ class Cell(Output):
             self.rank, self.size = 0, 1
 
     def open(self, **kwargs):
-        if self.rank == 0:
+        if self.rank == 0:  # todo: add debug to other nodes
             makedirs(self.path, exist_ok=True)
 
             tries = 0
@@ -53,11 +53,12 @@ class Cell(Output):
         return self
 
     def touch(self):
-        log_file = '%s_%s' % (self.files['log'], self.count)
-        debug_file = '%s_%s' % (self.files['debug'], self.count)
-        self.logger.set_out(join(self.path, log_file))
-        self.debugger.set_out(join(self.path, debug_file))
-        self.count += 1
+        if self.rank == 0:
+            log_file = '%s_%s' % (self.files['log'], self.count)
+            debug_file = '%s_%s' % (self.files['debug'], self.count)
+            self.logger.set_out(join(self.path, log_file))
+            self.debugger.set_out(join(self.path, debug_file))
+            self.count += 1
 
         return self
 

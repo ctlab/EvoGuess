@@ -31,15 +31,15 @@ predictor = Predictor(
     rs=rs,
     output=cell,
     instance=inst,
-    method=method.GuessAndDetermine(
-        time_limit=10,
+    method=method.InverseBackdoorSets(
+        time_limit=5,
         chunk_size=1000,
         corrector=method.corrector.Ruler(limiter=0.01),
         concurrency=concurrency.pysat.PebbleMap(
             threads=args.threads,
             incremental=args.incremental,
-            solver=solvers.Cadical,
-            propagator=solvers.Cadical,
+            solver=solvers.Glucose4,
+            propagator=solvers.Glucose4,
         )
     )
 )
