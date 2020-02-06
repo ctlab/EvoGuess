@@ -77,11 +77,13 @@ class PySAT(Concurrency):
     def single(self, task: Task, **kwargs) -> Result:
         cipher = kwargs['instance']
         solver = self.solver(bootstrap_with=cipher.clauses())
+        timestamp = now()
         status = solver.solve(assumptions=task.get())
+        time = now() - timestamp
         solution = solver.get_model() if status else None
         solver.delete()
 
-        return task.resolve(status, 0.1, solution)
+        return task.resolve(status, time, solution)
 
     def process(self, tasks: List[Task], **kwargs) -> List[Result]:
         raise NotImplementedError

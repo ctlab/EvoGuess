@@ -45,4 +45,7 @@ def get(name):
         # sorting
         'bvi': BubbleVsInsert,
         'bvs': BubbleVsSelection,
+        # trash
+        'geffe': Geffe,
+        'volfram': Volfram
     }[name](*args)
