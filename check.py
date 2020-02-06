@@ -29,7 +29,7 @@ cell = Cell(
 ).open(description=args.description)
 
 rs = RandomState()
-predictor = Predictor(
+predictor = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,

@@ -27,7 +27,7 @@ cell = Cell(
 ).open(description=args.description).touch()
 
 rs = RandomState()
-predictor = Predictor(
+predictor = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,

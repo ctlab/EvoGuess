@@ -14,6 +14,14 @@ class Algorithm:
         self.sampling = kwargs['sampling']
         self.predictor = kwargs['predictor']
 
+        try:
+            from mpi4py import MPI
+            self.comm = MPI.COMM_WORLD
+            self.size = self.comm.Get_size()
+            self.rank = self.comm.Get_rank()
+        except ModuleNotFoundError:
+            self.rank, self.size = 0, 1
+
     def start(self, backdoor: Backdoor) -> List[Individual]:
         raise NotImplementedError
 

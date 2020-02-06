@@ -11,14 +11,6 @@ class Evolution(Algorithm):
         self.strategy = kwargs['strategy']
         self.stagnation_limit = kwargs['stagnation_limit']
 
-        try:
-            from mpi4py import MPI
-            self.comm = MPI.COMM_WORLD
-            self.size = self.comm.Get_size()
-            self.rank = self.comm.Get_rank()
-        except ModuleNotFoundError:
-            self.rank, self.size = 0, 1
-
     def start(self, backdoor: Backdoor) -> List[Individual]:
         self.output.debug(0, 0, 'Evolution start on %d nodes' % self.size)
 
@@ -99,14 +91,14 @@ class Evolution(Algorithm):
 
                 backdoor = Backdoor(variables)
                 self.output.debug(2, 1, 'Been received backdoor: %s' % backdoor)
-                self.predictor.predict(backdoor, count)
+                self.predictor.predict(backdoor, count=count)
 
     def __predict(self, backdoor, count):
         if self.size > 1:
             self.output.debug(2, 1, 'Sending backdoor... %s' % backdoor)
             self.comm.bcast([count] + backdoor.snapshot(), root=0)
 
-        return self.predictor.predict(backdoor, count)
+        return self.predictor.predict(backdoor, count=count)
 
     def __str__(self):
         return '\n'.join(map(str, [

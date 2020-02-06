@@ -5,8 +5,6 @@ from numpy.random.mtrand import RandomState
 
 from output import *
 from predictor import *
-from predictor.predictor import Predictor
-from predictor.verifier import Verifier
 from predictor.instance.models.var import Backdoor
 
 parser = argparse.ArgumentParser(description='EvoGuess')
@@ -33,18 +31,18 @@ cell = Cell(
 ).open(description=args.description)
 
 
-def iteration(i, f, backdoor, *args):
+def iteration(i, predictor, backdoor, *args, **kwargs):
     cell.log('Iteration: %d' % i, '------------------------------------------------------')
     count = args[0] if len(args) > 0 else 2 ** len(backdoor)
     cell.log('Run verify for backdoor: %s' % backdoor, 'With %d cases:' % count)
-    value = f(backdoor, *args)
+    value = predictor.predict(backdoor, *args, **kwargs)
     cell.log('End verifier with value: %.7g' % value)
     cell.log('------------------------------------------------------')
     return value
 
 
 rs = RandomState()
-predictor = Predictor(
+monte_carlo = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,
@@ -60,12 +58,12 @@ predictor = Predictor(
 )
 
 empty = Backdoor.empty()
-cell.touch().log('\n'.join('-- ' + s for s in str(predictor).split('\n')))
+cell.touch().log('\n'.join('-- ' + s for s in str(monte_carlo).split('\n')))
 cell.log('------------------------------------------------------')
-full = iteration(0, predictor.predict, empty, args.repeats)
+full = iteration(0, monte_carlo, empty, count=args.repeats)
 print('Full: %.7g s' % full)
 
-verifier = Verifier(
+verificator = Verificator(
     output=cell,
     instance=inst,
     chunk_size=1024,
@@ -81,13 +79,13 @@ verifier = Verifier(
 
 def process(backdoor: Backdoor):
     values = []
-    cell.touch().log('\n'.join('-- ' + s for s in str(verifier).split('\n')))
+    cell.touch().log('\n'.join('-- ' + s for s in str(verificator).split('\n')))
     cell.log('------------------------------------------------------')
     for i in range(args.repeats):
-        value = iteration(i, verifier.verify, backdoor)
+        value = iteration(i, verificator, backdoor)
         values.append(value)
         if args.incremental:
-            verifier.concurrency.terminate()
+            verificator.concurrency.terminate()
 
     cell.log('------------------------------------------------------')
     cell.log('Summary: %.7g' % (sum(values) / len(values)))

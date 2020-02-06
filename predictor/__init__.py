@@ -1,5 +1,6 @@
-from .predictor import *
+from .impls import *
 
+from . import impls
 from . import method
 from . import instance
 from . import solver
@@ -9,6 +10,6 @@ __all__ = [
     'method',
     'solver',
     'instance',
-    'Predictor',
     'concurrency'
 ]
+__all__.extend(impls.__all__)
