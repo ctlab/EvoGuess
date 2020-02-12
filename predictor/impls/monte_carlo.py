@@ -39,6 +39,7 @@ class MonteCarlo(Predictor):
             self.method,
         ]))
 
+
 __all__ = [
     'MonteCarlo'
 ]

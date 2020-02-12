@@ -1,24 +1,48 @@
 import argparse
 
 from numpy.random.mtrand import RandomState
-from pysat import solvers
+from pysat import solvers as slvs
 
 from output import *
 from algorithm import *
 from predictor import *
 
+solvers = {
+    'cd': slvs.Cadical,
+    'g3': slvs.Glucose3,
+    'g4': slvs.Glucose4,
+    'lgl': slvs.Lingeling,
+    'mcb': slvs.MapleChrono,
+    'mcm': slvs.MapleCM,
+    'mpl': slvs.Maplesat,
+    'mc': slvs.Minicard,
+    'm22': slvs.Minisat22,
+    'mgh': slvs.MinisatGH,
+}
+
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('instance', type=str, help='instance of problem')
+parser.add_argument('method', type=str, help='method of estimation')
 parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
-parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
+parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
+
+parser.add_argument('-tl', type=int, default=5, help='time limit for ibs')
+parser.add_argument('-n', '--sampling', type=int, default=1000, help='estimation sampling')
+parser.add_argument('-st', '--stagnation', type=int, default=300, help='stagnation limit')
+parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
+parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
 args = parser.parse_args()
 
 inst = instance.get(args.instance)
 assert inst.check()
+
+Method = method.get(args.method)
+solver = solvers[args.solver]
+propagator = solvers[args.propagator] if args.propagator else solver
 
 cell = Cell(
     path=['output', '_logs', inst.tag],
@@ -31,15 +55,17 @@ predictor = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,
-    method=method.InverseBackdoorSets(
-        time_limit=5,
+    method=Method(
+        time_limit=args.tl,
         chunk_size=1000,
+        save_init=True,
+        reset_init=10,
         corrector=method.corrector.Ruler(limiter=0.01),
         concurrency=concurrency.pysat.PebbleMap(
             threads=args.threads,
             incremental=args.incremental,
-            solver=solvers.Glucose4,
-            propagator=solvers.Glucose4,
+            propagator=propagator,
+            solver=solver,
         )
     )
 )
@@ -47,12 +73,9 @@ predictor = MonteCarlo(
 algorithm = Evolution(
     output=cell,
     predictor=predictor,
-    stagnation_limit=155,
-    sampling=sampling.Const(500),
-    limit=limit.tools.Any(
-        limit.Stagnation(150),
-        limit.WallTime(args.walltime),
-    ),
+    stagnation_limit=args.stagnation,
+    sampling=sampling.Const(args.sampling),
+    limit=limit.WallTime(args.walltime),
     strategy=strategy.Plus(
         mu=1, lmbda=1,
         selection=selection.Best(),

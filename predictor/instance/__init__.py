@@ -12,10 +12,12 @@ from .impls.mickey import *
 from .impls.rabbit import *
 from .impls.salsa20 import *
 
+from .impls.sorting import *
+
+from .impls.md4 import *
+
 from .impls.geffe import *
 from .impls.volfram import *
-
-from .impls.sorting import *
 
 
 def get(name):
@@ -32,7 +34,7 @@ def get(name):
         'asg192': ASG_192_200,
         # grain
         'gr0': Grain_v0,
-        'gr1': Grain_v0,
+        'gr1': Grain_v1,
         # trivium
         'tr': Trivium,
         'biv': Bivium,
@@ -45,6 +47,8 @@ def get(name):
         # sorting
         'bvi': BubbleVsInsert,
         'bvs': BubbleVsSelection,
+        # hash
+        'md4': MD4,
         # trash
         'geffe': Geffe,
         'volfram': Volfram

@@ -51,6 +51,7 @@ class Verificator(Predictor):
 
         timestamp = now()
         cases, chunk = [], []
+        self.output.debug(2, 1, 'Chunk tasks:')
         for i in range(st, st + mpi_count):
             assert values is not None
             assumption = [x if values[j] else -x for j, x in enumerate(variables)]
