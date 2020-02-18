@@ -5,8 +5,8 @@ from ..strategy import *
 
 class Elitism(Strategy):
     def __init__(self, **kwargs):
-        self.elites = kwargs['elites']
-        self.popsize = kwargs['popsize']
+        self.elites = kwargs['mu']
+        self.popsize = kwargs['lmbda']
         self.crossover = kwargs['crossover']
         self.mobs = self.popsize - self.elites
         super().__init__(self.popsize, **kwargs)
