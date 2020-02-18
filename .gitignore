@@ -19,3 +19,5 @@ generate.py
 tools/sync
 tools/exps
 tools/stat
+predictor
+verifier
