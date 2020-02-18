@@ -10,7 +10,7 @@ class WallTime(Limit):
         self.name = 'Limit: WallTime (%s)' % limit
 
     def exhausted(self) -> bool:
-        time = self.limits.get('time')
+        time = self.get('time')
         return time > self.limit
 
     def _parse(self, s):

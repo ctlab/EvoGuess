@@ -5,7 +5,7 @@ class Limit:
         self.limits = {
             'time': 0,
             'restarts': 0,
-            'iterations': 1,
+            'iteration': 0,
             'predictions': 0,
         }
 
@@ -15,8 +15,8 @@ class Limit:
     def set(self, key, value):
         self.limits[key] = value
 
-    def get(self, key):
-        return self.limits[key]
+    def get(self, key, default=0):
+        return self.limits.get(key, default)
 
     def exhausted(self) -> bool:
         raise NotImplementedError

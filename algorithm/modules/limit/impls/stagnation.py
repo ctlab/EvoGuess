@@ -8,7 +8,7 @@ class Stagnation(Limit):
         self.name = 'Limit: Stagnation (%d)' % limit
 
     def exhausted(self) -> bool:
-        stagnation = self.limits.get('stagnation', 0)
+        stagnation = self.get('stagnation')
         return stagnation > self.limit
 
 

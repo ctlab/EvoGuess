@@ -28,10 +28,11 @@ class Evolution(Algorithm):
             best = root.estimate(value)
             self.log_end(value).log_delim()
 
+            self.limit.set('iteration', 1)
             population = self.strategy.breed([best])
             self.limit.set('time', now() - timestamp)
             while not self.limit.exhausted():
-                it = self.limit.get('iterations')
+                it = self.limit.get('iteration')
                 self.log_it_header(it).log_delim()
                 for ind in population:
                     key = str(ind.backdoor)
@@ -66,7 +67,7 @@ class Evolution(Algorithm):
                 else:
                     population = self.strategy.breed(population)
 
-                self.limit.increase('iterations')
+                self.limit.increase('iteration')
                 self.limit.set('time', now() - timestamp)
 
             if self.size > 1:
