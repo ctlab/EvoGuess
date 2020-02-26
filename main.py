@@ -60,8 +60,11 @@ assert Strategy, "Unknown strategy"
 
 cell = Cell(
     path=['output', '_logs', inst.tag],
-    logger=tools.logger(),
-    debugger=tools.debugger(verb=args.verbosity)
+    largs={},
+    dargs={
+        'dall': True,
+        'verb': args.verbosity
+    },
 ).open(description=args.description).touch()
 
 rs = RandomState()

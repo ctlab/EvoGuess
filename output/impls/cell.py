@@ -10,23 +10,12 @@ class Cell(Output):
     def __init__(self, **kwargs):
         self.name = ''
         self.count = 0
-        self.files = {}
         super().__init__(**kwargs)
-        self.logger = kwargs['logger']
-        self.debugger = kwargs['debugger']
 
         self.tries = kwargs.get('tries', 50)
 
-        try:
-            from mpi4py import MPI
-            self.comm = MPI.COMM_WORLD
-            self.size = self.comm.Get_size()
-            self.rank = self.comm.Get_rank()
-        except ModuleNotFoundError:
-            self.rank, self.size = 0, 1
-
     def open(self, **kwargs):
-        if self.rank == 0:  # todo: add debug to other nodes
+        if self.rank == 0:
             makedirs(self.path, exist_ok=True)
 
             tries = 0
@@ -47,26 +36,32 @@ class Cell(Output):
             if kwargs.get('description'):
                 open(join(self.path, 'DESCR'), 'w+').write(kwargs['description'])
 
-            self.files['log'] = kwargs.get('log_file', 'log')
-            self.files['debug'] = kwargs.get('debug_file', 'debug')
+        if self.size > 1:
+            self.path = self.comm.bcast(self.path, root=0)
 
         return self
 
-    def touch(self):
-        if self.rank == 0:
-            log_file = '%s_%s' % (self.files['log'], self.count)
-            debug_file = '%s_%s' % (self.files['debug'], self.count)
-            self.logger.set_out(join(self.path, log_file))
-            self.debugger.set_out(join(self.path, debug_file))
-            self.count += 1
+    def touch(self, **kwargs):
+        lfile = kwargs.get('lfile', 'log')
+        dfile = kwargs.get('dfile', 'debug')
+
+        log_file = '%s_%d' % (lfile, self.count)
+        debug_file = '%s_%d_%d' % (dfile, self.count, self.rank)
+        self.logger.set_out(join(self.path, log_file))
+        self.debugger.set_out(join(self.path, debug_file))
+        self.count += 1
 
         return self
 
-    def log(self, *strs: Iterable[str]) -> None:
-        self.logger.write(*strs)
-
-    def debug(self, verb: int, level: int, *strs: Iterable[str]) -> None:
-        self.debugger.write(verb, level, *strs)
+    # def child(self):
+    #     if self.rank == 0:
+    #         log_file = '%s_%s' % (self.files['log'], self.count)
+    #         debug_file = '%s_%s' % (self.files['debug'], self.count)
+    #         self.logger.set_out(join(self.path, log_file))
+    #         self.debugger.set_out(join(self.path, debug_file))
+    #         self.count += 1
+    #
+    #     return self
 
     def close(self):
         if self.rank == 0:

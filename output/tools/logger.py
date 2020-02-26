@@ -1,13 +1,8 @@
 import threading
 
 
-def logger(prefix=''):
-    try:
-        from mpi4py import MPI
-        rank = MPI.COMM_WORLD.Get_rank()
-        return Logger(prefix) if rank == 0 else LoggerStub()
-    except ModuleNotFoundError:
-        return Logger(prefix)
+def logger(rank, prefix=''):
+    return Logger(prefix) if rank == 0 else LoggerStub()
 
 
 class Logger:
@@ -37,9 +32,6 @@ class Logger:
 
 
 class LoggerStub:
-    def __init__(self, prefix=''):
-        pass
-
     def set_out(self, path):
         pass
 
@@ -49,4 +41,6 @@ class LoggerStub:
 
 __all__ = [
     'logger',
+    'Logger',
+    'LoggerStub'
 ]
