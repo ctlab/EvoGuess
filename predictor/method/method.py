@@ -11,7 +11,6 @@ class Method:
 
     def __init__(self, **kwargs):
         self.chunk_size = kwargs['chunk_size']
-        self.concurrency = kwargs['concurrency']
 
     def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         raise NotImplementedError
@@ -28,10 +27,7 @@ class Method:
         }
 
     def __str__(self):
-        return '\n'.join(map(str, [
-            self.name,
-            self.concurrency,
-        ]))
+        return self.name
 
 
 __all__ = [

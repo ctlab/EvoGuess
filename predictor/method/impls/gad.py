@@ -9,8 +9,8 @@ class GuessAndDetermine(Method):
     name = 'Method: Guess-and-Determine'
 
     def __main_phase(self, backdoor, result, count, **kwargs):
-        output = kwargs['output']
-        rs, instance = kwargs['rs'], kwargs['instance']
+        concurrency, rs = kwargs['concurrency'], kwargs['rs']
+        output, instance = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Generating main cases...')
 
         tasks = []
@@ -19,7 +19,7 @@ class GuessAndDetermine(Method):
 
         output.debug(1, 0, 'Solving...')
         timestamp = now()
-        results = self.concurrency.solve(tasks, **kwargs)
+        results = concurrency.solve(tasks, **kwargs)
         time = now() - timestamp
 
         output.debug(1, 0, 'Has been solved %d cases by %.2f seconds' % (len(results), time))
@@ -29,15 +29,15 @@ class GuessAndDetermine(Method):
         return results
 
     def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
-        output = kwargs['output']
-        rs, instance = kwargs['rs'], kwargs['instance']
+        concurrency, rs = kwargs['concurrency'], kwargs['rs']
+        output, instance = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
 
         # init
         if instance.has_values():
             timestamp = now()
-            task = Task(0, sk=instance.secret_key.values(rs=rs))
-            result = self.concurrency.single(task, **kwargs)
+            task = Task(0, proof=True, sk=instance.secret_key.values(rs=rs))
+            result = concurrency.single(task, **kwargs)
             output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
         else:
             result = Result(0, True, 0, [])

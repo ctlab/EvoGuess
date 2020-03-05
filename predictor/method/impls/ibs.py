@@ -19,8 +19,8 @@ class InverseBackdoorSets(Method):
         self.init_timer = 0
 
     def __init_phase(self, rng, **kwargs):
-        output = kwargs['output']
-        rs, instance = kwargs['rs'], kwargs['instance']
+        concurrency, rs = kwargs['concurrency'], kwargs['rs']
+        output, instance = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Generating init cases...')
 
         results = [None] * len(rng)
@@ -37,10 +37,10 @@ class InverseBackdoorSets(Method):
         output.debug(1, 1, 'Use %d saved cases of %d' % (len(rng) - len(task_rng), len(rng)))
         while len(task_rng) > 0:
             if instance.has_values():
-                tasks = [Task(i, sk=instance.secret_key.values(rs=rs)) for i in task_rng]
+                tasks = [Task(i, proof=True, sk=instance.secret_key.values(rs=rs)) for i in task_rng]
 
                 timestamp = now()
-                c_results = self.concurrency.propagate(tasks, **kwargs)
+                c_results = concurrency.propagate(tasks, **kwargs)
                 time = now() - timestamp
 
                 output.debug(1, 1, 'Has been solved %d init cases by %.2f seconds' % (len(c_results), time))
@@ -68,18 +68,18 @@ class InverseBackdoorSets(Method):
         return results
 
     def __main_phase(self, backdoor, inited, **kwargs):
-        output = kwargs['output']
-        rs, cipher = kwargs['rs'], kwargs['instance']
+        concurrency, rs = kwargs['concurrency'], kwargs['rs']
+        output, instance = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Generating main cases...')
 
         tasks = []
         for result in inited:
             tasks.append(Task(result.i, tl=self.tl, bd=backdoor.values(solution=result.solution),
-                              **cipher.values(result.solution)))
+                              **instance.values(result.solution)))
 
         output.debug(1, 0, 'Solving...')
         timestamp = now()
-        results = self.concurrency.solve(tasks, **kwargs)
+        results = concurrency.solve(tasks, **kwargs)
         time = now() - timestamp
 
         output.debug(1, 0, 'Has been solved %d cases by %.2f seconds' % (len(results), time))
@@ -137,6 +137,12 @@ class InverseBackdoorSets(Method):
         output.debug(1, 0, 'Estimation: %.7g' % value)
 
         return Estimation(value, statistic, *strs)
+
+    def __str__(self):
+        return '\n'.join(map(str, [
+            super().__str__(),
+            self.corrector,
+        ]))
 
 
 __all__ = [

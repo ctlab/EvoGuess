@@ -78,12 +78,12 @@ predictor = MonteCarlo(
         save_init=True,
         reset_init=10,
         corrector=method.corrector.Ruler(limiter=0.01),
-        concurrency=concurrency.pysat.PebbleMap(
-            threads=args.threads,
-            incremental=args.incremental,
-            propagator=propagator,
-            solver=solver,
-        )
+    ),
+    concurrency=concurrency.pysat.PebbleMap(
+        threads=args.threads,
+        incremental=args.incremental,
+        propagator=propagator,
+        solver=solver,
     )
 )
 

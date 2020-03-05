@@ -2,9 +2,10 @@ from .result import Result
 
 
 class Task:
-    def __init__(self, i, tl=0, **assumptions):
+    def __init__(self, i, proof=False, tl=0, **assumptions):
         self.i = i
         self.tl = tl
+        self.proof = proof
         self.assumptions = assumptions
 
     def get(self):
@@ -15,7 +16,7 @@ class Task:
         return assumptions
 
     def resolve(self, status, time, solution=None):
-        return Result(self.i, status, time, solution)
+        return Result(self.i, status, time, solution if self.proof else None)
 
 
 __all__ = [

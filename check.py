@@ -47,8 +47,11 @@ backdoors = Backdoor.load(args.backdoors)
 
 cell = Cell(
     path=['output', '_check_logs', inst.tag],
-    logger=tools.logger(),
-    debugger=tools.debugger(verb=args.verbosity)
+    largs={},
+    dargs={
+        'dall': True,
+        'verb': args.verbosity
+    },
 ).open(description=args.description)
 
 rs = RandomState()

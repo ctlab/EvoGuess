@@ -7,6 +7,7 @@ class Predictor:
     def __init__(self, **kwargs):
         self.kwargs = kwargs
         self.output = kwargs['output']
+        self.concurrency = kwargs['concurrency']
 
         try:
             from mpi4py import MPI
@@ -29,6 +30,7 @@ class Predictor:
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
+            self.concurrency,
             self.kwargs['instance'],
         ]))
 

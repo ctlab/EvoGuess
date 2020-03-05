@@ -12,7 +12,6 @@ class Verificator(Predictor):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
         self.chunk_size = kwargs['chunk_size']
-        self.concurrency = kwargs['concurrency']
 
     def __get_next_values(self, values):
         new_values, i = copy(values), len(values) - 1
@@ -86,12 +85,6 @@ class Verificator(Predictor):
             self.output.log('Spent time: %.2f s' % time)
 
         return value
-
-    def __str__(self):
-        return '\n'.join(map(str, [
-            super().__str__(),
-            self.concurrency,
-        ]))
 
 
 __all__ = [
