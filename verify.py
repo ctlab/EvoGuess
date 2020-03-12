@@ -1,11 +1,24 @@
 import argparse
 
-from pysat import solvers
+from pysat import solvers as slvs
 from numpy.random.mtrand import RandomState
 
 from output import *
 from predictor import *
 from predictor.instance.models.var import Backdoor
+
+solvers = {
+    'cd': slvs.Cadical,
+    'g3': slvs.Glucose3,
+    'g4': slvs.Glucose4,
+    'lgl': slvs.Lingeling,
+    'mcb': slvs.MapleChrono,
+    'mcm': slvs.MapleCM,
+    'mpl': slvs.Maplesat,
+    'mc': slvs.Minicard,
+    'm22': slvs.Minisat22,
+    'mgh': slvs.MinisatGH,
+}
 
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('instance', type=str, help='instance of problem')
@@ -15,20 +28,26 @@ parser.add_argument('-r', '--repeats', metavar='1', type=int, default=1, help='r
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
+parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
+
+parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
+parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
 args = parser.parse_args()
 
 inst = instance.get(args.instance)
 assert inst.check()
 
+solver = solvers[args.solver]
+propagator = solvers[args.propagator] if args.propagator else solver
+
 backdoors = Backdoor.load(args.backdoors)
-solver = solvers.Cadical
 
 cell = Cell(
     path=['output', '_verify_logs', inst.tag],
     largs={},
     dargs={
-        'dall': True,
+        'dall': args.debug_all,
         'verb': args.verbosity
     },
 ).open(description=args.description)
@@ -49,13 +68,13 @@ monte_carlo = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,
-    method=method.GuessAndDetermine(
+    function=function.GuessAndDetermine(
         chunk_size=1000,
         concurrency=concurrency.pysat.MapPool(
             incremental=False,
             threads=args.threads,
             solver=solver,
-            propagator=solver,
+            propagator=propagator,
         )
     )
 )
@@ -75,7 +94,7 @@ verificator = Verificator(
         threads=args.threads,
         incremental=args.incremental,
         solver=solver,
-        propagator=solver,
+        propagator=propagator,
     )
 )
 

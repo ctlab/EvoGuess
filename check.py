@@ -22,12 +22,13 @@ solvers = {
 
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('instance', type=str, help='instance of problem')
-parser.add_argument('method', type=str, help='method of estimation')
+parser.add_argument('function', type=str, help='estimation function')
 parser.add_argument('backdoors', type=str, help='load backdoor from specified file')
 parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 parser.add_argument('-d', '--description', metavar='str', default='', type=str, help='launch description')
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
+parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
 
 parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
 parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, help='estimation sampling')
@@ -39,7 +40,7 @@ args = parser.parse_args()
 inst = instance.get(args.instance)
 assert inst.check(), "Cnf is missing"
 
-Method = method.get(args.method)
+Function = function.get(args.function)
 solver = solvers[args.solver]
 propagator = solvers[args.propagator] if args.propagator else solver
 
@@ -49,7 +50,7 @@ cell = Cell(
     path=['output', '_check_logs', inst.tag],
     largs={},
     dargs={
-        'dall': True,
+        'dall': args.debug_all,
         'verb': args.verbosity
     },
 ).open(description=args.description)
@@ -59,7 +60,7 @@ monte_carlo = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,
-    method=Method(
+    function=Function(
         time_limit=args.tl,
         chunk_size=10000,
         concurrency=concurrency.pysat.PebbleMap(
