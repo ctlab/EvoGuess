@@ -5,8 +5,8 @@ from numpy.random.mtrand import RandomState
 from pysat import solvers as slvs
 
 from output import *
+from method import *
 from algorithm import *
-from predictor import *
 
 solvers = {
     'cd': slvs.Cadical,
@@ -69,7 +69,7 @@ cell = Cell(
 ).open(description=args.description).touch()
 
 rs = RandomState()
-predictor = MonteCarlo(
+method = MonteCarlo(
     rs=rs,
     output=cell,
     instance=inst,
@@ -90,7 +90,7 @@ predictor = MonteCarlo(
 
 algorithm = Evolution(
     output=cell,
-    predictor=predictor,
+    method=method,
     limit=limit.WallTime(args.walltime),
     sampling=sampling.Const(args.sampling),
     stagnation_limit=args.stagnation,

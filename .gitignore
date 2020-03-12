@@ -12,7 +12,7 @@ output/_verify_logs
 trash
 solvers
 verifier
-predictor/new_solver
+method/new_solver
 
 # Other
 sync.*

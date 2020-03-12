@@ -1,7 +1,7 @@
 from .models import *
 
 from typing import List
-from predictor.instance.models.var import Backdoor
+from method.instance.models.var import Backdoor
 
 
 class Algorithm:
@@ -11,8 +11,8 @@ class Algorithm:
         self.values = {}
         self.limit = kwargs['limit']
         self.output = kwargs['output']
+        self.method = kwargs['method']
         self.sampling = kwargs['sampling']
-        self.predictor = kwargs['predictor']
 
         try:
             from mpi4py import MPI
@@ -25,12 +25,6 @@ class Algorithm:
     def start(self, backdoor: Backdoor) -> List[Individual]:
         raise NotImplementedError
 
-    def __str__(self):
-        return '\n'.join(map(str, [
-            self.name,
-            self.limit,
-            self.sampling
-        ]))
 
     def log_info(self):
         self.output.log('\n'.join('-- ' + s for s in str(self).split('\n')))
@@ -45,18 +39,24 @@ class Algorithm:
         return self
 
     def log_run(self, backdoor, count):
-        self.output.log('Run predictor on backdoor: %s' % backdoor,
-                        'With %d cases:' % count)
+        self.output.log('Run estimation on backdoor: %s' % backdoor, 'With %d cases:' % count)
         return self
 
     def log_end(self, value):
-        self.output.log('End prediction with value: %.7g' % value)
+        self.output.log('End estimation with value: %.7g' % value)
         return self
 
     def log_hashed(self, backdoor, value):
-        self.output.log('Hashed backdoor: %s' % backdoor,
-                        'With value: %.7g\n' % value)
+        self.output.log('Hashed backdoor: %s' % backdoor, 'With value: %.7g\n' % value)
         return self
+
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.limit,
+            self.method,
+            self.sampling
+        ]))
 
 
 __all__ = [

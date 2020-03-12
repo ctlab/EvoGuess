@@ -25,7 +25,7 @@ class Evolution(Algorithm):
             self.log_run(backdoor, count)
             value = self.__predict(backdoor, count)
             self.values[str(backdoor)] = value, count
-            best = root.estimate(value)
+            best = root.set(value)
             self.log_end(value).log_delim()
 
             self.limit.set('iteration', 1)
@@ -45,7 +45,7 @@ class Evolution(Algorithm):
                         value = self.__predict(ind.backdoor, count)
                         self.limit.increase('predictions')
                         self.values[key] = value, count
-                        ind.estimate(value)
+                        ind.set(value)
                         self.log_end(value).log_delim()
 
                         if best > ind:
@@ -99,13 +99,12 @@ class Evolution(Algorithm):
             self.output.debug(2, 1, 'Sending backdoor... %s' % backdoor)
             self.comm.bcast([count] + backdoor.snapshot(), root=0)
 
-        return self.predictor.predict(backdoor, count=count)
+        return self.method.estimate(backdoor, count=count)
 
     def __str__(self):
         return '\n'.join(map(str, [
             super().__str__(),
             self.strategy,
-            self.predictor
         ]))
 
 

@@ -4,8 +4,8 @@ from pysat import solvers as slvs
 from numpy.random.mtrand import RandomState
 
 from output import *
-from predictor import *
-from predictor.instance.models.var import Backdoor
+from method import *
+from method.instance.models.var import Backdoor
 
 solvers = {
     'cd': slvs.Cadical,
@@ -53,12 +53,12 @@ cell = Cell(
 ).open(description=args.description)
 
 
-def iteration(i, predictor, backdoor, *args, **kwargs):
+def iteration(i, method, backdoor, *args, **kwargs):
     cell.log('Iteration: %d' % i, '------------------------------------------------------')
     count = args[0] if len(args) > 0 else 2 ** len(backdoor)
-    cell.log('Run verify for backdoor: %s' % backdoor, 'With %d cases:' % count)
-    value = predictor.predict(backdoor, *args, **kwargs)
-    cell.log('End verifier with value: %.7g' % value)
+    cell.log('Run verification for backdoor: %s' % backdoor, 'With %d cases:' % count)
+    value = method.estimate(backdoor, *args, **kwargs)
+    cell.log('End verification with value: %.7g' % value)
     cell.log('------------------------------------------------------')
     return value
 
@@ -85,7 +85,7 @@ cell.log('------------------------------------------------------')
 full = iteration(0, monte_carlo, empty, count=args.repeats)
 print('Full: %.7g s' % full)
 
-verificator = Verificator(
+verification = Verification(
     output=cell,
     instance=inst,
     chunk_size=1024,
@@ -101,13 +101,13 @@ verificator = Verificator(
 
 def process(backdoor: Backdoor):
     values = []
-    cell.touch().log('\n'.join('-- ' + s for s in str(verificator).split('\n')))
+    cell.touch().log('\n'.join('-- ' + s for s in str(verification).split('\n')))
     cell.log('------------------------------------------------------')
     for i in range(args.repeats):
-        value = iteration(i, verificator, backdoor)
+        value = iteration(i, verification, backdoor)
         values.append(value)
         if args.incremental:
-            verificator.concurrency.terminate()
+            verification.concurrency.terminate()
 
     cell.log('------------------------------------------------------')
     cell.log('Summary: %.7g' % (sum(values) / len(values)))

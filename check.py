@@ -4,8 +4,8 @@ from numpy.random.mtrand import RandomState
 from pysat import solvers as slvs
 
 from output import *
-from predictor import *
-from predictor.instance.models.var import Backdoor
+from method import *
+from method.instance.models.var import Backdoor
 
 solvers = {
     'cd': slvs.Cadical,
@@ -76,9 +76,9 @@ for backdoor in backdoors:
     cell.touch().log('\n'.join('-- ' + s for s in str(monte_carlo).split('\n')))
     cell.log('------------------------------------------------------')
     cell.log('Iteration: 0', '------------------------------------------------------')
-    cell.log('Run predictor for backdoor: %s' % backdoor, 'With %d cases:' % args.sampling)
-    value = monte_carlo.predict(backdoor, count=args.sampling)
-    cell.log('End prediction with value: %.7g' % value)
+    cell.log('Run estimation for backdoor: %s' % backdoor, 'With %d cases:' % args.sampling)
+    value = monte_carlo.estimate(backdoor, count=args.sampling)
+    cell.log('End estimation with value: %.7g' % value)
     cell.log('------------------------------------------------------')
 
 cell.close()

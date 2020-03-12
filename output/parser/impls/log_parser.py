@@ -1,8 +1,8 @@
 import re
 
 from ..parser import *
-from predictor.concurrency.models import Result
-from predictor.instance.models.var import Backdoor
+from method.concurrency.models import Result
+from method.instance.models.var import Backdoor
 
 statuses = {
     'SAT': True,
@@ -66,7 +66,7 @@ class LogParser(Parser):
             assert data[i + 2].startswith('End')
             value = float(data[i + 2].split('value: ')[1])
 
-            case = Case(backdoor, results, cpu_time).estimate(value)
+            case = Case(backdoor, results, cpu_time).set(value)
             self.hash[str(backdoor)] = case
             return case, i + 4
         elif data[i].startswith('Hash'):

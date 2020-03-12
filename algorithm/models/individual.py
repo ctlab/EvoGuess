@@ -1,7 +1,7 @@
 from numpy import sign
 from typing import List
 
-from predictor.instance.models.var import Backdoor
+from method.instance.models.var import Backdoor
 
 
 class Individual:
@@ -9,7 +9,7 @@ class Individual:
         self.backdoor = backdoor
         self.value = float('inf')
 
-    def estimate(self, value):
+    def set(self, value):
         self.value = value
         return self
 
