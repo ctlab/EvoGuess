@@ -1,15 +1,15 @@
-from ..method import *
+from ..function import *
 from ...concurrency.models import Task
 
 from time import time as now
 
 
-class InverseBackdoorSets(Method):
+class InverseBackdoorSets(Function):
     type = 'ibs'
-    name = 'Method: Inverse Backdoor Sets'
+    name = 'Function: Inverse Backdoor Sets'
 
     def __init__(self, **kwargs):
-        Method.__init__(self, **kwargs)
+        Function.__init__(self, **kwargs)
         self.tl = kwargs['time_limit']
         self.corrector = kwargs.get('corrector')
         self.save_init = kwargs.get('save_init', True)
@@ -88,7 +88,7 @@ class InverseBackdoorSets(Method):
 
         return results
 
-    def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
+    def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         output = kwargs['output']
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
         output.debug(1, 0, 'Use time limit: %s' % self.tl)
@@ -113,7 +113,7 @@ class InverseBackdoorSets(Method):
 
         return cases
 
-    def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
+    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Output:
         output, cipher = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Counting statistic...')
 
@@ -136,7 +136,7 @@ class InverseBackdoorSets(Method):
             value = (2 ** len(cipher.secret_key)) * tl
         output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        return Estimation(value, statistic, *strs)
+        return Output(value, statistic, *strs)
 
     def __str__(self):
         return '\n'.join(map(str, [

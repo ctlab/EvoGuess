@@ -1,21 +1,21 @@
-from .models import Estimation
+from .models import Output
 from ..concurrency.models import Result
 from ..instance.models.var import Backdoor
 
-from typing import List, Tuple, Dict
+from typing import List, Dict
 
 
-class Method:
+class Function:
     type = None
-    name = 'Method'
+    name = 'Function'
 
     def __init__(self, **kwargs):
         self.chunk_size = kwargs['chunk_size']
 
-    def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
+    def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         raise NotImplementedError
 
-    def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
+    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Output:
         raise NotImplementedError
 
     @staticmethod
@@ -32,9 +32,8 @@ class Method:
 
 __all__ = [
     'List',
-    'Tuple',
+    'Output',
     'Result',
-    'Method',
+    'Function',
     'Backdoor',
-    'Estimation'
 ]

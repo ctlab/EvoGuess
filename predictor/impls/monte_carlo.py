@@ -10,7 +10,7 @@ class MonteCarlo(Predictor):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.method = kwargs['method']
+        self.method = kwargs['function']
 
     def predict(self, backdoor: Backdoor, **kwargs) -> int:
         count = kwargs.pop('count')
@@ -18,7 +18,7 @@ class MonteCarlo(Predictor):
         mpi_count += 1 if remainder > self.rank else 0
 
         timestamp = now()
-        cases = self.method.compute(backdoor, [], mpi_count, **self.kwargs, **kwargs)
+        cases = self.method.evaluate(backdoor, [], mpi_count, **self.kwargs, **kwargs)
         if self.size > 1:
             self.output.debug(2, 1, 'Gathering cases from %d nodes...' % self.size)
             g_cases = self.comm.gather(dumps(cases), root=0)
@@ -29,7 +29,7 @@ class MonteCarlo(Predictor):
 
         value, time = 0, now() - timestamp
         if self.rank == 0:
-            estimation = self.method.estimate(backdoor, cases, **self.kwargs)
+            estimation = self.method.set(backdoor, cases, **self.kwargs)
             self.log_info(cases, estimation, time)
             value = estimation.value
 

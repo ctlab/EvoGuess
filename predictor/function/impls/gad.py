@@ -1,12 +1,12 @@
-from ..method import *
+from ..function import *
 from ...concurrency.models import Task
 
 from time import time as now
 
 
-class GuessAndDetermine(Method):
+class GuessAndDetermine(Function):
     type = 'gad'
-    name = 'Method: Guess-and-Determine'
+    name = 'Function: Guess-and-Determine'
 
     def __main_phase(self, backdoor, result, count, **kwargs):
         concurrency, rs = kwargs['concurrency'], kwargs['rs']
@@ -28,7 +28,7 @@ class GuessAndDetermine(Method):
 
         return results
 
-    def compute(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
+    def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         concurrency, rs = kwargs['concurrency'], kwargs['rs']
         output, instance = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
@@ -56,7 +56,7 @@ class GuessAndDetermine(Method):
 
         return cases
 
-    def estimate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Estimation:
+    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Output:
         output = kwargs['output']
         output.debug(1, 0, 'Counting statistic...')
 
@@ -69,7 +69,7 @@ class GuessAndDetermine(Method):
         value = (2 ** len(backdoor)) * time_sum / len(cases)
         output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        return Estimation(value, statistic)
+        return Output(value, statistic)
 
 
 __all__ = [

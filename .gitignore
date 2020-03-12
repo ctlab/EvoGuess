@@ -3,21 +3,23 @@
 
 # Log files
 output/_logs
+output/_lies_logs
 output/_test_logs
 output/_check_logs
 output/_verify_logs
 
 # Solvers
-solvers
 trash
+solvers
+verifier
+predictor/new_solver
 
 # Other
 sync.*
 test.py
 parse.py
 generate.py
+
 tools/sync
 tools/exps
 tools/stat
-predictor
-verifier

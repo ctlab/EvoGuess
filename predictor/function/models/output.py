@@ -1,4 +1,4 @@
-class Estimation:
+class Output:
     def __init__(self, value, statistic={}, *strs):
         self.strs = strs
         self.value = value
@@ -12,5 +12,5 @@ class Estimation:
 
 
 __all__ = [
-    'Estimation'
+    'Output'
 ]
