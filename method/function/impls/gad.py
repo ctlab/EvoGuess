@@ -56,7 +56,7 @@ class GuessAndDetermine(Function):
 
         return cases
 
-    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Output:
+    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Info:
         output = kwargs['output']
         output.debug(1, 0, 'Counting statistic...')
 
@@ -69,7 +69,7 @@ class GuessAndDetermine(Function):
         value = (2 ** len(backdoor)) * time_sum / len(cases)
         output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        return Output(value, statistic)
+        return Info(value, statistic)
 
 
 __all__ = [

@@ -113,7 +113,7 @@ class InverseBackdoorSets(Function):
 
         return cases
 
-    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Output:
+    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Info:
         output, cipher = kwargs['output'], kwargs['instance']
         output.debug(1, 0, 'Counting statistic...')
 
@@ -136,7 +136,7 @@ class InverseBackdoorSets(Function):
             value = (2 ** len(cipher.secret_key)) * tl
         output.debug(1, 0, 'Estimation: %.7g' % value)
 
-        return Output(value, statistic, *strs)
+        return Info(value, statistic, *strs)
 
     def __str__(self):
         return '\n'.join(map(str, [

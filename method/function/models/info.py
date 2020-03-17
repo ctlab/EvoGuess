@@ -1,4 +1,4 @@
-class Output:
+class Info:
     def __init__(self, value, statistic={}, *strs):
         self.strs = strs
         self.value = value
@@ -12,5 +12,5 @@ class Output:
 
 
 __all__ = [
-    'Output'
+    'Info'
 ]

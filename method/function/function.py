@@ -1,4 +1,4 @@
-from .models import Output
+from .models import Info
 from ..concurrency.models import Result
 from ..instance.models.var import Backdoor
 
@@ -15,7 +15,7 @@ class Function:
     def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
         raise NotImplementedError
 
-    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Output:
+    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Info:
         raise NotImplementedError
 
     @staticmethod
@@ -32,7 +32,7 @@ class Function:
 
 __all__ = [
     'List',
-    'Output',
+    'Info',
     'Result',
     'Function',
     'Backdoor',

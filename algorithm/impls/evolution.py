@@ -11,7 +11,7 @@ class Evolution(Algorithm):
         self.strategy = kwargs['strategy']
         self.stagnation_limit = kwargs['stagnation_limit']
 
-    def start(self, backdoor: Backdoor) -> List[Individual]:
+    def process(self, backdoor: Backdoor) -> List[Individual]:
         self.output.debug(0, 0, 'Evolution start on %d nodes' % self.size)
 
         timestamp = now()
@@ -22,11 +22,9 @@ class Evolution(Algorithm):
 
             root, count = Individual(backdoor), len(self.sampling)
             self.log_it_header(0, 'base').log_delim()
-            self.log_run(backdoor, count)
-            value = self.__predict(backdoor, count)
-            self.values[str(backdoor)] = value, count
-            best = root.set(value)
-            self.log_end(value).log_delim()
+            estimation = self.__predict(backdoor, count)
+            best = root.set(estimation.value)
+            self.log_delim()
 
             self.limit.set('iteration', 1)
             population = self.strategy.breed([best])
@@ -34,23 +32,21 @@ class Evolution(Algorithm):
             while not self.limit.exhausted():
                 it = self.limit.get('iteration')
                 self.log_it_header(it).log_delim()
-                for ind in population:
-                    key = str(ind.backdoor)
-                    if key in self.values:
-                        value, _ = self.values[key]
-                        self.log_hashed(ind.backdoor, value).log_delim()
-                    else:
-                        count = len(self.sampling)
-                        self.log_run(ind.backdoor, count)
-                        value = self.__predict(ind.backdoor, count)
-                        self.limit.increase('predictions')
-                        self.values[key] = value, count
-                        ind.set(value)
-                        self.log_end(value).log_delim()
 
-                        if best > ind:
-                            best = ind
+                count = len(self.sampling)
+                # self.method.switch(population) # todo: integrate
+
+                for individual in population:
+                    backdoor = individual.backdoor
+                    estimation = self.__predict(backdoor, count)
+                    if not estimation.from_cache:
+                        self.limit.increase('predictions')
+                        individual.set(estimation.value)
+
+                        if best > individual:
+                            best = individual
                             self.limit.set('stagnation', -1)
+                    self.log_delim()
 
                 # restart
                 self.limit.increase('stagnation')
@@ -63,6 +59,7 @@ class Evolution(Algorithm):
                     # create new log file
                     if not self.limit.exhausted():
                         self.output.touch()
+                        self.comm.bcast([BTypes.TOUCH.value], root=0)
                         self.log_info().log_delim()
                 else:
                     population = self.strategy.breed(population)
@@ -71,7 +68,7 @@ class Evolution(Algorithm):
                 self.limit.set('time', now() - timestamp)
 
             if self.size > 1:
-                self.comm.bcast([-1], root=0)
+                self.comm.bcast([BTypes.EXIT.value], root=0)
 
             if best.value < root.value:
                 points.append(best)
@@ -83,21 +80,11 @@ class Evolution(Algorithm):
                 self.output.log(str(point))
 
             return points
-        else:
-            while True:
-                array = self.comm.bcast(None, root=0)
-                count, variables = array[0], array[1:]
-                if count < 0:
-                    return -1
-
-                backdoor = Backdoor(variables)
-                self.output.debug(2, 1, 'Been received backdoor: %s' % backdoor)
-                self.predictor.predict(backdoor, count=count)
 
     def __predict(self, backdoor, count):
         if self.size > 1:
             self.output.debug(2, 1, 'Sending backdoor... %s' % backdoor)
-            self.comm.bcast([count] + backdoor.snapshot(), root=0)
+            self.comm.bcast([BTypes.ESTIMATE.value, count] + backdoor.snapshot(), root=0)
 
         return self.method.estimate(backdoor, count=count)
 

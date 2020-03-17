@@ -1,9 +1,9 @@
 from ..method import *
+from ..concurrency.models import Task
 
 from copy import copy
 from time import time as now
 from numpy import concatenate
-from ..concurrency.models import Task
 
 
 class Verification(Method):
@@ -37,8 +37,9 @@ class Verification(Method):
 
         return results
 
-    def run(self, backdoor: Backdoor, **kwargs) -> int:
+    def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         count = 2 ** len(backdoor)
+        self.log_run(backdoor, count)
         variables = backdoor.snapshot()
 
         mpi_count, remainder = divmod(count, self.size)
@@ -50,7 +51,6 @@ class Verification(Method):
 
         timestamp = now()
         cases, chunk = [], []
-        self.output.debug(2, 1, 'Chunk tasks:')
         for i in range(st, st + mpi_count):
             assert values is not None
             assumption = [x if values[j] else -x for j, x in enumerate(variables)]
@@ -82,9 +82,9 @@ class Verification(Method):
                 stat['IND' if case.status is None else 'DET'] += 1
 
             self.output.log(str(stat).replace('\'', ''))
-            self.output.log('Spent time: %.2f s' % time)
+            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
 
-        return value
+        return Estimation(count, value)
 
 
 __all__ = [

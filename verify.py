@@ -55,12 +55,9 @@ cell = Cell(
 
 def iteration(i, method, backdoor, *args, **kwargs):
     cell.log('Iteration: %d' % i, '------------------------------------------------------')
-    count = args[0] if len(args) > 0 else 2 ** len(backdoor)
-    cell.log('Run verification for backdoor: %s' % backdoor, 'With %d cases:' % count)
-    value = method.estimate(backdoor, *args, **kwargs)
-    cell.log('End verification with value: %.7g' % value)
+    estimation = method.estimate(backdoor, *args, **kwargs)
     cell.log('------------------------------------------------------')
-    return value
+    return estimation.value
 
 
 rs = RandomState()
@@ -70,12 +67,12 @@ monte_carlo = MonteCarlo(
     instance=inst,
     function=function.GuessAndDetermine(
         chunk_size=1000,
-        concurrency=concurrency.pysat.MapPool(
-            incremental=False,
-            threads=args.threads,
-            solver=solver,
-            propagator=propagator,
-        )
+    ),
+    concurrency=concurrency.pysat.MapPool(
+        incremental=False,
+        threads=args.threads,
+        propagator=propagator,
+        solver=solver,
     )
 )
 
@@ -88,6 +85,7 @@ print('Full: %.7g s' % full)
 verification = Verification(
     output=cell,
     instance=inst,
+    can_cache=False,
     chunk_size=1024,
     concurrency=concurrency.pysat.MapPool(
         keep=True,

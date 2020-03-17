@@ -12,8 +12,9 @@ class MonteCarlo(Method):
         super().__init__(**kwargs)
         self.function = kwargs['function']
 
-    def run(self, backdoor: Backdoor, **kwargs) -> int:
+    def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         count = kwargs.pop('count')
+        self.log_run(backdoor, count)
         mpi_count, remainder = divmod(count, self.size)
         mpi_count += 1 if remainder > self.rank else 0
 
@@ -29,11 +30,11 @@ class MonteCarlo(Method):
 
         value, time = 0, now() - timestamp
         if self.rank == 0:
-            output = self.function.calculate(backdoor, cases, **self.kwargs)
-            self.log_info(cases, output, time)
-            value = output.value
+            info = self.function.calculate(backdoor, cases, **self.kwargs)
+            self.log_end(cases, info, time)
+            value = info.value
 
-        return value
+        return Estimation(count, value)
 
     def __str__(self):
         return '\n'.join(map(str, [

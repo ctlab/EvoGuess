@@ -15,7 +15,7 @@ verifier
 method/new_solver
 
 # Other
-sync.*
+sync.sh
 test.py
 parse.py
 generate.py

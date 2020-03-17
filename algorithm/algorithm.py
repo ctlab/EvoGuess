@@ -1,14 +1,20 @@
 from .models import *
 
+from enum import Enum
 from typing import List
 from method.instance.models.var import Backdoor
+
+
+class BTypes(Enum):
+    EXIT = 0
+    TOUCH = 1
+    ESTIMATE = 2
 
 
 class Algorithm:
     name = 'Algorithm'
 
     def __init__(self, **kwargs):
-        self.values = {}
         self.limit = kwargs['limit']
         self.output = kwargs['output']
         self.method = kwargs['method']
@@ -22,9 +28,31 @@ class Algorithm:
         except ModuleNotFoundError:
             self.rank, self.size = 0, 1
 
-    def start(self, backdoor: Backdoor) -> List[Individual]:
+    def process(self, backdoor: Backdoor) -> List[Individual]:
         raise NotImplementedError
 
+    def start(self, backdoor: Backdoor) -> List[Individual]:
+        if self.rank == 0:
+            return self.process(backdoor)
+        else:
+            while True:
+                array = self.comm.bcast(None, root=0)
+                try:
+                    b_type = BTypes(array[0])
+                    if b_type is BTypes.EXIT:
+                        self.output.debug(2, 1, 'Been received \'exit\'')
+                        return []
+                    elif b_type is BTypes.TOUCH:
+                        self.output.debug(2, 1, 'Been received \'touch\'')
+                        self.output.touch()
+                    elif b_type is BTypes.ESTIMATE:
+                        count, variables = array[1], array[2:]
+                        backdoor = Backdoor(variables)
+                        self.output.debug(2, 1, 'Been received backdoor: %s' % backdoor)
+                        self.method.estimate(backdoor, count=count)
+                except ValueError:
+                    self.output.debug(2, 1, 'Been received unknown Btype')
+                    return []
 
     def log_info(self):
         self.output.log('\n'.join('-- ' + s for s in str(self).split('\n')))
@@ -61,6 +89,7 @@ class Algorithm:
 
 __all__ = [
     'List',
+    'BTypes',
     'Backdoor',
     'Algorithm',
     'Individual'

@@ -1,1 +1,1 @@
-from .output import *
+from .info import *
