@@ -1,10 +1,6 @@
 from .impls import *
-
-from . import impls
-from . import function
-from . import instance
-from . import solver
-from . import concurrency
+from .modules import *
+from . import impls, solver, modules, function, instance, concurrency
 
 __all__ = [
     'solver',
@@ -12,4 +8,6 @@ __all__ = [
     'function',
     'concurrency'
 ]
+
 __all__.extend(impls.__all__)
+__all__.extend(modules.__all__)
