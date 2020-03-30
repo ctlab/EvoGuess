@@ -4,7 +4,7 @@ from numpy import count_nonzero as cnz
 
 
 def key_f(values):
-    return abs(2 * cnz(values) - len(values))
+    return abs(2 * cnz(values) - len(values)) * 10 - values[0]
 
 
 class NobsOrder(Sorting):

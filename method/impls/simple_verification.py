@@ -42,6 +42,8 @@ class SimpleVerification(Method):
         if self.chunk_sorting is not None:
             chunk = self.chunk_sorting.sort(chunk)
 
+        print("Test chunk")
+        [print(v) for v in chunk]
         tasks = []
         for i, values in enumerate(chunk):
             assert values is not None
