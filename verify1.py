@@ -30,6 +30,7 @@ parser.add_argument('-d', '--description', metavar='str', default='', type=str, 
 parser.add_argument('-v', '--verbosity', metavar='0', type=int, default=0, help='debug [0-3] verbosity level')
 parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
 
+parser.add_argument('-o', '--order', action='store_true', help='use nobs order')
 parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
@@ -87,7 +88,7 @@ verification = SimpleVerification(
     instance=inst,
     can_cache=False,
     chunk_size=1024,
-    chunk_sorting=sorting.NobsOrder(),
+    chunk_sorting=sorting.NobsOrder() if args.order else None,
     concurrency=concurrency.pysat.MapPool(
         keep=True,
         threads=args.threads,
