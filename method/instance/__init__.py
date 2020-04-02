@@ -19,6 +19,8 @@ from .impls.md4 import *
 from .impls.geffe import *
 from .impls.volfram import *
 
+from .impls.test import *
+
 
 def get(name):
     args = []
@@ -46,7 +48,11 @@ def get(name):
         'pr6_2': Present_6_2KP,
         # sorting
         'bvi': BubbleVsInsert,
+        'bvp': BubbleVsPancake,
         'bvs': BubbleVsSelection,
+        # nobs
+        't100': Test_100_100,
+        't200': Test_200_30_70,
         # hash
         'md4': MD4,
         # trash

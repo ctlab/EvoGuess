@@ -7,6 +7,7 @@ output/_lies_logs
 output/_test_logs
 output/_check_logs
 output/_verify_logs
+output/_verify_test_logs
 
 # Solvers
 trash
@@ -16,7 +17,6 @@ method/new_solver
 
 # Other
 sync.sh
-test.py
 parse.py
 generate.py
 
