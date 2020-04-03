@@ -13,7 +13,7 @@ class Test_100_100(Instance):
 class Test_200_30_70(Instance):
     tag = 'test_200_30_70'
     name = 'Instance: Test_200_30_70'
-    path = './templates/Test/200-30-70.cnf'
+    path = './templates/Test/200_30_70.cnf'
 
     def __init__(self):
         super().__init__(secret_key=SecretKey(1, 70))
