@@ -47,14 +47,13 @@ class Verification(Method):
         mpi_count += 1 if remainder > self.rank else 0
 
         values = [1 if st & (1 << i) else 0 for i in range(len(backdoor))][::-1]
-
+        
         timestamp = now()
         cases, chunk = [], []
-
         for i in range(st, st + mpi_count):
             assert values is not None
             assumption = [x if values[j] else -x for j, x in enumerate(variables)]
-            chunk.append(Task(i, bd=assumption, **kwargs))
+            chunk.append(Task(i, bd=assumption))
             values = self.__get_next_values(values)
 
             if len(chunk) >= self.chunk_size:

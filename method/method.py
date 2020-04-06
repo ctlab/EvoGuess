@@ -20,6 +20,9 @@ class Method:
         except ModuleNotFoundError:
             self.rank, self.size = 0, 1
 
+    def switch(self, population):
+        pass
+
     def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         raise NotImplementedError
 
