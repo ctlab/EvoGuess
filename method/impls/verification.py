@@ -40,7 +40,7 @@ class Verification(Method):
     def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         count = 2 ** len(backdoor)
 
-        if kwargs.get('count', self.chunk_size) > count:
+        if kwargs.get('count', self.chunk_size) < count:
             count, value = 0, float('inf')
 
             self.log_run(backdoor, count)
