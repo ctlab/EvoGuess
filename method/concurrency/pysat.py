@@ -29,9 +29,8 @@ def incr_solve(task):
         else:
             g_solver.clear_interrupt()
     else:
-        timestamp = now()
         status = g_solver.solve(assumptions=task.get())
-        time = now() - timestamp
+        time = g_solver.time()
 
     solution = g_solver.get_model() if status else None
     return task.resolve(status, time, solution)
@@ -53,9 +52,8 @@ def base_solve(task):
         else:
             solver.clear_interrupt()
     else:
-        timestamp = now()
         status = solver.solve(assumptions=task.get())
-        time = now() - timestamp
+        time = solver.time()
 
     solution = solver.get_model() if status else None
     solver.delete()
