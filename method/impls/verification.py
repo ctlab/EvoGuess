@@ -39,6 +39,16 @@ class Verification(Method):
 
     def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         count = 2 ** len(backdoor)
+
+        if kwargs.get('count', self.chunk_size) > count:
+            count, value = 0, float('inf')
+
+            self.log_run(backdoor, count)
+            self.output.log(str({'IND': 0, 'DET': 0}).replace('\'', ''))
+            self.output.log('Spent time: 0.0 s', 'End with value: %.7g' % value)
+
+            return Estimation(count, value)
+
         self.log_run(backdoor, count)
         variables = backdoor.snapshot()
 
@@ -47,7 +57,7 @@ class Verification(Method):
         mpi_count += 1 if remainder > self.rank else 0
 
         values = [1 if st & (1 << i) else 0 for i in range(len(backdoor))][::-1]
-        
+
         timestamp = now()
         cases, chunk = [], []
         for i in range(st, st + mpi_count):
