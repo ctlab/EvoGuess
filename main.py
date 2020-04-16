@@ -68,44 +68,44 @@ cell = Cell(
     },
 ).open(description=args.description).touch()
 
-# rs = RandomState()
-# method = MonteCarlo(
-#     rs=rs,
-#     output=cell,
-#     instance=inst,
-#     function=Function(
-#         time_limit=args.tl,
-#         chunk_size=1000,
-#         save_init=True,
-#         reset_init=10,
-#         corrector=function.corrector.Ruler(limiter=0.01),
-#     ),
-#     concurrency=concurrency.pysat.PebbleMap(
-#         threads=args.threads,
-#         incremental=args.incremental,
-#         propagator=propagator,
-#         solver=solver,
-#     )
-# )
-
-method = Verification(
+rs = RandomState()
+method = MonteCarlo(
+    rs=rs,
     output=cell,
     instance=inst,
-    chunk_size=1024,
-    concurrency=concurrency.pysat.MapPool(
+    function=Function(
+        time_limit=args.tl,
+        chunk_size=1000,
+        save_init=True,
+        reset_init=10,
+        corrector=function.corrector.Ruler(limiter=0.01),
+    ),
+    concurrency=concurrency.pysat.PebbleMap(
         threads=args.threads,
         incremental=args.incremental,
-        solver=solver,
         propagator=propagator,
+        solver=solver,
     )
 )
+
+# method = Verification(
+#     output=cell,
+#     instance=inst,
+#     chunk_size=1024,
+#     concurrency=concurrency.pysat.MapPool(
+#         threads=args.threads,
+#         incremental=args.incremental,
+#         solver=solver,
+#         propagator=propagator,
+#     )
+# )
 
 algorithm = Evolution(
     output=cell,
     method=method,
     limit=limit.tools.Any(
         limit.WallTime(args.walltime),
-        limit.Stagnation(100),
+        limit.Stagnation(250),
     ),
     sampling=sampling.Const(args.sampling),
     stagnation_limit=args.stagnation,
@@ -117,7 +117,9 @@ algorithm = Evolution(
     )
 )
 
-sk = inst.secret_key.to_backdoor()
-empty = sk.get_copy([False] * sk.length)
-points = algorithm.start(empty)
+# sk = inst.secret_key.to_backdoor()
+# empty = sk.get_copy([False] * sk.length)
+# points = algorithm.start(empty)
+points = algorithm.start(inst.secret_key.to_backdoor())
+
 cell.close()
