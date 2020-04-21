@@ -32,8 +32,18 @@ class Algorithm:
         raise NotImplementedError
 
     def start(self, backdoor: Backdoor) -> List[Individual]:
+        self.output.debug(0, 0, '%s start on %d nodes' % (self.name, self.size))
+
         if self.rank == 0:
-            return self.process(backdoor)
+            points = self.process(backdoor)
+            self.comm.bcast([BTypes.EXIT.value], root=0)
+
+            self.log_delim()
+            self.output.log('Points:')
+            for point in points:
+                self.output.log(str(point))
+
+            return points
         else:
             while True:
                 array = self.comm.bcast(None, root=0)
@@ -53,6 +63,13 @@ class Algorithm:
                 except ValueError:
                     self.output.debug(2, 1, 'Been received unknown Btype')
                     return []
+
+    def predict(self, backdoor, count):
+        if self.size > 1:
+            self.output.debug(2, 1, 'Sending backdoor... %s' % backdoor)
+            self.comm.bcast([BTypes.ESTIMATE.value, count] + backdoor.snapshot(), root=0)
+
+        return self.method.estimate(backdoor, count=count)
 
     def log_info(self):
         self.output.log('\n'.join('-- ' + s for s in str(self).split('\n')))
