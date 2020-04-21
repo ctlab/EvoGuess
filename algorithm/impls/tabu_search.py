@@ -54,6 +54,8 @@ class TabuSearch(Algorithm):
             if updated:
                 self.add_tabu(center)
                 trace.append((center, next_center))
+                self.output.debug(4, 0, '[TABU] step forward: <%s> -> <%s>' % (center, next_center))  # debug
+                self.output.debug(4, 0, '[TABU] trace length: %d' % len(trace))  # debug
                 center = next_center
 
                 if best > center:
@@ -63,6 +65,8 @@ class TabuSearch(Algorithm):
                 center, next_center = trace.pop()
                 self.remove_tabu(center)
                 self.add_tabu(next_center)
+                self.output.debug(4, 0, '[TABU] step backward: <%s> -> <%s>' % (next_center, center))  # debug
+                self.output.debug(4, 0, '[TABU] trace length: %d' % len(trace))  # debug
 
             self.limit.increase('iteration')
             self.limit.set('time', now() - timestamp)
@@ -74,9 +78,11 @@ class TabuSearch(Algorithm):
 
     def add_tabu(self, i):
         self.tabu.add(str(i.backdoor))
+        self.output.debug(4, 0, '[TABU] add tabu: <%s>' % i)  # debug
 
     def remove_tabu(self, i):
         self.tabu.remove(str(i.backdoor))
+        self.output.debug(4, 0, '[TABU] remove tabu: <%s>' % i)  # debug
 
     def neighbourhood(self, i):
         for j in range(i.backdoor.length):
