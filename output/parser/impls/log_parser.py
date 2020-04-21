@@ -71,7 +71,8 @@ class LogParser(Parser):
             return case, i + 4
         elif data[i].startswith('Hash'):
             backdoor = Backdoor.parse(self.bd.split(data[i])[1])
-            return self.hash[str(backdoor)], i + 3
+            case = self.hash[str(backdoor)].get_copy()
+            return case, i + 3
         else:
             return None, i
 

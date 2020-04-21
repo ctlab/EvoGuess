@@ -23,6 +23,9 @@ class Case(Individual):
             'DET': len(self.results) - ind
         }
 
+    def get_copy(self):
+        return Case(self.backdoor, self.results).set(self.value)
+
 
 __all__ = [
     'Case'
