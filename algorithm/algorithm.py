@@ -36,7 +36,9 @@ class Algorithm:
 
         if self.rank == 0:
             points = self.process(backdoor)
-            self.comm.bcast([BTypes.EXIT.value], root=0)
+            
+            if self.size > 1:
+                self.comm.bcast([BTypes.EXIT.value], root=0)
 
             self.log_delim()
             self.output.log('Points:')
