@@ -71,6 +71,13 @@ class Algorithm:
 
         return self.method.estimate(backdoor, count=count)
 
+    def touch_log(self):
+        self.output.touch()
+        if self.size > 1:
+            self.comm.bcast([BTypes.TOUCH.value], root=0)
+
+        return self
+
     def log_info(self):
         self.output.log('\n'.join('-- ' + s for s in str(self).split('\n')))
         return self

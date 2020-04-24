@@ -1,5 +1,6 @@
 from ..algorithm import *
 
+import random
 from time import time as now
 
 
@@ -8,6 +9,7 @@ class TabuSearch(Algorithm):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.shuffling = kwargs.get('shuffling', False)
 
         self.tabu = set()
 
@@ -85,7 +87,13 @@ class TabuSearch(Algorithm):
         self.output.debug(4, 0, '[TABU] remove tabu: <%s>' % i)  # debug
 
     def neighbourhood(self, i):
-        for j in range(i.backdoor.length):
+        order = range(i.backdoor.length)
+
+        if self.shuffling:
+            order = list(order)
+            random.shuffle(order)
+
+        for j in order:
             v = i.backdoor.get_mask()
             v[j] = not v[j]
             yield Individual(i.backdoor.get_copy(v))

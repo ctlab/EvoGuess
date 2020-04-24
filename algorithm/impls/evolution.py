@@ -55,9 +55,7 @@ class Evolution(Algorithm):
 
                 # create new log file
                 if not self.limit.exhausted():
-                    self.output.touch()
-                    self.comm.bcast([BTypes.TOUCH.value], root=0)
-                    self.log_info().log_delim()
+                    self.touch_log().log_info().log_delim()
             else:
                 population = self.strategy.breed(population)
 
