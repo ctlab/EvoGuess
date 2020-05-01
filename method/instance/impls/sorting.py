@@ -28,8 +28,18 @@ class BubbleVsPancake(Instance):
         super().__init__(secret_key=SecretKey(1, count * size))
 
 
+class PancakeVsSelection(Instance):
+    tag = 'pancake_vs_selection'
+
+    def __init__(self, count, size):
+        self.name = 'Instance: Pancake Vs Selection %dx%d' % (count, size)
+        self.path = './templates/PancakeVsSelectionSort/PancakeVsSelectionSort_%d_%d.cnf' % (count, size)
+        super().__init__(secret_key=SecretKey(1, count * size))
+
+
 __all__ = [
     'BubbleVsInsert',
     'BubbleVsPancake',
     'BubbleVsSelection',
+    'PancakeVsSelection'
 ]

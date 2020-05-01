@@ -50,6 +50,7 @@ def get(name):
         'bvi': BubbleVsInsert,
         'bvp': BubbleVsPancake,
         'bvs': BubbleVsSelection,
+        'pvs': PancakeVsSelection,
         # nobs
         't100': Test_100_100,
         't200': Test_200_30_70,
