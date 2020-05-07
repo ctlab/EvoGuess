@@ -16,8 +16,16 @@ class Result:
         self.status = status
         self.solution = solution
 
+    def get_status(self):
+        return statuses[self.status]
+
     def __str__(self):
         return '%s(%f) at %s' % (statuses[self.status], self.time, self.pid)
+
+    def __copy__(self):
+        result = Result(self.i, self.status, self.time, self.solution)
+        result.pid = self.pid
+        return result
 
 
 __all__ = [

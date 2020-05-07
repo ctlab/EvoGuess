@@ -18,6 +18,9 @@ class Task:
     def resolve(self, status, time, solution=None):
         return Result(self.i, status, time, solution if self.proof else None)
 
+    def __copy__(self):
+        return Task(self.i, proof=self.proof, tl=self.tl, **self.assumptions)
+
 
 __all__ = [
     'Task'
