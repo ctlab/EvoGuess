@@ -25,6 +25,7 @@ solvers = {
 
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('instance', type=str, help='instance of problem')
+parser.add_argument('backdoors', type=str, help='load backdoor from specified file')
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 
 parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
@@ -71,14 +72,16 @@ kwargs = {
 }
 
 rs = RandomState()
+bads, goods = [], []
 count = args.sampling
-# backdoor = Backdoor.parse('1 3 4 5 7 9 10 13 16 18 19 20 21 22 23 24 25 26 27 30 31 34 37 41 43 44 47 48 50 51 52 56 60 61 64')
-backdoor = Backdoor.parse('2 4 6 9 11 16 20 23 24 25 26 27 28 30 32 36 38 46 47 48 51')
-while True:
+backdoors = Backdoor.load(args.backdoors)
+for backdoor in backdoors:
     init_tasks = [Task(i, proof=True, sk=inst.secret_key.values(rs=rs)) for i in range(count)]
     inited = concur.propagate(init_tasks, **kwargs)
 
-    assert len(inited) == count, "Init result len less then count"
+    if len(inited) != count:
+        cell.log("Init result len less then count")
+        continue
 
     tasks = []
     for result in inited:
@@ -91,13 +94,17 @@ while True:
     results = concur.solve(tasks, **kwargs)
     time = now() - timestamp
 
-    assert len(results) == count, "Result len less then count"
+    if len(results) != count:
+        cell.log("Result len less then count")
+        continue
 
     timestamp = now()
     results_incr = concur_incr.solve(tasks_incr, **kwargs)
     time_incr = now() - timestamp
 
-    assert len(results_incr) == count, "Incr result len less then count"
+    if len(results) != count:
+        cell.log("Incr result len less then count")
+        continue
 
     good, bad = 0, 0
     for i in range(count):
@@ -108,10 +115,23 @@ while True:
             good += 1
         if results_incr[i].status is None and results[i].status is not None:
             bad += 1
-        print('%d: %s -> %s' % (results[i].i, s, s_incr))
+        cell.log('%d: %s -> %s' % (results[i].i, s, s_incr))
 
-    print('Time:', time)
-    print('Time incr:', time_incr)
-    print('Bad:', bad)
-    print('Good:', good)
-    break
+    cell.log('Time: %.2f' % time)
+    cell.log('Time incr: %.2f' % time_incr)
+    cell.log('Bad: %d' % bad)
+    cell.log('Good: %d' % good)
+
+    bads.append(bad)
+    goods.append(good)
+    cell.touch()
+
+print(bads)
+print(goods)
+
+better = 0
+for i in range(len(bads)):
+    if goods > bads:
+        better += 1
+
+print("Chance: %.2f" % (better / len(bads)))
