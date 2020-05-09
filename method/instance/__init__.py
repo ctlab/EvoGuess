@@ -19,6 +19,7 @@ from .impls.md4 import *
 from .impls.geffe import *
 from .impls.volfram import *
 
+from .impls.curcuit import *
 from .impls.test import *
 
 
@@ -51,9 +52,12 @@ def get(name):
         'bvp': BubbleVsPancake,
         'bvs': BubbleVsSelection,
         'pvs': PancakeVsSelection,
+        # curcuit
+        'c6288': Curcuit_с6288,
         # nobs
         't100': Test_100_100,
         't200': Test_200_30_70,
+        't_dfa': DFA_200_399_150,
         # hash
         'md4': MD4,
         # trash

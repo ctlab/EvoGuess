@@ -135,3 +135,4 @@ for i in range(len(bads)):
         better += 1
 
 print("Chance: %.2f" % (better / len(bads)))
+cell.close()
