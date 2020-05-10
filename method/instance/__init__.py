@@ -53,7 +53,7 @@ def get(name):
         'bvs': BubbleVsSelection,
         'pvs': PancakeVsSelection,
         # curcuit
-        'c6288': Curcuit_с6288,
+        'c6288': Curcuit_c6288,
         # nobs
         't100': Test_100_100,
         't200': Test_200_30_70,
