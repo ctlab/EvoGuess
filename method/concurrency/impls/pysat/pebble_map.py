@@ -1,7 +1,6 @@
-from threading import Timer
-
 from ...pysat import *
 
+from threading import Timer
 from pebble import ProcessPool
 
 

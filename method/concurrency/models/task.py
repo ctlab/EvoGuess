@@ -8,10 +8,23 @@ class Task:
         self.proof = proof
         self.assumptions = assumptions
 
-    def get(self):
+    def get(self, in_bits=True, out_bits=True):
         assumptions = []
-        for values in self.assumptions.values():
-            assumptions.extend(values)
+
+        if in_bits and out_bits:
+            for values in self.assumptions.values():
+                assumptions.extend(values)
+
+            return assumptions
+
+        if in_bits:
+            for key, values in self.assumptions.items():
+                if key in ['secret_key', 'backdoor']:
+                    assumptions.extend(values)
+        if out_bits:
+            for key, values in self.assumptions.items():
+                if key in ['key_stream', 'public_key']:
+                    assumptions.extend(values)
 
         return assumptions
 

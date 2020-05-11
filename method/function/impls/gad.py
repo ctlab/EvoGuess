@@ -15,7 +15,7 @@ class GuessAndDetermine(Function):
 
         tasks = []
         for i in range(count):
-            tasks.append(Task(i, bd=backdoor.values(rs=rs), **instance.values(result.solution)))
+            tasks.append(Task(i, backdoor=backdoor.values(rs=rs), **instance.values(result.solution)))
 
         output.debug(1, 0, 'Solving...')
         timestamp = now()
@@ -36,7 +36,7 @@ class GuessAndDetermine(Function):
         # init
         if instance.has_values():
             timestamp = now()
-            task = Task(0, proof=True, sk=instance.secret_key.values(rs=rs))
+            task = Task(0, proof=True, secret_key=instance.secret_key.values(rs=rs))
             result = concurrency.single(task, **kwargs)
             output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
         else:

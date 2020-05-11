@@ -37,7 +37,7 @@ class InverseBackdoorSets(Function):
         output.debug(1, 1, 'Use %d saved cases of %d' % (len(rng) - len(task_rng), len(rng)))
         while len(task_rng) > 0:
             if instance.has_values():
-                tasks = [Task(i, proof=True, sk=instance.secret_key.values(rs=rs)) for i in task_rng]
+                tasks = [Task(i, proof=True, secret_key=instance.secret_key.values(rs=rs)) for i in task_rng]
 
                 timestamp = now()
                 c_results = concurrency.propagate(tasks, **kwargs)
@@ -74,7 +74,7 @@ class InverseBackdoorSets(Function):
 
         tasks = []
         for result in inited:
-            tasks.append(Task(result.i, tl=self.tl, bd=backdoor.values(solution=result.solution),
+            tasks.append(Task(result.i, tl=self.tl, backdoor=backdoor.values(solution=result.solution),
                               **instance.values(result.solution)))
 
         output.debug(1, 0, 'Solving...')
