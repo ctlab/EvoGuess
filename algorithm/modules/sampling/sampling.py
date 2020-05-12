@@ -1,7 +1,10 @@
+from method.instance.models.var import Backdoor
+
+
 class Sampling:
     name = 'Sampling'
 
-    def __len__(self):
+    def get_size(self, backdoor: Backdoor):
         raise NotImplementedError
 
     def __str__(self):
@@ -9,5 +12,6 @@ class Sampling:
 
 
 __all__ = [
+    'Backdoor',
     'Sampling'
 ]

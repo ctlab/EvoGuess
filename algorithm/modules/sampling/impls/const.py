@@ -6,7 +6,7 @@ class Const(Sampling):
         self.count = count
         self.name = 'Sampling: Const (%s)' % count
 
-    def __len__(self):
+    def get_size(self, backdoor: Backdoor):
         return self.count
 
 

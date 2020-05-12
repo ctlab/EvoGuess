@@ -20,7 +20,8 @@ class TabuSearch(Algorithm):
         self.log_info().log_delim()
         self.limit.set('upgrades', 0)
 
-        root, count = Individual(backdoor), len(self.sampling)
+        root = Individual(backdoor)
+        count = self.sampling.get_size(backdoor)
         self.log_it_header(0, 'base').log_delim()
         estimation = self.predict(backdoor, count)
         best = root.set(estimation.value)
@@ -40,6 +41,7 @@ class TabuSearch(Algorithm):
             next_center = None
             for individual in self.neighbourhood(center):
                 backdoor = individual.backdoor
+                count = self.sampling.get_size(backdoor)
                 estimation = self.predict(backdoor, count)
                 if not estimation.from_cache:
                     self.limit.increase('predictions')
