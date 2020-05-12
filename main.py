@@ -88,26 +88,22 @@ method = MonteCarlo(
     )
 )
 
-# method = Verification(
-#     output=cell,
-#     instance=inst,
-#     chunk_size=1024,
-#     concurrency=concurrency.pysat.MapPool(
-#         threads=args.threads,
-#         incremental=args.incremental,
-#         solver=solver,
-#         propagator=propagator,
-#     )
-# )
+
+def sampling_f(backdoor):
+    min_s, max_s = 64, args.sampling
+    full = 2 ** len(backdoor)
+    count = min(max_s, max(min_s, full // 10))
+    return min(count, full)
+
 
 algorithm = Evolution(
     output=cell,
     method=method,
     limit=limit.tools.Any(
         limit.WallTime(args.walltime),
-        limit.Stagnation(250),
+        limit.Stagnation(350),
     ),
-    sampling=sampling.Const(args.sampling),
+    sampling=sampling.Function(sampling_f),
     stagnation_limit=args.stagnation,
     strategy=Strategy(
         mu=mu, lmbda=lmbda,
