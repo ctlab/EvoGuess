@@ -60,7 +60,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_logs', inst.tag],
+    path=['output', '_test_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -68,23 +68,15 @@ cell = Cell(
     },
 ).open(description=args.description).touch()
 
-rs = RandomState()
-method = MonteCarlo(
-    rs=rs,
+method = Verification(
     output=cell,
     instance=inst,
-    function=Function(
-        time_limit=args.tl,
-        chunk_size=1000,
-        save_init=True,
-        reset_init=10,
-        corrector=function.corrector.Ruler(limiter=0.01),
-    ),
+    chunk_size=1024,
     concurrency=concurrency.pysat.PebbleMap(
         threads=args.threads,
         incremental=args.incremental,
-        propagator=propagator,
         solver=solver,
+        propagator=propagator,
     )
 )
 
@@ -108,11 +100,16 @@ algorithm = Evolution(
     strategy=Strategy(
         mu=mu, lmbda=lmbda,
         selection=selection.Best(),
-        mutation=mutation.Doer(),
+        mutation=mutation.tools.Configurator(
+            {'?': lambda l: l['stagnation'] < 3, 'f': mutation.Doer(beta=3)},
+            {'?': lambda l: l['stagnation'] > 3, 'f': mutation.Doer(beta=2)}
+        ),
         crossover=crossover.Uniform(p=0.2)
     )
 )
 
-points = algorithm.start(inst.secret_key.to_backdoor())
+sk = inst.secret_key.to_backdoor()
+empty = sk.get_copy([False] * sk.length)
+points = algorithm.start(empty)
 
 cell.close()
