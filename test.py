@@ -185,7 +185,7 @@ tasks = {
         *tasks20,
         *tasks22,
     ]
-}[args.b]
+}[args.type]
 
 results = pool.map(worker_function, tasks14)
 for result in results:
