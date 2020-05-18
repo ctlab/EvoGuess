@@ -12,7 +12,8 @@ now = '%s_%s' % (date, time)
 
 parser = argparse.ArgumentParser(description='Configurator')
 parser.add_argument('instance', type=str, help='instance of problem')
-parser.add_argument('function', type=str, help='estimation function')
+parser.add_argument('-f', '--function', type=str, default='', help='estimation function')
+parser.add_argument('-file', type=str, default='', help='additional file')
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
@@ -56,11 +57,15 @@ with open('%s.qsub' % now, 'w+') as f:
 
 with open('%s.sh' % now, 'w+') as f:
     f.write('#!/bin/bash\n\n')
+    f.write('python3 %s.py' % args.script)
     if len(args.native) > 0:
-        f.write('python3 %s' % args.native)
+        f.write(' %s' % args.native)
     else:
-        f.write('python3 %s.py' % args.script)
-        f.write(' %s %s' % (args.instance, args.function))
+        f.write(' %s' % args.instance)
+        if len(args.function) > 0:
+            f.write(' %s' % args.function)
+        if len(args.file) > 0:
+            f.write(' %s' % args.file)
 
         f.write(' -t %d' % args.threads)
         f.write(' -d \"%s\"' % args.description)
@@ -80,4 +85,4 @@ with open('%s.sh' % now, 'w+') as f:
     f.write('\n')
 
 
-print('chmod +x %s.qsub;qsub.%s %s.qsub' % (now, args.sector, now))
+print('chmod +x %s.sh && qsub.%s %s.qsub' % (now, args.sector, now))
