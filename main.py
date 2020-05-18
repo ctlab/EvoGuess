@@ -110,10 +110,11 @@ algorithm = Evolution(
     strategy=Strategy(
         mu=mu, lmbda=lmbda,
         selection=selection.Best(),
-        mutation=mutation.tools.Configurator(
-            {'?': lambda l: l['stagnation'] < 3, 'f': mutation.Doer(beta=3)},
-            {'?': lambda l: l['stagnation'] > 3, 'f': mutation.Doer(beta=2)}
-        ),
+        mutation=mutation.Doer(beta=3),
+        # mutation=mutation.tools.Configurator(
+        #     {'?': lambda l: l['stagnation'] < 3, 'f': mutation.Doer(beta=3)},
+        #     {'?': lambda l: l['stagnation'] > 3, 'f': mutation.Doer(beta=2)}
+        # ),
         crossover=crossover.Uniform(p=0.2)
     )
 )
