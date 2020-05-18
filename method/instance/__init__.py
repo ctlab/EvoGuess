@@ -19,15 +19,22 @@ from .impls.md4 import *
 from .impls.geffe import *
 from .impls.volfram import *
 
-from .impls.curcuit import *
+from .impls.circuit import *
 from .impls.test import *
+
+
+def try_int(c):
+    try:
+        return int(c)
+    except ValueError:
+        return c
 
 
 def get(name):
     args = []
     if ':' in name:
         [name, args] = name.split(':')
-        args = map(int, args.split('_'))
+        args = map(try_int, args.split('_'))
     return {
         'e0': E0,
         'a5': A5_1,
@@ -52,9 +59,14 @@ def get(name):
         'bvp': BubbleVsPancake,
         'bvs': BubbleVsSelection,
         'pvs': PancakeVsSelection,
-        # curcuit
-        'b14C': Curcuit_b14C,
-        'c6288': Curcuit_c6288,
+        # circuit
+        'b14C': Circuit_b14C,
+        'b15C': Circuit_b15C,
+        'b17C': Circuit_b17C,
+        'b20C': Circuit_b20C,
+        'b21C': Circuit_b21C,
+        'b22C': Circuit_b22C,
+        'c6288': Circuit_c6288,
         # nobs
         't100': Test_100_100,
         't200': Test_200_30_70,

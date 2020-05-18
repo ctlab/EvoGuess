@@ -1,138 +1,194 @@
 import argparse
+import subprocess
 
-from copy import copy
-from time import time as now
-from pysat import solvers as slvs
-from numpy.random.mtrand import RandomState
+from multiprocessing import Pool
+from pysat.solvers import Cadical, Glucose3
 
-from method.concurrency.models import Task
-from method.instance.models.var import Backdoor
-from output import *
 from method import *
 
-solvers = {
-    'cd': slvs.Cadical,
-    'g3': slvs.Glucose3,
-    'g4': slvs.Glucose4,
-    'lgl': slvs.Lingeling,
-    'mcb': slvs.MapleChrono,
-    'mcm': slvs.MapleCM,
-    'mpl': slvs.Maplesat,
-    'mc': slvs.Minicard,
-    'm22': slvs.Minisat22,
-    'mgh': slvs.MinisatGH,
-}
-
-parser = argparse.ArgumentParser(description='EvoGuess')
-parser.add_argument('instance', type=str, help='instance of problem')
-parser.add_argument('backdoors', type=str, help='load backdoor from specified file')
-parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
-
-parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
-parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, help='estimation sampling')
-parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
-parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
+parser = argparse.ArgumentParser(description='Test')
+parser.add_argument('-t', '--threads', metavar='4', type=int, default=4, help='concurrency threads')
+parser.add_argument('-b', metavar='14', type=int, default=14, help='task type')
 
 args = parser.parse_args()
 
-inst = instance.get(args.instance)
-assert inst.check(), "Cnf is missing"
+tag = 'b21'
+p = subprocess.Popen(['ls', '-l', 'templates/Circuit/itc99/%s' % tag], encoding='utf8', stdout=subprocess.PIPE)
+output, _ = p.communicate()
+count = 0
+for line in output.split('\n'):
+    if tag in line:
+        s = line.split('_Cmut')[1].split('.cnf')[0]
+        args = s[:-1], s[-1:]
+        print('(\'%sC:%s_%s\', \'g3\'),' % (tag, args[0], args[1]))
+        count += 1
+print(count)
+exit(0)
 
-solver = solvers[args.solver]
-propagator = solvers[args.propagator] if args.propagator else solver
 
-cell = Cell(
-    path=['output', '_test_logs', inst.tag],
-    largs={},
-    dargs={
-        'dall': True,
-        'verb': 10
-    },
-).open().touch()
+def worker_function(f_args):
+    inst = instance.get(f_args[0])
+    if not inst.check():
+        return f_args, None, None, 'Cnf is missing'
 
-concur = concurrency.pysat.PebbleMap(
-    threads=args.threads,
-    incremental=False,
-    propagator=propagator,
-    solver=solver,
-    # keep=True
-)
+    solver = None
+    if f_args[1] == 'cd':
+        solver = Cadical(bootstrap_with=inst.clauses(), use_timer=True)
+    else:
+        solver = Glucose3(bootstrap_with=inst.clauses(), use_timer=True)
 
-concur_incr = concurrency.pysat.PebbleMap(
-    threads=args.threads,
-    incremental=True,
-    propagator=propagator,
-    solver=solver,
-    # keep=True
-)
+    if solver is None:
+        return f_args, None, None, 'Unknown solver'
 
-kwargs = {
-    'output': cell,
-    'instance': inst
+    status = solver.solve()
+    time = solver.time()
+    key = str(solver)
+    solver.delete()
+    return f_args, time, status, key
+
+
+pool = Pool(processes=args.threads)
+
+# 30
+tasks14 = [
+    ('b14C:4060_n', 'g3'),
+    ('b14C:4062_p', 'g3'),
+    ('b14C:4064_n', 'g3'),
+    ('b14C:4102_p', 'g3'),
+    ('b14C:4104_n', 'g3'),
+    ('b14C:4106_n', 'g3'),
+    ('b14C:4108_n', 'g3'),
+    ('b14C:4108_p', 'g3'),
+    ('b14C:4110_n', 'g3'),
+    ('b14C:4112_p', 'g3'),
+    ('b14C:4128_p', 'g3'),
+    ('b14C:4138_p', 'g3'),
+    ('b14C:4152_p', 'g3'),
+    ('b14C:4180_p', 'g3'),
+    ('b14C:4234_p', 'g3'),
+    ('b14C:4248_p', 'g3'),
+    ('b14C:4306_p', 'g3'),
+    ('b14C:4320_p', 'g3'),
+    ('b14C:4378_p', 'g3'),
+    ('b14C:4392_p', 'g3'),
+    ('b14C:4450_p', 'g3'),
+    ('b14C:4464_p', 'g3'),
+    ('b14C:4522_p', 'g3'),
+    ('b14C:4536_p', 'g3'),
+    ('b14C:4590_p', 'g3'),
+    ('b14C:4608_p', 'g3'),
+    ('b14C:4658_p', 'g3'),
+    ('b14C:4676_p', 'g3'),
+    ('b14C:4726_p', 'g3'),
+    ('b14C:4744_p', 'g3'),
+]
+
+# 30
+tasks15 = [
+    ('b15C:1288_p', 'g3'),
+    ('b15C:1306_p', 'g3'),
+    ('b15C:1378_p', 'g3'),
+    ('b15C:1410_p', 'g3'),
+    ('b15C:1430_p', 'g3'),
+    ('b15C:1994_p', 'g3'),
+    ('b15C:2718_p', 'g3'),
+    ('b15C:2726_p', 'g3'),
+    ('b15C:2728_n', 'g3'),
+    ('b15C:3072_p', 'g3'),
+    ('b15C:3284_p', 'g3'),
+    ('b15C:4210_n', 'g3'),
+    ('b15C:4316_p', 'g3'),
+    ('b15C:4750_p', 'g3'),
+    ('b15C:4786_n', 'g3'),
+    ('b15C:4788_p', 'g3'),
+    ('b15C:4796_p', 'g3'),
+    ('b15C:4800_n', 'g3'),
+    ('b15C:4800_p', 'g3'),
+    ('b15C:4808_p', 'g3'),
+    ('b15C:4810_n', 'g3'),
+    ('b15C:4852_p', 'g3'),
+    ('b15C:4854_p', 'g3'),
+    ('b15C:4890_n', 'g3'),
+    ('b15C:4892_p', 'g3'),
+    ('b15C:4900_p', 'g3'),
+    ('b15C:4904_n', 'g3'),
+    ('b15C:4904_p', 'g3'),
+    ('b15C:4912_p', 'g3'),
+    ('b15C:4914_n', 'g3'),
+]
+
+# 2
+tasks17 = [
+    ('b17C:49933_n', 'g3'),
+    ('b17C:51589_n', 'g3'),
+]
+
+# 10
+tasks20 = [
+    ('b20C:19861_p', 'g3'),
+    ('b20C:6355_n', 'g3'),
+    ('b20C:6739_p', 'g3'),
+    ('b20C:7645_p', 'g3'),
+    ('b20C:8857_n', 'g3'),
+    ('b20C:8859_n', 'g3'),
+    ('b20C:8861_n', 'g3'),
+    ('b20C:8863_n', 'g3'),
+    ('b20C:8865_n', 'g3'),
+    ('b20C:8867_p', 'g3'),
+]
+
+# 24
+tasks21 = [
+    ('b21C:19917_p', 'g3'),
+    ('b21C:6921_p', 'g3'),
+    ('b21C:6949_p', 'g3'),
+    ('b21C:6969_p', 'g3'),
+    ('b21C:6997_p', 'g3'),
+    ('b21C:7035_p', 'g3'),
+    ('b21C:7077_p', 'g3'),
+    ('b21C:7131_p', 'g3'),
+    ('b21C:7267_p', 'g3'),
+    ('b21C:7291_p', 'g3'),
+    ('b21C:7317_p', 'g3'),
+    ('b21C:7341_p', 'g3'),
+    ('b21C:7375_p', 'g3'),
+    ('b21C:7403_p', 'g3'),
+    ('b21C:7505_p', 'g3'),
+    ('b21C:7909_p', 'g3'),
+    ('b21C:7937_p', 'g3'),
+    ('b21C:8835_n', 'g3'),
+    ('b21C:8903_n', 'g3'),
+    ('b21C:8905_n', 'g3'),
+    ('b21C:8907_n', 'g3'),
+    ('b21C:8909_n', 'g3'),
+    ('b21C:8911_n', 'g3'),
+    ('b21C:8913_p', 'g3'),
+]
+
+# 6
+tasks22 = [
+    ('b22C:18832_p', 'g3'),
+    ('b22C:6080_n', 'g3'),
+    ('b22C:7800_n', 'g3'),
+    ('b22C:7802_n', 'g3'),
+    ('b22C:7806_n', 'g3'),
+    ('b22C:7808_n', 'g3'),
+]
+
+tasks = {
+    14: tasks14,
+    15: tasks15,
+    21: tasks21,
+    0: [
+        *tasks17,
+        *tasks20,
+        *tasks22,
+    ]
 }
 
-rs = RandomState()
-bads, goods = [], []
-count = args.sampling
-backdoors = Backdoor.load(args.backdoors)
-for backdoor in backdoors:
-    init_tasks = [Task(i, proof=True, sk=inst.secret_key.values(rs=rs)) for i in range(count)]
-    inited = concur.propagate(init_tasks, **kwargs)
+results = pool.map(worker_function, tasks14)
+for result in results:
+    print(result)
 
-    if len(inited) != count:
-        cell.log("Init result len less then count")
-        continue
-
-    tasks = []
-    for result in inited:
-        tasks.append(Task(result.i, tl=args.tl, bd=backdoor.values(solution=result.solution),
-                          **inst.values(result.solution)))
-
-    tasks_incr = [copy(t) for t in tasks]
-
-    timestamp = now()
-    results = concur.solve(tasks, **kwargs)
-    time = now() - timestamp
-
-    if len(results) != count:
-        cell.log("Result len less then count")
-        continue
-
-    timestamp = now()
-    results_incr = concur_incr.solve(tasks_incr, **kwargs)
-    time_incr = now() - timestamp
-
-    if len(results) != count:
-        cell.log("Incr result len less then count")
-        continue
-
-    good, bad = 0, 0
-    for i in range(count):
-        s = '%s(%.2f)' % (results[i].get_status(), results[i].time)
-        s_incr = '%s(%.2f)' % (results_incr[i].get_status(), results_incr[i].time)
-
-        if results[i].status is None and results_incr[i].status is not None:
-            good += 1
-        if results_incr[i].status is None and results[i].status is not None:
-            bad += 1
-        cell.log('%d: %s -> %s' % (results[i].i, s, s_incr))
-
-    cell.log('Time: %.2f' % time)
-    cell.log('Time incr: %.2f' % time_incr)
-    cell.log('Bad: %d' % bad)
-    cell.log('Good: %d' % good)
-
-    bads.append(bad)
-    goods.append(good)
-    cell.touch()
-
-print(bads)
-print(goods)
-
-better = 0
-for i in range(len(bads)):
-    if goods > bads:
-        better += 1
-
-print("Chance: %.2f" % (better / len(bads)))
-cell.close()
+pool.terminate()
+pool.join()
