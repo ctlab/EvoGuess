@@ -29,6 +29,7 @@ parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1',
 parser.add_argument('-st', '--stagnation', metavar='300', type=int, default=300, help='stagnation limit')
 
 parser.add_argument('-nodes', '--nodes', metavar='5', type=int, default=5, help='nodes')
+parser.add_argument('-native', '--native', metavar='str', type=str, default='', help='native script')
 parser.add_argument('-script', '--script', metavar='main', type=str, default='main', help='script')
 parser.add_argument('-sector', '--sector', metavar='intel', type=str, default='intel', help='sector')
 
@@ -55,24 +56,28 @@ with open('%s.qsub' % now, 'w+') as f:
 
 with open('%s.sh' % now, 'w+') as f:
     f.write('#!/bin/bash\n\n')
-    f.write('python3 %s.py' % args.script)
-    f.write(' %s %s' % (args.instance, args.function))
+    if len(args.native) > 0:
+        f.write('python3 %s' % args.native)
+    else:
+        f.write('python3 %s.py' % args.script)
+        f.write(' %s %s' % (args.instance, args.function))
 
-    f.write(' -t %d' % args.threads)
-    f.write(' -d \"%s\"' % args.description)
-    f.write(' -wt %s' % args.walltime)
-    f.write(' -v %d' % args.verbosity)
-    if args.incremental: f.write(' -i')
-    if args.debug_all: f.write(' -dall')
+        f.write(' -t %d' % args.threads)
+        f.write(' -d \"%s\"' % args.description)
+        f.write(' -wt %s' % args.walltime)
+        f.write(' -v %d' % args.verbosity)
+        if args.incremental: f.write(' -i')
+        if args.debug_all: f.write(' -dall')
 
-    f.write(' -tl %d' % args.tl)
-    f.write(' -n %d' % args.sampling)
-    f.write(' -s %s' % args.solver)
-    if len(args.propagator) > 0:
-        f.write(' -pr %s' % args.propagator)
+        f.write(' -tl %d' % args.tl)
+        f.write(' -n %d' % args.sampling)
+        f.write(' -s %s' % args.solver)
+        if len(args.propagator) > 0:
+            f.write(' -pr %s' % args.propagator)
 
-    f.write(' -a %s' % args.algorithm)
-    f.write(' -st %d' % args.stagnation)
+        f.write(' -a %s' % args.algorithm)
+        f.write(' -st %d' % args.stagnation)
     f.write('\n')
 
-print('qsub.%s %s.qsub' % (args.sector, now))
+
+print('chmod +x %s.qsub;qsub.%s %s.qsub' % (now, args.sector, now))
