@@ -73,5 +73,6 @@ with open('%s.sh' % now, 'w+') as f:
 
     f.write(' -a %s' % args.algorithm)
     f.write(' -st %d' % args.stagnation)
+    f.write('\n')
 
 print('qsub.%s %s.qsub' % (args.sector, now))
