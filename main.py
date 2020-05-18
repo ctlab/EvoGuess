@@ -24,11 +24,11 @@ solvers = {
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('instance', type=str, help='instance of problem')
 parser.add_argument('function', type=str, help='estimation function')
-parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
 parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
+parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
 
 parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
@@ -45,6 +45,8 @@ inst = instance.get(args.instance)
 assert inst.check(), "Cnf is missing"
 
 Function = function.get(args.function)
+assert function is not None, "Unknown function"
+
 solver = solvers[args.solver]
 propagator = solvers[args.propagator] if args.propagator else solver
 
@@ -60,7 +62,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_logs', inst.tag],
+    path=['output', '_test_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -108,7 +110,10 @@ algorithm = Evolution(
     strategy=Strategy(
         mu=mu, lmbda=lmbda,
         selection=selection.Best(),
-        mutation=mutation.Doer(),
+        mutation=mutation.tools.Configurator(
+            {'?': lambda l: l['stagnation'] < 3, 'f': mutation.Doer(beta=3)},
+            {'?': lambda l: l['stagnation'] > 3, 'f': mutation.Doer(beta=2)}
+        ),
         crossover=crossover.Uniform(p=0.2)
     )
 )
