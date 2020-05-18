@@ -12,18 +12,18 @@ parser.add_argument('-b', metavar='14', type=int, default=14, help='task type')
 
 args = parser.parse_args()
 
-tag = 'b21'
-p = subprocess.Popen(['ls', '-l', 'templates/Circuit/itc99/%s' % tag], encoding='utf8', stdout=subprocess.PIPE)
-output, _ = p.communicate()
-count = 0
-for line in output.split('\n'):
-    if tag in line:
-        s = line.split('_Cmut')[1].split('.cnf')[0]
-        args = s[:-1], s[-1:]
-        print('(\'%sC:%s_%s\', \'g3\'),' % (tag, args[0], args[1]))
-        count += 1
-print(count)
-exit(0)
+# tag = 'b21'
+# p = subprocess.Popen(['ls', '-l', 'templates/Circuit/itc99/%s' % tag], encoding='utf8', stdout=subprocess.PIPE)
+# output, _ = p.communicate()
+# count = 0
+# for line in output.split('\n'):
+#     if tag in line:
+#         s = line.split('_Cmut')[1].split('.cnf')[0]
+#         args = s[:-1], s[-1:]
+#         print('(\'%sC:%s_%s\', \'g3\'),' % (tag, args[0], args[1]))
+#         count += 1
+# print(count)
+# exit(0)
 
 
 def worker_function(f_args):
@@ -184,7 +184,7 @@ tasks = {
         *tasks20,
         *tasks22,
     ]
-}
+}[args.b]
 
 results = pool.map(worker_function, tasks14)
 for result in results:
