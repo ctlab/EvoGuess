@@ -31,7 +31,7 @@ class Method:
         if self.can_cache and key in self.cache:
             estimation = self.cache[key]
             estimation.from_cache = True
-            self.log_cached(backdoor, estimation)
+            self.log_cached(backdoor, estimation.value)
         else:
             estimation = self.run(backdoor, **kwargs)
             self.cache[key] = estimation
@@ -40,8 +40,8 @@ class Method:
     def log_run(self, backdoor, count):
         self.output.log('Run method on backdoor: %s' % backdoor, 'With %d cases:' % count)
 
-    def log_cached(self, backdoor, estimation):
-        self.output.log('Hashed backdoor: %s' % backdoor, 'With value: %.7g\n' % estimation.value)
+    def log_cached(self, backdoor, value):
+        self.output.log('Hashed backdoor: %s' % backdoor, 'With value: %.7g\n' % value)
 
     def log_end(self, cases, info, time):
         for case in cases:

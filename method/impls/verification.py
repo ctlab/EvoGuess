@@ -47,7 +47,7 @@ class Verification(Method):
             self.output.log(str({'IND': 0, 'DET': 0}).replace('\'', ''))
             self.output.log('Spent time: 0.0 s', 'End with value: %.7g' % value)
 
-            return Estimation(count, value)
+            return Estimation([], value)
 
         self.log_run(backdoor, count)
         variables = backdoor.snapshot()
@@ -93,7 +93,7 @@ class Verification(Method):
             self.output.log(str(stat).replace('\'', ''))
             self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
 
-        return Estimation(count, value)
+        return Estimation(cases, value)
 
 
 __all__ = [

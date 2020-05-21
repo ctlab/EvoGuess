@@ -33,8 +33,10 @@ class MonteCarlo(Method):
             info = self.function.calculate(backdoor, cases, **self.kwargs)
             self.log_end(cases, info, time)
             value = info.value
-
-        return Estimation(count, value)
+        else:
+            cases = []
+        
+        return Estimation(cases, value)
 
     def __str__(self):
         return '\n'.join(map(str, [

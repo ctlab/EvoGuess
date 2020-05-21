@@ -16,7 +16,7 @@ class Any(Limit):
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
-            *self.args
+            *('  ' + str(arg) for arg in self.args)
         ]))
 
 

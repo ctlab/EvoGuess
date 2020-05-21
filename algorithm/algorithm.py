@@ -37,8 +37,8 @@ class Algorithm:
         if self.rank == 0:
             points = self.process(backdoor)
             
-            if self.size > 1:
-                self.comm.bcast([BTypes.EXIT.value], root=0)
+            for i in range(1, self.size):
+                self.comm.send([BTypes.EXIT.value], dest=i)
 
             self.log_delim()
             self.output.log('Points:')
@@ -48,7 +48,7 @@ class Algorithm:
             return points
         else:
             while True:
-                array = self.comm.bcast(None, root=0)
+                array = self.comm.recv(None, source=0)
                 try:
                     b_type = BTypes(array[0])
                     if b_type is BTypes.EXIT:
@@ -67,16 +67,16 @@ class Algorithm:
                     return []
 
     def predict(self, backdoor, count):
-        if self.size > 1:
-            self.output.debug(2, 1, 'Sending backdoor... %s' % backdoor)
-            self.comm.bcast([BTypes.ESTIMATE.value, count] + backdoor.snapshot(), root=0)
+        for i in range(1, self.size):
+            self.output.debug(2, 1, 'Sending to %d backdoor... %s' % (i, backdoor))
+            self.comm.send([BTypes.ESTIMATE.value, count] + backdoor.snapshot(), dest=i)
 
         return self.method.estimate(backdoor, count=count)
 
     def touch_log(self):
         self.output.touch()
-        if self.size > 1:
-            self.comm.bcast([BTypes.TOUCH.value], root=0)
+        for i in range(1, self.size):
+            self.comm.send([BTypes.TOUCH.value], dest=i)
 
         return self
 

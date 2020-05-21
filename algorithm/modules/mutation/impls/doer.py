@@ -1,26 +1,28 @@
 from ..mutation import *
 
+from math import pow
+
 
 class Doer(Mutation):
-    name = 'Mutation: Doer'
-
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.aperi_const = 1.202056
+        self.beta = kwargs.get('beta', 3)
+        self.name = 'Mutation: Doer (beta: %d)' % self.beta
 
     def __get_alpha(self, size):
-        half_size = size // 2
-        if half_size == 1:
+        bound = size // 2 + 1
+        if bound < 3:
             return 1
 
-        l, p, r = 0., self.rs.rand(), 0.
-        for i in range(half_size):
-            l = r
-            r += (1. / (self.aperi_const * ((i + 1) ** 3)))
-            if l <= p < r:
-                return i + 1
+        ll, p, rr = 0., self.rs.rand(), 0.
+        c = sum(1. / pow(i, self.beta) for i in range(1, bound))
+        for k in range(1, bound):
+            ll = rr
+            rr += (1. / (c * pow(k, self.beta)))
+            if ll <= p < rr:
+                return k
 
-        return half_size
+        return bound - 1
 
     def mutate(self, i: Individual) -> Individual:
         v = i.backdoor.get_mask()

@@ -1,4 +1,4 @@
-from . import crossover, mutation, selection, strategy, limit, sampling
+from . import crossover, mutation, selection, strategy, limit, sampling, stat_test
 
 __all__ = [
     'limit',
@@ -6,5 +6,6 @@ __all__ = [
     'strategy',
     'mutation',
     'selection',
-    'crossover'
+    'crossover',
+    'stat_test'
 ]

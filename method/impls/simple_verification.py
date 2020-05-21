@@ -70,7 +70,7 @@ class SimpleVerification(Method):
             self.output.log(str(stat).replace('\'', ''))
             self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
 
-        return Estimation(count, value)
+        return Estimation(results, value)
 
 
 __all__ = [
