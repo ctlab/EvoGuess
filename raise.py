@@ -39,7 +39,7 @@ parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', 
 parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1', help='optimization algorithm')
 parser.add_argument('-st', '--stagnation', metavar='300', type=int, default=300, help='stagnation limit')
 
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 inst = instance.get(args.instance)
 assert inst.check(), "Cnf is missing"

@@ -11,7 +11,7 @@ parser.add_argument('type', type=int, help='task type')
 parser.add_argument('-s', '--solver', metavar='g3', type=str, default='g3', help='solver')
 parser.add_argument('-t', '--threads', metavar='4', type=int, default=4, help='concurrency threads')
 
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 # tag = 'b21'
 # p = subprocess.Popen(['ls', '-l', 'templates/Circuit/itc99/%s' % tag], encoding='utf8', stdout=subprocess.PIPE)

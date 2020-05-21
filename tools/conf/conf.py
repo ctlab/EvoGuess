@@ -23,6 +23,7 @@ parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on 
 
 parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
 parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, help='estimation sampling')
+parser.add_argument('-sn', '--step_size', metavar='100', type=int, default=100, help='stat test step size')
 parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
@@ -76,6 +77,7 @@ with open('%s.sh' % now, 'w+') as f:
 
         f.write(' -tl %d' % args.tl)
         f.write(' -n %d' % args.sampling)
+        f.write(' -sn %d' % args.step_size)
         f.write(' -s %s' % args.solver)
         if len(args.propagator) > 0:
             f.write(' -pr %s' % args.propagator)
