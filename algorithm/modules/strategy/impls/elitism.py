@@ -1,6 +1,7 @@
+from ..strategy import *
+
 import warnings
 from math import ceil
-from ..strategy import *
 
 
 class Elitism(Strategy):
@@ -27,6 +28,12 @@ class Elitism(Strategy):
             j += 2
 
         return parents[:self.elites], children[:self.mobs]
+
+    def configure(self, limits):
+        return [
+            *super().configure(limits),
+            self.crossover.configure(limits)
+        ]
 
     def __len__(self):
         return self.popsize

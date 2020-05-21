@@ -8,6 +8,9 @@ class Selection:
     def select(self, estimated: Population, size: int) -> Iterable[Individual]:
         raise NotImplementedError
 
+    def configure(self, limits):
+        pass
+
     def __str__(self):
         return self.name
 

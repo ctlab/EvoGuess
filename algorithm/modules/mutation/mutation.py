@@ -13,6 +13,9 @@ class Mutation:
     def mutate(self, i: Individual) -> Individual:
         raise NotImplementedError
 
+    def configure(self, limits):
+        pass
+
     def __str__(self):
         return self.name + (' (seed: %s)' % self.seed if self.seed else '')
 

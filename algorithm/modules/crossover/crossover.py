@@ -14,6 +14,9 @@ class Crossover:
     def cross(self, i1: Individual, i2: Individual) -> Tuple[Individual, Individual]:
         raise NotImplementedError
 
+    def configure(self, limits):
+        pass
+    
     def __str__(self):
         return self.name + (' (seed: %s)' % self.seed if self.seed else '')
 

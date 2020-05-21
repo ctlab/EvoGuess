@@ -54,12 +54,16 @@ class Evolution(Algorithm):
                 points.append(best)
                 best = root
                 self.limit.set('stagnation', 0)
+                info = self.strategy.configure(self.limit.limits)
+                self.output.debug(3, 1, 'configure: ' + str(info))
                 population = self.strategy.breed([root])
 
                 # create new log file
                 if not self.limit.exhausted():
                     self.touch_log().log_info().log_delim()
             else:
+                info = self.strategy.configure(self.limit.limits)
+                self.output.debug(3, 1, 'configure: ' + str(info))
                 population = self.strategy.breed(population)
 
             self.limit.set('time', now() - timestamp)

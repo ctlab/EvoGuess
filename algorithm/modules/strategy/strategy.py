@@ -22,6 +22,12 @@ class Strategy:
     def join(self, parents: Population, children: Population) -> Population:
         return [*parents, *children]
 
+    def configure(self, limits):
+        return [
+            self.selection.configure(limits),
+            self.mutation.configure(limits),
+        ]
+
     def __len__(self):
         raise NotImplementedError
 
