@@ -58,9 +58,9 @@ class Circuit_b22C(Instance):
 class Circuit_c6288(Instance):
     tag = 'c6288'
 
-    def __init__(self, param):
-        self.name = 'Instance: Circuit c6288 %d' % param
-        self.path = './templates/Circuit/iscas85/c6288/c6288mut%dn.cnf' % param
+    def __init__(self, bit, c):
+        self.name = 'Instance: Circuit c6288 %d %s' % (bit, c)
+        self.path = './templates/Circuit/iscas85/c6288/c6288mut%d%s.cnf' % (bit, c)
         super().__init__(secret_key=SecretKey(1, 32))
 
 
