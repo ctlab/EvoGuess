@@ -18,6 +18,7 @@ parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='c
 parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
 parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
 parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
+parser.add_argument('-r', '--repeats', metavar='1', type=int, default=1, help='repeats count')
 parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
 
@@ -72,6 +73,7 @@ with open('%s.sh' % now, 'w+') as f:
         f.write(' -d \"%s\"' % args.description)
         f.write(' -wt %s' % args.walltime)
         f.write(' -v %d' % args.verbosity)
+        f.write(' -r %d' % args.repeats)
         if args.incremental: f.write(' -i')
         if args.debug_all: f.write(' -dall')
 
