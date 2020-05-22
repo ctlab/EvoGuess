@@ -22,7 +22,7 @@ parser.add_argument('-r', '--repeats', metavar='1', type=int, default=1, help='r
 parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
 parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
 
-parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
+parser.add_argument('-tl', metavar='0', type=int, default=0, help='time limit for ibs')
 parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, help='estimation sampling')
 parser.add_argument('-sn', '--step_size', metavar='100', type=int, default=100, help='stat test step size')
 parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
@@ -77,7 +77,8 @@ with open('%s.sh' % now, 'w+') as f:
         if args.incremental: f.write(' -i')
         if args.debug_all: f.write(' -dall')
 
-        f.write(' -tl %d' % args.tl)
+        if args.tl > 0:
+            f.write(' -tl %d' % args.tl)
         f.write(' -n %d' % args.sampling)
         f.write(' -sn %d' % args.step_size)
         f.write(' -s %s' % args.solver)
