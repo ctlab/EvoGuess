@@ -14,27 +14,28 @@ parser = argparse.ArgumentParser(description='Configurator')
 parser.add_argument('instance', type=str, help='instance of problem')
 parser.add_argument('-f', '--function', type=str, default='', help='estimation function')
 parser.add_argument('-file', type=str, default='', help='additional file')
-parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
-parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
-parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
-parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
-parser.add_argument('-r', '--repeats', metavar='1', type=int, default=1, help='repeats count')
-parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
-parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
-
-parser.add_argument('-tl', metavar='0', type=int, default=0, help='time limit for ibs')
-parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, help='estimation sampling')
-parser.add_argument('-sn', '--step_size', metavar='100', type=int, default=100, help='stat test step size')
-parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
-parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
-
-parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1', help='optimization algorithm')
-parser.add_argument('-st', '--stagnation', metavar='300', type=int, default=300, help='stagnation limit')
 
 parser.add_argument('-nodes', '--nodes', metavar='5', type=int, default=5, help='nodes')
 parser.add_argument('-native', '--native', metavar='str', type=str, default='', help='native script')
 parser.add_argument('-script', '--script', metavar='main', type=str, default='main', help='script')
 parser.add_argument('-sector', '--sector', metavar='intel', type=str, default='intel', help='sector')
+
+parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
+parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
+parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
+parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
+parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
+parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
+
+parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
+parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
+
+parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1', help='optimization algorithm')
+parser.add_argument('-tl', metavar='0', type=int, default=0, help='time limit for ibs')
+parser.add_argument('-r', '--repeats', metavar='0', type=int, default=0, help='repeats count')
+parser.add_argument('-n', '--sampling', metavar='0', type=int, default=0, help='estimation sampling')
+parser.add_argument('-sn', '--step_size', metavar='0', type=int, default=0, help='stat test step size')
+parser.add_argument('-st', '--stagnation', metavar='0', type=int, default=0, help='stagnation limit')
 
 args = parser.parse_args()
 
@@ -73,20 +74,19 @@ with open('%s.sh' % now, 'w+') as f:
         f.write(' -d \"%s\"' % args.description)
         f.write(' -wt %s' % args.walltime)
         f.write(' -v %d' % args.verbosity)
-        f.write(' -r %d' % args.repeats)
         if args.incremental: f.write(' -i')
         if args.debug_all: f.write(' -dall')
 
-        if args.tl > 0:
-            f.write(' -tl %d' % args.tl)
-        f.write(' -n %d' % args.sampling)
-        f.write(' -sn %d' % args.step_size)
         f.write(' -s %s' % args.solver)
-        if len(args.propagator) > 0:
-            f.write(' -pr %s' % args.propagator)
+        if len(args.propagator) > 0: f.write(' -pr %s' % args.propagator)
 
-        f.write(' -a %s' % args.algorithm)
-        f.write(' -st %d' % args.stagnation)
+        if len(args.algorithm) > 0: f.write(' -a %s' % args.algorithm)
+        if args.tl > 0: f.write(' -tl %d' % args.tl)
+        if args.repeats > 0: f.write(' -r %d' % args.repeats)
+        if args.sampling > 0: f.write(' -n %d' % args.sampling)
+        if args.step_size > 0: f.write(' -sn %d' % args.step_size)
+        if args.stagnation > 0: f.write(' -st %d' % args.stagnation)
+
     f.write('\n')
 
 
