@@ -17,7 +17,7 @@ parser.add_argument('-file', type=str, default='', help='additional file')
 
 parser.add_argument('-nodes', '--nodes', metavar='5', type=int, default=5, help='nodes')
 parser.add_argument('-native', '--native', metavar='str', type=str, default='', help='native script')
-parser.add_argument('-script', '--script', metavar='main', type=str, default='main', help='script')
+parser.add_argument('-script', '--script', metavar='main', type=str, default='', help='script')
 parser.add_argument('-sector', '--sector', metavar='intel', type=str, default='intel', help='sector')
 
 parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
@@ -40,9 +40,14 @@ parser.add_argument('-st', '--stagnation', metavar='0', type=int, default=0, hel
 args = parser.parse_args()
 
 with open('%s.qsub' % now, 'w+') as f:
+    if len(args.native) > 0:
+        name = 'native:%s' % args.instance
+    else:
+        name = '%s:%s' % (args.script, args.instance)
+
     f.write('#!/bin/bash\n')
     f.write('#\n')
-    f.write('#PBS -N %s:%s\n' % (args.script, args.instance))
+    f.write('#PBS -N %s\n' % name)
     f.write('#PBS -l nodes=%d' % args.nodes)
     f.write(':%s' % args.sector)
     f.write(':ppn=%d' % args.threads)
@@ -60,10 +65,13 @@ with open('%s.qsub' % now, 'w+') as f:
 
 with open('%s.sh' % now, 'w+') as f:
     f.write('#!/bin/bash\n\n')
-    f.write('python3 %s.py' % args.script)
+    
     if len(args.native) > 0:
-        f.write(' %s' % args.native)
+        if len(args.script) > 0:
+            f.write('python3 %s.py ' % args.script)
+        f.write(args.native)
     else:
+        f.write('python3 %s.py' % args.script)
         f.write(' %s' % args.instance)
         if len(args.function) > 0:
             f.write(' %s' % args.function)
