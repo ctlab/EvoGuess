@@ -30,7 +30,7 @@ parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on 
 parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
-parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1', help='optimization algorithm')
+parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='', help='optimization algorithm')
 parser.add_argument('-tl', metavar='0', type=int, default=0, help='time limit for ibs')
 parser.add_argument('-r', '--repeats', metavar='0', type=int, default=0, help='repeats count')
 parser.add_argument('-n', '--sampling', metavar='0', type=int, default=0, help='estimation sampling')
