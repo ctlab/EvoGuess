@@ -36,6 +36,7 @@ parser.add_argument('-r', '--repeats', metavar='0', type=int, default=0, help='r
 parser.add_argument('-n', '--sampling', metavar='0', type=int, default=0, help='estimation sampling')
 parser.add_argument('-sn', '--step_size', metavar='0', type=int, default=0, help='stat test step size')
 parser.add_argument('-st', '--stagnation', metavar='0', type=int, default=0, help='stagnation limit')
+parser.add_argument('-o', '--order', action='store_true', help='use nobs order')
 
 args = parser.parse_args()
 
@@ -50,7 +51,11 @@ with open('%s.qsub' % now, 'w+') as f:
     f.write('#PBS -N %s\n' % name)
     f.write('#PBS -l nodes=%d' % args.nodes)
     f.write(':%s' % args.sector)
-    f.write(':ppn=%d' % args.threads)
+    s_threads = {
+        'amd': 32,
+        'intel': 36
+    }[args.sector] or 32
+    f.write(':ppn=%d' % s_threads)
     wts = [int(w) for w in args.walltime.split(':')]
     wts[0] += 1
     f.write(',walltime=%s\n' % ':'.join(map(str, map(z, wts))))
@@ -65,7 +70,7 @@ with open('%s.qsub' % now, 'w+') as f:
 
 with open('%s.sh' % now, 'w+') as f:
     f.write('#!/bin/bash\n\n')
-    
+
     if len(args.native) > 0:
         if len(args.script) > 0:
             f.write('python3 %s.py ' % args.script)
@@ -94,6 +99,7 @@ with open('%s.sh' % now, 'w+') as f:
         if args.sampling > 0: f.write(' -n %d' % args.sampling)
         if args.step_size > 0: f.write(' -sn %d' % args.step_size)
         if args.stagnation > 0: f.write(' -st %d' % args.stagnation)
+        if args.order: f.write(' -o')
 
     f.write('\n')
 
