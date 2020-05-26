@@ -34,7 +34,7 @@ parser.add_argument('-o', '--order', action='store_true', help='use nobs order')
 parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 inst = instance.get(args.instance)
 assert inst.check()
