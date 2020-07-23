@@ -14,9 +14,9 @@ class TabuSearch(Algorithm):
         self.tabu = set()
 
     def process(self, backdoor: Backdoor) -> List[Individual]:
+        trace = []
         timestamp = now()
 
-        trace = []
         self.log_info().log_delim()
         self.limit.set('upgrades', 0)
 

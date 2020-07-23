@@ -80,9 +80,11 @@ empty = Backdoor.empty()
 cell.touch().log('\n'.join('-- ' + s for s in str(monte_carlo).split('\n')))
 cell.log('------------------------------------------------------')
 full = iteration(0, monte_carlo, empty, count=args.repeats)
+# full = 10000.0
 print('Full: %.7g s' % full)
 
 verification = Verification(
+    rs=rs,
     output=cell,
     instance=inst,
     can_cache=False,

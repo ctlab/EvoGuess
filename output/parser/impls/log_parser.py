@@ -20,8 +20,9 @@ class LogParser(Parser):
         self.float = re.compile(r'[^\d.]+')
 
     def parse(self, data):
-        i = 0
+        info, i = [], 0
         while not data[i].startswith('---'):
+            info.append(data[i])
             i += 1
 
         iterations = []
@@ -30,7 +31,7 @@ class LogParser(Parser):
             iterations.append(iteration)
             iteration, i = self.parse_iteration(data, i)
 
-        return iterations
+        return info, iterations
 
     def parse_iteration(self, data, i):
         if len(data) <= i:

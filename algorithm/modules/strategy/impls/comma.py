@@ -10,7 +10,6 @@ class Comma(Strategy):
 
     def tweak(self, generator: Iterable[Individual]) -> Tuple[Population, Population]:
         parents = [next(generator) for _ in range(self.lmbda)]
-        print(list(map(str, parents)))
         children = map(self.mutation.mutate, parents)
 
         return [], list(children)

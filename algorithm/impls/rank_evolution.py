@@ -18,9 +18,9 @@ class RankEvolution(Algorithm):
         self.stagnation_limit = kwargs['stagnation_limit']
 
     def process(self, backdoor: Backdoor) -> List[Individual]:
+        points = []
         timestamp = now()
 
-        points = []
         self.log_info().log_delim()
         self.limit.set('stagnation', 0)
 

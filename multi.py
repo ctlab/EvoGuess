@@ -51,7 +51,7 @@ solver = solvers[args.solver]
 propagator = solvers[args.propagator] if args.propagator else solver
 
 Strategy = None
-exps = [r'(\d+)(\+)(\d+)', r'(\d+)(,)(\d+)', r'(\d+)(\^)(\d+)']
+exps = [r'(\d+)(\+)(\d+)', r'(\d+)(,)(\d+)', r'(\d+)(\*)(\d+)', r'(\d+)(\^)(\d+)']
 alg_re = [re.findall(exp, args.algorithm) for exp in exps]
 for i, alg_args in enumerate(alg_re):
     if len(alg_args):
@@ -62,7 +62,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_logs', inst.tag],
+    path=['output', '_test_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -98,9 +98,10 @@ def sampling_f(backdoor):
     return min(count, full)
 
 
-algorithm = Evolution(
+algorithm = MultiEvolution(
     output=cell,
     method=method,
+    weights=(-2, -1),
     limit=limit.tools.Any(
         limit.WallTime(args.walltime),
         limit.Stagnation(350),
@@ -110,8 +111,8 @@ algorithm = Evolution(
     strategy=Strategy(
         mu=mu, lmbda=lmbda,
         selection=selection.Best(),
-        mutation=mutation.Doer(beta=3),
-        # mutation=mutation.Uniform(),
+        mutation=mutation.Uniform(),
+        # mutation=mutation.Doer(beta=3),
         # mutation=mutation.tools.Configurator(
         #     {'?': lambda l: l['stagnation'] < 3, 'f': mutation.Doer(beta=3)},
         #     {'?': lambda l: l['stagnation'] > 3, 'f': mutation.Doer(beta=2)}
@@ -121,5 +122,4 @@ algorithm = Evolution(
 )
 
 points = algorithm.start(inst.secret_key.to_backdoor())
-
 cell.close()

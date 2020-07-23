@@ -1,10 +1,10 @@
-from .my_pool import *
 from .single_pool import *
+from .vertical_pysat import *
 
 from . import pysat
 
 __all__ = [
-    'MyPool',
-    'SinglePool',
     'pysat',
+    'SinglePool',
+    'VerticalPySAT',
 ]

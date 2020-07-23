@@ -1,5 +1,5 @@
 from ..method import *
-from ..concurrency.models import Task
+from ..concurrency.models import Task, Result
 
 from copy import copy
 from time import time as now
@@ -51,6 +51,17 @@ class Verification(Method):
 
         self.log_run(backdoor, count)
         variables = backdoor.snapshot()
+        instance, rs = self.kwargs['instance'], self.kwargs['rs']
+
+        # init
+        if instance.has_values():
+            timestamp = now()
+            task = Task(0, proof=True, secret_key=instance.secret_key.values(rs=rs))
+            result = self.concurrency.single(task, **self.kwargs)
+            self.output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
+        else:
+            result = Result(0, True, 0, [])
+            self.output.debug(1, 0, 'Skip init phase')
 
         mpi_count, remainder = divmod(count, self.size)
         st = mpi_count * self.rank + min(self.rank, remainder)
@@ -63,7 +74,7 @@ class Verification(Method):
         for i in range(st, st + mpi_count):
             assert values is not None
             assumption = [x if values[j] else -x for j, x in enumerate(variables)]
-            chunk.append(Task(i, bd=assumption))
+            chunk.append(Task(i, bd=assumption, **instance.values(solution=result.solution)))
             values = self.__get_next_values(values)
 
             if len(chunk) >= self.chunk_size:

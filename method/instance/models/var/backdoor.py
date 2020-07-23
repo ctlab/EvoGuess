@@ -6,6 +6,7 @@ from numpy.random.mtrand import RandomState
 
 
 def get_values(variables, **kwargs):
+    if len(variables) == 0: return []
     if 'solution' in kwargs:
         solution = kwargs['solution']
         if len(solution) < variables[-1]:
