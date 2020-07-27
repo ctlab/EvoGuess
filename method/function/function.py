@@ -10,6 +10,7 @@ class Function:
     name = 'Function'
 
     def __init__(self, **kwargs):
+        self.measure = kwargs['measure']
         self.chunk_size = kwargs['chunk_size']
 
     def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:

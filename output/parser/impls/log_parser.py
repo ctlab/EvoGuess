@@ -80,7 +80,7 @@ class LogParser(Parser):
     def parse_result(self, data, i, j):
         if ' at ' in data[i]:
             status, time, pid = self.res.split(data[i])
-            result = Result(j, statuses[status], float(time), None)
+            result = Result(j, statuses[status], float(time), {}, None)
             result.pid = int(pid)
             return result, i + 1
         else:

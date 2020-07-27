@@ -21,7 +21,7 @@ def incr_solve(task):
         timer.start()
 
         timestamp = now()
-        status = g_solver.solve_limited(assumptions=task.get())
+        status = g_solver.solve_limited(assumptions=task.get(), expect_interrupt=True)
         time = now() - timestamp
 
         if timer.is_alive():
@@ -33,8 +33,10 @@ def incr_solve(task):
         status = g_solver.solve(assumptions=task.get())
         time = max(now() - timestamp, g_solver.time())
 
+    # todo: add stats diff later
+    stats = g_solver.accum_stats()
     solution = g_solver.get_model() if status else None
-    return task.resolve(status, time, solution)
+    return task.resolve(status, time, stats, solution)
 
 
 def base_solve(task):
@@ -45,7 +47,7 @@ def base_solve(task):
         timer.start()
 
         timestamp = now()
-        status = solver.solve_limited(assumptions=task.get())
+        status = solver.solve_limited(assumptions=task.get(), expect_interrupt=True)
         time = now() - timestamp
 
         if timer.is_alive():
@@ -57,9 +59,10 @@ def base_solve(task):
         status = solver.solve(assumptions=task.get())
         time = max(now() - timestamp, solver.time())
 
+    stats = solver.accum_stats()
     solution = solver.get_model() if status else None
     solver.delete()
-    return task.resolve(status, time, solution)
+    return task.resolve(status, time, stats, solution)
 
 
 class PySAT(Concurrency):
@@ -80,10 +83,11 @@ class PySAT(Concurrency):
         timestamp = now()
         status = solver.solve(assumptions=task.get())
         time = now() - timestamp
+        stats = solver.accum_stats()
         solution = solver.get_model() if status else None
         solver.delete()
 
-        return task.resolve(status, time, solution)
+        return task.resolve(status, time, stats, solution)
 
     def process(self, tasks: List[Task], **kwargs) -> List[Result]:
         raise NotImplementedError

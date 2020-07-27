@@ -10,6 +10,7 @@ class SimpleVerification(Method):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.measure = kwargs['measure']
         self.chunk_size = kwargs['chunk_size']
         self.chunk_sorting = kwargs.get('chunk_sorting')
 
@@ -42,8 +43,6 @@ class SimpleVerification(Method):
         if self.chunk_sorting is not None:
             chunk = self.chunk_sorting.sort(chunk)
 
-        print("Test chunk")
-        [print(v) for v in chunk]
         tasks = []
         for i, values in enumerate(chunk):
             assert values is not None
@@ -59,18 +58,21 @@ class SimpleVerification(Method):
         if len(tasks) != len(results):
             self.output.debug(0, 0, 'Warning! len(tasks) != len(results)')
 
-        value, time = 0, now() - timestamp
+        t_value, m_value = 0, 0
+        time = now() - timestamp
         if self.rank == 0:
             stat = {'IND': 0, 'DET': 0}
             for case in results:
-                value += case.time
+                t_value += case.time
+                m_value += self.measure.get(case)
                 self.output.log(str(case))
                 stat['IND' if case.status is None else 'DET'] += 1
 
             self.output.log(str(stat).replace('\'', ''))
-            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
+            self.output.debug(1, 0, 'Value: %.7g (%.7g)' % (m_value, t_value))
+            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % m_value)
 
-        return Estimation(results, value)
+        return Estimation(results, m_value)
 
 
 __all__ = [

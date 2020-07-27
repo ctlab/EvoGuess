@@ -40,7 +40,7 @@ class GuessAndDetermine(Function):
             result = concurrency.single(task, **kwargs)
             output.debug(1, 0, 'Init case solved by %.2f seconds' % (now() - timestamp))
         else:
-            result = Result(0, True, 0, [])
+            result = Result(0, True, 0, {}, [])
             output.debug(1, 0, 'Skip init phase')
 
         while len(cases) < count:
@@ -63,13 +63,16 @@ class GuessAndDetermine(Function):
         statistic = self._count(cases)
         output.debug(1, 0, 'Statistic: %s' % statistic)
 
+        ballast = 2 ** len(backdoor)
         time_sum = sum(case.time for case in cases)
-        output.debug(1, 0, 'Calculating value...',
-                     'Averaged time: %f for %d cases' % (time_sum / len(cases), len(cases)))
-        value = (2 ** len(backdoor)) * time_sum / len(cases)
-        output.debug(1, 0, 'Estimation: %.7g' % value)
+        m_sum = sum(self.measure.get(case) for case in cases)
+        em, et = float(m_sum) / len(cases), time_sum / len(cases)
+        output.debug(1, 0, 'Averaged measure: %.7g for %d cases' % (em, len(cases)))
 
-        return Info(value, statistic)
+        m_value, t_value = ballast * em, ballast * et
+        output.debug(1, 0, 'Estimation: %.7g (%.7g)' % (m_value, t_value))
+
+        return Info(m_value, statistic)
 
 
 __all__ = [

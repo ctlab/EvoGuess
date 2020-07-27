@@ -1,5 +1,5 @@
 from os import getpid
-from typing import List, Optional
+from typing import List, Optional, Dict
 
 statuses = {
     True: 'SAT',
@@ -9,9 +9,10 @@ statuses = {
 
 
 class Result:
-    def __init__(self, i: int, status: Optional[bool], time: int, solution: Optional[List[int]]):
+    def __init__(self, i: int, status: Optional[bool], time: int, stats: Dict[str, int], solution: Optional[List[int]]):
         self.i = i
         self.time = time
+        self.stats = stats
         self.pid = getpid()
         self.status = status
         self.solution = solution
@@ -23,7 +24,7 @@ class Result:
         return '%s(%f) at %s' % (statuses[self.status], self.time, self.pid)
 
     def __copy__(self):
-        result = Result(self.i, self.status, self.time, self.solution)
+        result = Result(self.i, self.status, self.time, self.stats, self.solution)
         result.pid = self.pid
         return result
 

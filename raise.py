@@ -72,6 +72,7 @@ method = Verification(
     output=cell,
     instance=inst,
     chunk_size=1024,
+    measure=function.measure.Conflicts(),
     concurrency=concurrency.pysat.PebbleMap(
         threads=args.threads,
         incremental=args.incremental,

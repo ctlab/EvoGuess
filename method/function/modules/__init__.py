@@ -1,5 +1,6 @@
-from . import corrector
+from . import corrector, measure
 
 __all__ = [
+    'measure',
     'corrector'
 ]

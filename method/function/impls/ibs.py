@@ -56,7 +56,7 @@ class InverseBackdoorSets(Function):
                     output.debug(0, 1, 'Warning! len(task_rng) > 0')
             else:
                 for i, j in task_rng:
-                    results[i] = Result((i, j), True, 0, [])
+                    results[i] = Result((i, j), True, 0, {}, [])
                 output.debug(1, 1, 'Skip init phase')
                 task_rng.clear()
 
