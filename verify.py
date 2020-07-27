@@ -67,8 +67,8 @@ monte_carlo = MonteCarlo(
     instance=inst,
     function=function.GuessAndDetermine(
         chunk_size=1000,
+        measure=function.measure.Conflicts(),
     ),
-    measure=function.measure.Conflicts(),
     concurrency=concurrency.pysat.MapPool(
         incremental=False,
         threads=args.threads,
