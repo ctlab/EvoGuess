@@ -1,5 +1,5 @@
 from .models import Info
-from ..concurrency.models import Result
+from ..concurrency import Result
 from ..instance.models.var import Backdoor
 
 from typing import List, Dict
@@ -10,7 +10,6 @@ class Function:
     name = 'Function'
 
     def __init__(self, **kwargs):
-        self.measure = kwargs['measure']
         self.chunk_size = kwargs['chunk_size']
 
     def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:

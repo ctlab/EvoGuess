@@ -70,10 +70,11 @@ monte_carlo = MonteCarlo(
         chunk_size=1000,
     ),
     concurrency=concurrency.pysat.MapPool(
+        solver=solver,
+        propagator=propagator,
         incremental=False,
         threads=args.threads,
-        propagator=propagator,
-        solver=solver,
+        measure=concurrency.measure.Conflicts(),
     )
 )
 
@@ -91,10 +92,11 @@ verification = SimpleVerification(
     chunk_sorting=sorting.NobsOrder() if args.order else None,
     concurrency=concurrency.pysat.MapPool(
         keep=True,
-        threads=args.threads,
-        incremental=args.incremental,
         solver=solver,
         propagator=propagator,
+        threads=args.threads,
+        incremental=args.incremental,
+        measure=concurrency.measure.Conflicts(),
     )
 )
 

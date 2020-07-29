@@ -1,5 +1,5 @@
 from ..function import *
-from ...concurrency.models import Task
+from ...concurrency import Task
 
 from time import time as now
 
@@ -65,14 +65,14 @@ class GuessAndDetermine(Function):
 
         ballast = 2 ** len(backdoor)
         time_sum = sum(case.time for case in cases)
-        m_sum = sum(self.measure.get(case) for case in cases)
-        em, et = float(m_sum) / len(cases), time_sum / len(cases)
-        output.debug(1, 0, 'Averaged measure: %.7g for %d cases' % (em, len(cases)))
+        value_sum = sum(case.value for case in cases)
+        ev, et = float(value_sum) / len(cases), time_sum / len(cases)
+        output.debug(1, 0, 'Averaged measure: %.7g for %d cases' % (ev, len(cases)))
 
-        m_value, t_value = ballast * em, ballast * et
-        output.debug(1, 0, 'Estimation: %.7g (%.7g)' % (m_value, t_value))
+        value, t_value = ballast * ev, ballast * et
+        output.debug(1, 0, 'Estimation: %.7g (%.7g)' % (value, t_value))
 
-        return Info(m_value, statistic)
+        return Info(value, statistic)
 
 
 __all__ = [

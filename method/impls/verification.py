@@ -1,5 +1,5 @@
 from ..method import *
-from ..concurrency.models import Task, Result
+from ..concurrency import Task, Result
 
 from copy import copy
 from time import time as now
@@ -11,7 +11,6 @@ class Verification(Method):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.measure = kwargs['measure']
         self.chunk_size = kwargs['chunk_size']
 
     def __get_next_values(self, values):
@@ -94,21 +93,21 @@ class Verification(Method):
                 self.output.debug(2, 1, 'Been gathered cases from %d nodes' % len(cases))
                 cases = concatenate(g_cases)
 
-        t_value, m_value = 0, 0
+        value, t_value = 0, 0
         time = now() - timestamp
         if self.rank == 0:
             stat = {'IND': 0, 'DET': 0}
             for case in cases:
+                value += case.value
                 t_value += case.time
-                m_value += self.measure.get(case)
                 self.output.log(str(case))
                 stat['IND' if case.status is None else 'DET'] += 1
 
             self.output.log(str(stat).replace('\'', ''))
-            self.output.debug(1, 0, 'Value: %.7g (%.7g)' % (m_value, t_value))
-            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % m_value)
+            self.output.debug(1, 0, 'Value: %.7g (%.7g)' % (value, t_value))
+            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
 
-        return Estimation(cases, m_value)
+        return Estimation(cases, value)
 
 
 __all__ = [

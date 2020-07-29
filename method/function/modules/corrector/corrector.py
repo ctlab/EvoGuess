@@ -1,6 +1,5 @@
 from typing import List, Tuple
-
-from method.concurrency.models import Result
+from ....concurrency import Result
 
 
 class Corrector:
@@ -44,5 +43,6 @@ class Corrector:
 
 
 __all__ = [
-    'Corrector'
+    'Result',
+    'Corrector',
 ]

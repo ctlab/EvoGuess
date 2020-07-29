@@ -1,4 +1,4 @@
-from .models import var, cnf
+from .models import *
 
 from .impls.e0 import *
 from .impls.a5_1 import *
@@ -21,6 +21,8 @@ from .impls.volfram import *
 
 from .impls.circuit import *
 from .impls.test import *
+
+from . import models
 
 
 def try_int(c):
@@ -77,3 +79,7 @@ def get(name):
         'geffe': Geffe,
         'volfram': Volfram
     }[name](*args)
+
+
+__all__ = ['get']
+__all__.extend(models.__all__)

@@ -81,10 +81,11 @@ method = RankMonteCarlo(
         corrector=function.corrector.Ruler(limiter=0.01),
     ),
     concurrency=concurrency.pysat.PebbleMap(
+        solver=solver,
+        propagator=propagator,
         threads=args.threads,
         incremental=args.incremental,
-        propagator=propagator,
-        solver=solver,
+        measure=concurrency.measure.Conflicts(),
     )
 )
 

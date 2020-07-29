@@ -29,8 +29,9 @@ def propagate_init(Solver, instance):
 def propagate_solve(task):
     status = g_solver.solve(assumptions=task.get())
     time = g_solver.time()
+    stats = g_solver.accum_stats()
     solution = g_solver.get_model() if status else None
-    return task.resolve(status, time, solution)
+    return task.resolve(status, time, stats, solution)
 
 
 # solving
@@ -70,8 +71,9 @@ def solve_process(in_queue, out_queue, args):
             status = solver.solve(assumptions=task.get())
             time = max(now() - timestamp, solver.time())
 
+        stats = solver.accum_stats()
         solution = solver.get_model() if status else None
-        out_queue.put(task.resolve(status, time, solution))
+        out_queue.put(task.resolve(status, time, stats, solution))
 
 
 class VerticalPySAT(Concurrency):
@@ -97,10 +99,12 @@ class VerticalPySAT(Concurrency):
         solver = self.solver(bootstrap_with=cipher.clauses(), use_timer=True)
         status = solver.solve(assumptions=task.get())
         time = solver.time()
+        stats = solver.accum_stats()
         solution = solver.get_model() if status else None
         solver.delete()
 
-        return task.resolve(status, time, solution)
+        result = task.resolve(status, time, stats, solution)
+        return result.set_value(self.measure.get(result))
 
     def propagate(self, tasks: List[Task], **kwargs) -> List[Result]:
         output, instance = kwargs['output'], kwargs['instance']
@@ -121,7 +125,7 @@ class VerticalPySAT(Concurrency):
         pool.stop()
         pool.join()
 
-        return results
+        return [result.set_value(self.measure.get(result)) for result in results]
 
     def solve(self, tasks: List[Task], **kwargs) -> List[Result]:
         output = kwargs['output']
@@ -156,7 +160,7 @@ class VerticalPySAT(Concurrency):
             output.debug(2, 3, 'Already solved %d tasks' % len(results))
 
         results = sorted(results, key=lambda r: r.i[1])
-        return results
+        return [result.set_value(self.measure.get(result)) for result in results]
 
     def terminate(self):
         self._worker_handler._state = TERMINATE

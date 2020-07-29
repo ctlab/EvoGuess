@@ -7,11 +7,11 @@ class Estimation:
         self.cases = cases
         self.from_cache = False
 
-    def time_sd(self):
+    def value_sd(self):
         n, e, e2 = len(self.cases), 0., 0.
         for case in self.cases:
-            e += case.time
-            e2 += case.time ** 2
+            e += case.value
+            e2 += case.value ** 2
 
         d = (e2 / n) - (e / n) ** 2
         return math.sqrt(d)

@@ -1,5 +1,5 @@
 from ..function import *
-from ...concurrency.models import Task
+from ...concurrency import Task
 
 from time import time as now
 

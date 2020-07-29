@@ -62,7 +62,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_logs', inst.tag],
+    path=['output', '_test_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -81,13 +81,13 @@ method = MonteCarlo(
         save_init=True,
         reset_init=10,
         corrector=function.corrector.Ruler(limiter=0.01),
-        measure=function.measure.Conflicts()
     ),
     concurrency=concurrency.pysat.PebbleMap(
+        solver=solver,
+        propagator=propagator,
         threads=args.threads,
         incremental=args.incremental,
-        propagator=propagator,
-        solver=solver,
+        measure=concurrency.measure.Conflicts(),
     )
 )
 

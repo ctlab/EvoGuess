@@ -1,5 +1,5 @@
 from ..method import *
-from ..concurrency.models import Task
+from ..concurrency import Task
 
 from copy import copy
 from time import time as now
@@ -10,7 +10,6 @@ class SimpleVerification(Method):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.measure = kwargs['measure']
         self.chunk_size = kwargs['chunk_size']
         self.chunk_sorting = kwargs.get('chunk_sorting')
 
@@ -58,21 +57,21 @@ class SimpleVerification(Method):
         if len(tasks) != len(results):
             self.output.debug(0, 0, 'Warning! len(tasks) != len(results)')
 
-        t_value, m_value = 0, 0
+        value, t_value = 0, 0
         time = now() - timestamp
         if self.rank == 0:
             stat = {'IND': 0, 'DET': 0}
             for case in results:
+                value += case.value
                 t_value += case.time
-                m_value += self.measure.get(case)
                 self.output.log(str(case))
                 stat['IND' if case.status is None else 'DET'] += 1
 
             self.output.log(str(stat).replace('\'', ''))
-            self.output.debug(1, 0, 'Value: %.7g (%.7g)' % (m_value, t_value))
-            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % m_value)
+            self.output.debug(1, 0, 'Value: %.7g (%.7g)' % (value, t_value))
+            self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
 
-        return Estimation(results, m_value)
+        return Estimation(results, value)
 
 
 __all__ = [

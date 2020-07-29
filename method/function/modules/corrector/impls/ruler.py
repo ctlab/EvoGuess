@@ -1,6 +1,5 @@
 from ..corrector import *
 from typing import List, Tuple
-from method.concurrency.models import Result
 
 
 class Ruler(Corrector):

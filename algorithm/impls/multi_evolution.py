@@ -30,7 +30,7 @@ class MultiEvolution(Algorithm):
         self.log_it_header(0, 'base').log_delim()
         estimation = self.predict(backdoor, count)
         best = root.set(estimation.value)
-        root.fitness.values = (estimation.value, estimation.time_sd())
+        root.fitness.values = (estimation.value, estimation.value_sd())
         self.log_delim()
 
         population = [root]
@@ -51,7 +51,7 @@ class MultiEvolution(Algorithm):
                     self.limit.increase('predictions')
 
                 individual.set(estimation.value)
-                individual.fitness.values = (estimation.value, estimation.time_sd())
+                individual.fitness.values = (estimation.value, estimation.value_sd())
                 self.log_delim()
 
             # update pareto front

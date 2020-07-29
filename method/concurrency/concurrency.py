@@ -15,6 +15,7 @@ class Concurrency:
         self.processes = kwargs['threads']
         self.keep = kwargs.get('keep', False)
 
+        self.measure = kwargs['measure']
         signal.signal(signal.SIGINT, self.__signal_handler)
 
     def __signal_handler(self, signum: int, frame):

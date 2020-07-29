@@ -81,13 +81,13 @@ method = MonteCarlo(
         save_init=True,
         reset_init=10,
         corrector=function.corrector.Ruler(limiter=0.01),
-        measure=function.measure.SolvingTime()
     ),
     concurrency=concurrency.pysat.PebbleMap(
+        solver=solver,
+        propagator=propagator,
         threads=args.threads,
         incremental=args.incremental,
-        propagator=propagator,
-        solver=solver,
+        measure=concurrency.measure.Conflicts(),
     )
 )
 

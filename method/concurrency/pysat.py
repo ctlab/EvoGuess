@@ -87,7 +87,8 @@ class PySAT(Concurrency):
         solution = solver.get_model() if status else None
         solver.delete()
 
-        return task.resolve(status, time, stats, solution)
+        result = task.resolve(status, time, stats, solution)
+        return result.set_value(self.measure.get(result))
 
     def process(self, tasks: List[Task], **kwargs) -> List[Result]:
         raise NotImplementedError

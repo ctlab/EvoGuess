@@ -37,7 +37,7 @@ class MapPool(PySAT):
 
         if not self.keep:
             self.terminate()
-        return results
+        return [result.set_value(self.measure.get(result)) for result in results]
 
     def terminate(self):
         if self.pool:

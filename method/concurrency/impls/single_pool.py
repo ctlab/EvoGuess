@@ -13,7 +13,7 @@ def solve(task):
     cnf = g_cnf.to_str(task.get())
     report = g_solver.solve(cnf)
 
-    return task.resolve(report.status, report.time, report.solution)
+    return task.resolve(report.status, report.time, {}, report.solution)
 
 
 class SinglePool(Concurrency):
@@ -59,13 +59,15 @@ class SinglePool(Concurrency):
 
         if not self.keep:
             self.terminate()
-        return results
+
+        return [result.set_value(self.measure.get(result)) for result in results]
 
     def single(self, task: Task, **kwargs) -> Result:
         cnf = kwargs['instance'].cnf().to_str(task.get())
         report = self.propagator.solve(cnf)
 
-        return task.resolve(report.status, report.time, report.solution)
+        result = task.resolve(report.status, report.time, {}, report.solution)
+        return result.set_value(self.measure.get(result))
 
     def propagate(self, tasks: List[Task], **kwargs) -> List[Result]:
         self.__initialize(self.propagator, **kwargs)
