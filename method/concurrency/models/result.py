@@ -26,7 +26,7 @@ class Result:
         return self
 
     def __str__(self):
-        return '%s(%f) at %s' % (statuses[self.status], self.value, self.pid)
+        return '%s(%s) at %s' % (statuses[self.status], self.value, self.pid)
 
     def __copy__(self):
         result = Result(self.i, self.status, self.time, self.stats, self.solution)
