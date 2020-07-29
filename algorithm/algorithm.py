@@ -40,8 +40,7 @@ class Algorithm:
             for i in range(1, self.size):
                 self.comm.send([BTypes.EXIT.value], dest=i)
 
-            self.log_delim()
-            self.output.log('Points:')
+            self.log_delim().output.log('Points:')
             for point in points:
                 self.output.log(str(point))
 

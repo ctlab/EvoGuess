@@ -67,6 +67,10 @@ class MultiEvolution(Algorithm):
             self.limit.increase('iteration')
             self.limit.increase('stagnation')
             if self.limit.get('stagnation') >= self.stagnation_limit:
+                self.log_delim().output.log('Front:')
+                for point in front:
+                    self.output.log(str(point))
+
                 front = tools.ParetoFront()
                 points.append(best)
                 best = root
@@ -90,6 +94,10 @@ class MultiEvolution(Algorithm):
             self.limit.set('time', now() - timestamp)
 
         if root > best:
+            self.log_delim().output.log('Front:')
+            for point in front:
+                self.output.log(str(point))
+
             points.append(best)
 
         return points
