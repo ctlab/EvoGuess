@@ -16,11 +16,11 @@ instances = [
     'sgen:6_200',
     'sgen:6_220',
     'sgen:6_240',
-    'challenge',
-    'eulcbip',
-    'pmg',
-    'clqcolor',
-    'mod'
+    'crafted:challenge',
+    'crafted:eulcbip',
+    'crafted:pmg',
+    'crafted:clqcolor',
+    'crafted:mod'
 ]
 
 parser = argparse.ArgumentParser(description='EvoGuess')
