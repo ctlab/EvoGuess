@@ -27,6 +27,7 @@ length = args.l
 groups = args.g
 threads = args.t
 bds_path = args.bds
+stats_key = 'conflicts'
 inst = instance.get(args.instance)
 
 Solver = solvers[args.solver]
@@ -56,9 +57,11 @@ def worker_f(inst, backdoor):
         assumptions = [x if values[k] else -x for k, x in enumerate(backdoor)]
 
         status = solver.solve(assumptions=assumptions)
-        # measure = solver.time()
-        stats = solver.accum_stats()
-        measure = stats.get('conflicts', None)
+        if stats_key == 'time':
+            measure = solver.time()
+        else:
+            stats = solver.accum_stats()
+            measure = stats.get(stats_key, None)
         measures.append(None if status is None else measure)
         solver.delete()
 
@@ -91,6 +94,8 @@ def test():
     n = len(inst.secret_key)
     res_list, results = [], ([], [])
     pool = Pool(processes=threads)
+    print("Solver: %s" % args.solver)
+    print("Measure: %s" % stats_key)
     if len(bds_path) > 0:
         print("Path: %s" % bds_path)
         lines = [line.strip('\n') for line in open(bds_path).readlines()]
