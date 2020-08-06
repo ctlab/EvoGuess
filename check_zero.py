@@ -53,7 +53,7 @@ def check():
             res_list.append((inst_key, slv_key, res))
 
     while len(res_list) > 0:
-        res_list[0][2].wait()
+        res_list[0][2].wait(60.)
         while len(res_list) > 0 and res_list[0][2].ready():
             inst_key, slv_key, res = res_list.pop(0)
 
@@ -63,6 +63,7 @@ def check():
                 print("Error on %s with %s (%s)" % (inst_key, slv_key, e))
                 continue
 
+            print("%s with %s: %.7g (%.7g s)" % (inst_key, slv_key, measures[0], measures[1]))
             if inst_key in results:
                 results[inst_key][slv_key] = measures
             else:
