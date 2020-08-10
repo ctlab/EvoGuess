@@ -62,7 +62,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_logs', inst.tag],
+    path=['output', '_new_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -87,7 +87,7 @@ method = MonteCarlo(
         propagator=propagator,
         threads=args.threads,
         incremental=args.incremental,
-        measure=concurrency.measure.Conflicts(),
+        measure=concurrency.measure.Propagations(),
     )
 )
 

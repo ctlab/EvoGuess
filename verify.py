@@ -73,7 +73,7 @@ monte_carlo = MonteCarlo(
         propagator=propagator,
         incremental=False,
         threads=args.threads,
-        measure=concurrency.measure.Conflicts(),
+        measure=concurrency.measure.Propagations(),
     )
 )
 
@@ -96,7 +96,7 @@ verification = Verification(
         propagator=propagator,
         threads=args.threads,
         incremental=args.incremental,
-        measure=concurrency.measure.Conflicts(),
+        measure=concurrency.measure.Propagations(),
     )
 )
 

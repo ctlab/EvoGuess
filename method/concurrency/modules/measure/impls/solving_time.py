@@ -2,7 +2,7 @@ from ..measure import *
 
 
 class SolvingTime(Measure):
-    name = 'Corrector: SolvingTime'
+    name = 'Measure: SolvingTime'
 
     def get(self, result: Result):
         return result.time

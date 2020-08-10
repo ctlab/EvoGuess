@@ -50,6 +50,7 @@ class Concurrency:
             'Processes: %d' % self.processes,
             'Solver: %s' % self.solver,
             'Propagator: %s' % self.propagator,
+            'Measure: %s' % self.measure,
         ]))
 
 
