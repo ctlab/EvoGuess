@@ -27,7 +27,7 @@ length = args.l
 groups = args.g
 threads = args.t
 bds_path = args.bds
-stats_key = 'conflicts'
+stats_key = 'learned_literals'
 inst = instance.get(args.instance)
 
 Solver = solvers[args.solver]

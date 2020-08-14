@@ -2,12 +2,7 @@
 *.pyc
 
 # Log files
-output/_logs
-output/_lies_logs
-output/_test_logs
-output/_check_logs
-output/_verify_logs
-output/_verify_test_logs
+output/_*
 
 # Solvers
 trash
