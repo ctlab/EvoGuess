@@ -34,6 +34,7 @@ class GuessAndDetermine(Function):
         output.debug(1, 0, 'Compute for backdoor: %s' % backdoor)
 
         # init
+        output.st_timer('Evaluate_init', 'init_solve')
         if instance.has_values():
             timestamp = now()
             task = Task(0, proof=True, secret_key=instance.secret_key.values(rs=rs))
@@ -42,7 +43,9 @@ class GuessAndDetermine(Function):
         else:
             result = Result(0, True, 0, {}, [])
             output.debug(1, 0, 'Skip init phase')
+        output.ed_timer('Evaluate_init')
 
+        output.st_timer('Evaluate_main', 'main_solve')
         while len(cases) < count:
             all_case_count = count - len(cases)
 
@@ -53,6 +56,7 @@ class GuessAndDetermine(Function):
 
             solved = self.__main_phase(backdoor, result, case_count, **kwargs)
             cases.extend(solved)
+        output.ed_timer('Evaluate_main')
 
         return cases
 

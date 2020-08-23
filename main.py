@@ -68,6 +68,9 @@ cell = Cell(
         'dall': args.debug_all,
         'verb': args.verbosity
     },
+    targs={
+        'tall': args.debug_all,
+    },
 ).open(description=args.description).touch()
 
 rs = RandomState()

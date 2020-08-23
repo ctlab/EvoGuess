@@ -12,6 +12,7 @@ class Output:
             self.path = join(*self.path)
         self.largs = kwargs.get('largs', {})
         self.dargs = kwargs.get('dargs', {})
+        self.targs = kwargs.get('targs', {})
 
         try:
             from mpi4py import MPI
@@ -23,6 +24,7 @@ class Output:
 
         self.logger = logger(self.rank, **self.largs)
         self.debugger = debugger(self.rank, **self.dargs)
+        self.timer = timer(self.rank, **self.targs)
 
     def open(self, **kwargs):
         if self.rank == 0:
@@ -42,6 +44,12 @@ class Output:
     def debug(self, verb: int, level: int, *strs: Iterable[str]):
         self.debugger.write(verb, level, *strs)
         return self
+
+    def st_timer(self, name: str, group: str):
+        self.timer.start(name, group)
+
+    def ed_timer(self, name: str):
+        self.timer.end(name)
 
 
 __all__ = [

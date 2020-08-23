@@ -44,11 +44,15 @@ class Cell(Output):
     def touch(self, **kwargs):
         lfile = kwargs.get('lfile', 'log')
         dfile = kwargs.get('dfile', 'debug')
+        tfile = kwargs.get('tfile', 'timer')
 
         log_file = '%s_%d' % (lfile, self.count)
         debug_file = '%s_%d_%d' % (dfile, self.count, self.rank)
+        timer_file = '%s_%d' % (tfile, self.rank)
+
         self.logger.set_out(join(self.path, log_file))
         self.debugger.set_out(join(self.path, debug_file))
+        self.timer.set_out(join(self.path, timer_file))
         self.count += 1
 
         return self

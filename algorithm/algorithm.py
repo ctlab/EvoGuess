@@ -33,12 +33,14 @@ class Algorithm:
 
     def start(self, backdoor: Backdoor) -> List[Individual]:
         self.output.debug(0, 0, '%s start on %d nodes' % (self.name, self.size))
+        self.output.st_timer('Algorithm', 'main')
 
         if self.rank == 0:
             points = self.process(backdoor)
             
             for i in range(1, self.size):
                 self.comm.send([BTypes.EXIT.value], dest=i)
+            self.output.ed_timer('Algorithm')
 
             self.log_delim().output.log('Points:')
             for point in points:
@@ -52,6 +54,7 @@ class Algorithm:
                     b_type = BTypes(array[0])
                     if b_type is BTypes.EXIT:
                         self.output.debug(2, 1, 'Been received \'exit\'')
+                        self.output.ed_timer('Algorithm')
                         return []
                     elif b_type is BTypes.TOUCH:
                         self.output.debug(2, 1, 'Been received \'touch\'')

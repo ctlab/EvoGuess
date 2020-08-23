@@ -19,7 +19,10 @@ class MonteCarlo(Method):
         mpi_count += 1 if remainder > self.rank else 0
 
         timestamp = now()
+        self.output.st_timer('Evaluate', 'evaluate')
         cases = self.function.evaluate(backdoor, [], mpi_count, **self.kwargs, **kwargs)
+        self.output.ed_timer('Evaluate')
+        self.output.st_timer('Evaluate_await', 'await')
         if self.size > 1:
             self.output.debug(2, 1, 'Gathering cases from %d nodes...' % self.size)
             g_cases = self.comm.gather(dumps(cases), root=0)
@@ -27,7 +30,9 @@ class MonteCarlo(Method):
             if self.rank == 0:
                 self.output.debug(2, 1, 'Been gathered cases from %d nodes' % self.size)
                 cases = concatenate([loads(g_case) for g_case in g_cases])
+        self.output.ed_timer('Evaluate_await')
 
+        self.output.st_timer('Calculate', 'calculate')
         value, time = 0, now() - timestamp
         if self.rank == 0:
             info = self.function.calculate(backdoor, cases, **self.kwargs)
@@ -35,7 +40,8 @@ class MonteCarlo(Method):
             value = info.value
         else:
             cases = []
-        
+        self.output.ed_timer('Calculate')
+
         return Estimation(cases, value)
 
     def __str__(self):

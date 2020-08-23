@@ -16,6 +16,7 @@ class MultiEvolution(Algorithm):
         self.stagnation_limit = kwargs['stagnation_limit']
 
     def process(self, backdoor: Backdoor) -> List[Individual]:
+        self.output.st_timer(self.name, 'algorithm')
         timestamp = now()
         front, points = tools.ParetoFront(), []
 
@@ -25,6 +26,7 @@ class MultiEvolution(Algorithm):
         self.log_info().log_delim()
         self.limit.set('stagnation', 0)
 
+        self.output.st_timer('Evolution_init', 'init')
         root = creator.Individual(backdoor)
         count = self.sampling.get_size(backdoor)
         self.log_it_header(0, 'base').log_delim()
@@ -32,6 +34,7 @@ class MultiEvolution(Algorithm):
         best = root.set(estimation.value)
         root.fitness.values = (estimation.value, estimation.value_sd())
         self.log_delim()
+        self.output.ed_timer('Evolution_init')
 
         population = [root]
         pop = self.strategy.breed(population)
@@ -42,7 +45,9 @@ class MultiEvolution(Algorithm):
         while not self.limit.exhausted():
             it = self.limit.get('iteration')
             self.log_it_header(it).log_delim()
+            self.output.st_timer('Evolution_iteration_%d' % it, 'iteration')
 
+            self.output.st_timer('Evolution_evaluate', 'evaluate')
             for individual in offspring:
                 backdoor = individual.backdoor
                 count = self.sampling.get_size(backdoor)
@@ -53,6 +58,7 @@ class MultiEvolution(Algorithm):
                 individual.set(estimation.value)
                 individual.fitness.values = (estimation.value, estimation.value_sd())
                 self.log_delim()
+            self.output.ed_timer('Evolution_evaluate')
 
             # update pareto front
             population = tools.selNSGA2(population + offspring, len(offspring))
@@ -64,6 +70,7 @@ class MultiEvolution(Algorithm):
                     self.limit.set('stagnation', -1)
 
             # restart
+            self.output.st_timer('Evolution_next', 'next')
             self.limit.increase('iteration')
             self.limit.increase('stagnation')
             if self.limit.get('stagnation') >= self.stagnation_limit:
@@ -90,8 +97,10 @@ class MultiEvolution(Algorithm):
                 self.output.debug(3, 1, 'configure: ' + str(info))
                 pop = self.strategy.breed(population)
                 offspring = [creator.Individual(ind.backdoor) for ind in pop]
+            self.output.ed_timer('Evolution_next')
 
             self.limit.set('time', now() - timestamp)
+            self.output.ed_timer('Evolution_iteration_%d' % it)
 
         if root > best:
             self.log_delim().output.log('Front:')
@@ -100,6 +109,7 @@ class MultiEvolution(Algorithm):
 
             points.append(best)
 
+        self.output.ed_timer(self.name)
         return points
 
     def __str__(self):

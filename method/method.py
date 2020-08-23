@@ -28,6 +28,7 @@ class Method:
 
     def estimate(self, backdoor: Backdoor, **kwargs) -> Estimation:
         key = str(backdoor)
+        self.output.st_timer('Estimate_%s' % hash(backdoor), 'estimate')
         if self.can_cache and key in self.cache:
             estimation = self.cache[key]
             estimation.from_cache = True
@@ -35,6 +36,7 @@ class Method:
         else:
             estimation = self.run(backdoor, **kwargs)
             self.cache[key] = estimation
+        self.output.ed_timer('Estimate_%s' % hash(backdoor))
         return estimation
 
     def log_run(self, backdoor, count):

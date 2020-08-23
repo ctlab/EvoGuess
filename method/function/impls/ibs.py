@@ -95,6 +95,7 @@ class InverseBackdoorSets(Function):
 
         self.init_timer += 1
         while len(cases) < count:
+            output.st_timer('Evaluate_chunk', 'chunk_solve')
             all_case_count = count - len(cases)
 
             if all_case_count > self.chunk_size:
@@ -106,6 +107,7 @@ class InverseBackdoorSets(Function):
             inited = self.__init_phase(rng, **kwargs)
             solved = self.__main_phase(backdoor, inited, **kwargs)
             cases.extend(solved)
+            output.ed_timer('Evaluate_chunk')
 
         if self.init_timer == self.reset_init:
             self.saved = {}
