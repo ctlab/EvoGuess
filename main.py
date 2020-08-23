@@ -51,7 +51,7 @@ solver = solvers[args.solver]
 propagator = solvers[args.propagator] if args.propagator else solver
 
 Strategy = None
-exps = [r'(\d+)(\+)(\d+)', r'(\d+)(,)(\d+)', r'(\d+)(\^)(\d+)']
+exps = [r'(\d+)(\+)(\d+)', r'(\d+)(,)(\d+)', r'(\d+)(\*)(\d+)', r'(\d+)(\^)(\d+)']
 alg_re = [re.findall(exp, args.algorithm) for exp in exps]
 for i, alg_args in enumerate(alg_re):
     if len(alg_args):

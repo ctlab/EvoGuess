@@ -26,7 +26,8 @@ class Evolution(Algorithm):
         self.log_delim()
 
         self.limit.set('iteration', 1)
-        population = self.strategy.breed([best])
+        population = [best]
+        offspring = self.strategy.breed(population)
         self.limit.set('time', now() - timestamp)
         while not self.limit.exhausted():
             it = self.limit.get('iteration')
@@ -34,7 +35,7 @@ class Evolution(Algorithm):
 
             # self.method.switch(population) # todo: integrate
 
-            for individual in population:
+            for individual in offspring:
                 backdoor = individual.backdoor
                 count = self.sampling.get_size(backdoor)
                 estimation = self.predict(backdoor, count)
@@ -47,6 +48,9 @@ class Evolution(Algorithm):
                         self.limit.set('stagnation', -1)
                 self.log_delim()
 
+            pop = self.strategy.selection.select(population + offspring, len(offspring))
+            population = [next(pop) for _ in range(len(offspring))]
+
             # restart
             self.limit.increase('iteration')
             self.limit.increase('stagnation')
@@ -56,7 +60,8 @@ class Evolution(Algorithm):
                 self.limit.set('stagnation', 0)
                 info = self.strategy.configure(self.limit.limits)
                 self.output.debug(3, 1, 'configure: ' + str(info))
-                population = self.strategy.breed([root])
+                population = [root]
+                offspring = self.strategy.breed(population)
 
                 # create new log file
                 if not self.limit.exhausted():
@@ -64,7 +69,7 @@ class Evolution(Algorithm):
             else:
                 info = self.strategy.configure(self.limit.limits)
                 self.output.debug(3, 1, 'configure: ' + str(info))
-                population = self.strategy.breed(population)
+                offspring = self.strategy.breed(population)
 
             self.limit.set('time', now() - timestamp)
 
