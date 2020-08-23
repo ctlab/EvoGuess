@@ -44,7 +44,7 @@ propagator = solvers[args.propagator] if args.propagator else solver
 backdoors = Backdoor.load(args.backdoors)
 
 cell = Cell(
-    path=['output', '_verify_logs', inst.tag],
+    path=['output', '_new_verify_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,

@@ -62,7 +62,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_test_logs', inst.tag],
+    path=['output', '_new_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -87,7 +87,7 @@ method = MonteCarlo(
         propagator=propagator,
         threads=args.threads,
         incremental=args.incremental,
-        measure=concurrency.measure.Conflicts(),
+        measure=concurrency.measure.Propagations(),
     )
 )
 
@@ -102,7 +102,7 @@ def sampling_f(backdoor):
 algorithm = MultiEvolution(
     output=cell,
     method=method,
-    weights=(-2, -1),
+    weights=(-1, -1),
     limit=limit.tools.Any(
         limit.WallTime(args.walltime),
         limit.Stagnation(350),
