@@ -35,7 +35,6 @@ def worker_f(inst, solver_key):
     solver = Solver(bootstrap_with=inst.clauses(), use_timer=True)
 
     status = solver.solve()
-    stats = solver.accum_stats()
     if stats_key == 'time':
         measure = solver.time()
     else:
