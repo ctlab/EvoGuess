@@ -9,20 +9,22 @@ from method import *
 solvers = {
     'cd': slvs.Cadical,
     'g3': slvs.Glucose3,
-    'g4': slvs.Glucose4,
+    # 'g4': slvs.Glucose4,
 }
 
 instances = [
+    'sgen:6_150',
     'sgen:6_200',
     'sgen:6_220',
     'sgen:6_240',
-    'crafted:challenge',
-    'crafted:eulcbip',
-    'crafted:pmg',
-    'crafted:clqcolor',
-    'crafted:mod'
+    # 'crafted:challenge',
+    # 'crafted:eulcbip',
+    # 'crafted:pmg',
+    # 'crafted:clqcolor',
+    # 'crafted:mod'
 ]
 
+stats_key = 'propagations'
 parser = argparse.ArgumentParser(description='EvoGuess')
 parser.add_argument('-t', metavar='36', type=int, default=36, help='threads')
 args = parser.parse_args()
@@ -34,11 +36,15 @@ def worker_f(inst, solver_key):
 
     status = solver.solve()
     stats = solver.accum_stats()
-    conflicts = stats.get('conflicts', None)
+    if stats_key == 'time':
+        measure = solver.time()
+    else:
+        stats = solver.accum_stats()
+        measure = stats.get(stats_key, None)
     time = None if status is None else solver.time()
     solver.delete()
 
-    return conflicts, time
+    return measure, time
 
 
 def check():
@@ -72,7 +78,7 @@ def check():
                 }
 
     for inst_key, inst_res in results.items():
-        print("Results for %s:" % instance.get(inst_key))
+        print("\nResults for %s:" % instance.get(inst_key))
         for slv_key, slv_res in inst_res.items():
             print("-- %s: %.7g (%.7g s)" % (slv_key, slv_res[0], slv_res[1]))
         print()
