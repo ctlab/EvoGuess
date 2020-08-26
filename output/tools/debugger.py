@@ -12,7 +12,6 @@ class Debugger:
         self.path = None
         self.verb = verb
         self.prefix = prefix
-        self.lock = threading.Lock()
         if len(prefix): self.prefix += ' '
 
     def set_out(self, path):
@@ -23,13 +22,11 @@ class Debugger:
         if self.verb < verb:
             return
 
-        self.lock.acquire()
         if self.path:
             with open(self.path, 'a') as f:
                 [f.write(self.__line(lvl, s)) for s in strs]
         else:
             [print(self.__line(lvl, s)) for s in strs]
-        self.lock.release()
 
     def __line(self, lvl, s):
         res = '%s(%s)' % (self.prefix, dt.today())

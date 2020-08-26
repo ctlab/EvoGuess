@@ -46,9 +46,7 @@ class Method:
         self.output.log('Hashed backdoor: %s' % backdoor, 'With value: %.7g\n' % value)
 
     def log_end(self, cases, info, time):
-        for case in cases:
-            self.output.log(str(case))
-
+        self.output.log(*list(map(str, cases)))
         self.output.log(str(info))
         self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % info.value)
 
