@@ -62,7 +62,7 @@ class GuessAndDetermine(Function):
 
     def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Info:
         output = kwargs['output']
-        output.debug(1, 0, 'Counting statistic...')
+        # output.debug(1, 0, 'Counting statistic...')
 
         ballast = 2 ** len(backdoor)
         time_sum, value_sum = 0, 0
@@ -72,14 +72,14 @@ class GuessAndDetermine(Function):
             time_sum += case.time
             value_sum += case.value
             statistic['IND' if case.status is None else 'DET'] += 1
+        output.debug(1, 0, 'Statistic: %s' % statistic)
         output.ed_timer('Calculate_cycle')
 
-        output.debug(1, 0, 'Statistic: %s' % statistic)
         ev, et = float(value_sum) / len(cases), time_sum / len(cases)
-        output.debug(1, 0, 'Averaged measure: %.7g for %d cases' % (ev, len(cases)))
+        # output.debug(1, 0, 'Averaged measure: %.7g for %d cases' % (ev, len(cases)))
 
         value, t_value = ballast * ev, ballast * et
-        output.debug(1, 0, 'Estimation: %.7g (%.7g)' % (value, t_value))
+        # output.debug(1, 0, 'Estimation: %.7g (%.7g)' % (value, t_value))
 
         return Info(value, statistic)
 
