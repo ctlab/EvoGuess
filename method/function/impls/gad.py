@@ -75,12 +75,13 @@ class GuessAndDetermine(Function):
         output.debug(1, 0, 'Statistic: %s' % statistic)
         output.ed_timer('Calculate_cycle')
 
+        output.st_timer('Calculate_mul', 'mul')
         ev, et = float(value_sum) / len(cases), time_sum / len(cases)
         # output.debug(1, 0, 'Averaged measure: %.7g for %d cases' % (ev, len(cases)))
 
         value, t_value = ballast * ev, ballast * et
         # output.debug(1, 0, 'Estimation: %.7g (%.7g)' % (value, t_value))
-
+        output.ed_timer('Calculate_mul')
         return Info(value, statistic)
 
 
