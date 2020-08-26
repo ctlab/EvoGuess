@@ -36,7 +36,9 @@ class MonteCarlo(Method):
         value, time = 0, now() - timestamp
         if self.rank == 0:
             info = self.function.calculate(backdoor, cases, **self.kwargs)
+            self.output.st_timer('Calculate_log', 'log')
             self.log_end(cases, info, time)
+            self.output.ed_timer('Calculate_log')
             value = info.value
         else:
             cases = []
