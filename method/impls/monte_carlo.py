@@ -14,14 +14,27 @@ class MonteCarlo(Method):
 
     def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         count = kwargs.pop('count')
-        self.log_run(backdoor, count)
-        mpi_count, remainder = divmod(count, self.size)
-        mpi_count += 1 if remainder > self.rank else 0
 
         timestamp = now()
-        self.output.st_timer('Evaluate', 'evaluate')
-        cases = self.function.evaluate(backdoor, [], mpi_count, **self.kwargs, **kwargs)
-        self.output.ed_timer('Evaluate')
+        real_count = 2 ** len(backdoor)
+        if self.function.type == 'gad' and real_count > count:
+            self.log_run(backdoor, count)
+            mpi_count, remainder = divmod(count, self.size)
+            mpi_count += 1 if remainder > self.rank else 0
+
+            self.output.st_timer('Evaluate', 'evaluate')
+            cases = self.function.evaluate(backdoor, [], mpi_count, **self.kwargs, **kwargs)
+            self.output.ed_timer('Evaluate')
+        else:
+            self.log_run(backdoor, real_count)
+            mpi_count, remainder = divmod(real_count, self.size)
+            st = mpi_count * self.rank + min(self.rank, remainder)
+            mpi_count += 1 if remainder > self.rank else 0
+
+            self.output.st_timer('Evaluate', 'evaluate')
+            cases = self.function.verify(backdoor, mpi_count, st, **self.kwargs, **kwargs)
+            self.output.ed_timer('Evaluate')
+
         self.output.st_timer('Evaluate_await', 'await')
         if self.size > 1:
             self.output.debug(2, 1, 'Gathering cases from %d nodes...' % self.size)

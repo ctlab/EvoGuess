@@ -97,8 +97,8 @@ method = MonteCarlo(
 
 def sampling_f(backdoor):
     full = 2 ** len(backdoor)
-    min_s, max_s = 64, args.sampling
-    count = min(max_s, max(min_s, full // 10))
+    min_s, max_s = 128, args.sampling
+    count = min(max_s, max(min_s, full // 8))
     return min(count, full)
 
 

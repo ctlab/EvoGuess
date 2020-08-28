@@ -2,10 +2,9 @@ from ..sampling import *
 
 
 class Function(Sampling):
-    name = 'Sampling: Function'
-
     def __init__(self, f):
         self.f = f
+        self.name = 'Sampling: Function (%d..%d)' % (f([]), f([0] * 50))
 
     def get_size(self, backdoor: Backdoor):
         return self.f(backdoor)
