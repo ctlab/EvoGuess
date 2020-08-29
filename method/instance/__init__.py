@@ -19,6 +19,7 @@ from .impls.md4 import *
 from .impls.geffe import *
 from .impls.volfram import *
 
+from .impls.php import *
 from .impls.test import *
 from .impls.circuit import *
 from .impls.crafted import *
@@ -75,6 +76,7 @@ def get(name):
         't200': Test_200_30_70,
         't_dfa': DFA_200_399_150,
         # crafted
+        'php': PHP,
         'sgen': SGEN,
         'crafted': Crafted,
         # hash
