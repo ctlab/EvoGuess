@@ -47,7 +47,7 @@ propagator = solvers[args.propagator] if args.propagator else solver
 backdoors = Backdoor.load(args.backdoors)
 
 cell = Cell(
-    path=['output', '_check_logs', inst.tag],
+    path=['output', '_new_check_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -62,13 +62,14 @@ monte_carlo = MonteCarlo(
     instance=inst,
     function=Function(
         time_limit=args.tl,
-        chunk_size=10000,
-        concurrency=concurrency.pysat.PebbleMap(
-            threads=args.threads,
-            incremental=args.incremental,
-            propagator=propagator,
-            solver=solver,
-        )
+        chunk_size=16384,
+    ),
+    concurrency=concurrency.pysat.MapPool(
+        threads=args.threads,
+        incremental=args.incremental,
+        propagator=propagator,
+        solver=solver,
+        measure=concurrency.measure.Propagations(),
     )
 )
 
