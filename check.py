@@ -78,8 +78,8 @@ for backdoor in backdoors:
     cell.log('------------------------------------------------------')
     cell.log('Iteration: 0', '------------------------------------------------------')
     cell.log('Run estimation for backdoor: %s' % backdoor, 'With %d cases:' % args.sampling)
-    value = monte_carlo.estimate(backdoor, count=args.sampling)
-    cell.log('End estimation with value: %.7g' % value)
+    estimation = monte_carlo.estimate(backdoor, count=args.sampling)
+    cell.log('End estimation with value: %.7g' % estimation.value)
     cell.log('------------------------------------------------------')
 
 cell.close()
