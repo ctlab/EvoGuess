@@ -90,9 +90,9 @@ class Verification(Method):
             for case in cases:
                 value += case.value
                 t_value += case.time
-                self.output.log(str(case))
                 stat['IND' if case.status is None else 'DET'] += 1
 
+            self.output.log(*list(map(str, cases)))
             self.output.log(str(stat).replace('\'', ''))
             self.output.debug(1, 0, 'Value: %.7g (%.7g)' % (value, t_value))
             self.output.log('Spent time: %.2f s' % time, 'End with value: %.7g' % value)
