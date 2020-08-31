@@ -35,7 +35,7 @@ parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, 
 parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
 
-args = parser.parse_args()
+args, _ = parser.parse_known_args()
 
 inst = instance.get(args.instance)
 assert inst.check(), "Cnf is missing"
