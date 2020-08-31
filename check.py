@@ -75,6 +75,7 @@ monte_carlo = MonteCarlo(
 
 for backdoor in backdoors:
     cell.touch().log('\n'.join('-- ' + s for s in str(monte_carlo).split('\n')))
+    cell.log('------------------------------------------------------')
     cell.log('Iteration: 0', '------------------------------------------------------')
     estimation = monte_carlo.estimate(backdoor, count=args.sampling)
     cell.log('------------------------------------------------------')

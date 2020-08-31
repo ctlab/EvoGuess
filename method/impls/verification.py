@@ -39,16 +39,6 @@ class Verification(Method):
 
     def run(self, backdoor: Backdoor, **kwargs) -> Estimation:
         count = 2 ** len(backdoor)
-
-        if kwargs.get('count', self.chunk_size) < count:
-            count, value = 0, float('inf')
-
-            self.log_run(backdoor, count)
-            self.output.log(str({'IND': 0, 'DET': 0}).replace('\'', ''))
-            self.output.log('Spent time: 0.0 s', 'End with value: %.7g' % value)
-
-            return Estimation([], value)
-
         self.log_run(backdoor, count)
         variables = backdoor.snapshot()
         instance, rs = self.kwargs['instance'], self.kwargs['rs']
