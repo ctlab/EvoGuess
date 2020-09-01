@@ -35,14 +35,19 @@ class MonteCarlo(Method):
             cases = self.function.verify(backdoor, mpi_count, st, **self.kwargs, **kwargs)
             self.output.ed_timer('Evaluate')
 
+        g_step = 200
         self.output.st_timer('Evaluate_await', 'await')
         if self.size > 1:
             self.output.debug(2, 1, 'Gathering cases from %d nodes...' % self.size)
-            g_cases = self.comm.gather(dumps(cases), root=0)
+            all_cases = []
+            # todo: deadlock
+            for i in range(0, len(cases), g_step):
+                g_cases = self.comm.gather(dumps(cases[i:i+g_step]), root=0)
 
-            if self.rank == 0:
-                self.output.debug(2, 1, 'Been gathered cases from %d nodes' % self.size)
-                cases = concatenate([loads(g_case) for g_case in g_cases])
+                if self.rank == 0:
+                    self.output.debug(2, 1, 'Been gathered cases from %d nodes' % self.size)
+                    all_cases.extend(concatenate([loads(g_case) for g_case in g_cases]))
+            cases = all_cases
         self.output.ed_timer('Evaluate_await')
 
         self.output.st_timer('Calculate', 'calculate')
