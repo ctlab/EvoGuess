@@ -97,9 +97,11 @@ method = MonteCarlo(
 
 def sampling_f(backdoor):
     full = 2 ** len(backdoor)
-    min_s, max_s = 128, args.sampling
-    count = min(max_s, max(min_s, full // 8))
-    return min(count, full)
+    if 1.05 * args.sampling >= full:
+        return full
+    if 2.1 * args.sampling >= full:
+        return full // 2
+    return args.sampling
 
 
 algorithm = Evolution(
