@@ -26,6 +26,7 @@ argparser.add_argument('run', type=str, help='path to log directory')
 argparser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
 argparser.add_argument('-c', '--count', type=int, default=1, help='count of log\'s files')
 argparser.add_argument('-e', '--eps', type=float, default=0.1, help='eps values')
+argparser.add_argument('-k', '--tries', type=int, default=1, help='increase tries')
 
 argparser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 argparser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
@@ -86,17 +87,15 @@ def __value(_case, _store):
     return n_value
 
 
-def __extend(_case, _store):
-    key = str(_case.backdoor)
-    count = len(_case.results)
-    real_count = 2 ** len(_case.backdoor)
+def __extend(_bd, _res, _store):
+    real_count = 2 ** len(_bd)
+    key, count = str(_bd), len(_res)
     if 2.1 * count >= real_count:
-        results = function.verify(_case.backdoor, real_count, 0, **f_kwargs)
+        results = function.verify(_bd, real_count, 0, **f_kwargs)
     else:
-        results = function.evaluate(_case.backdoor, [], count, **f_kwargs)
-        results += _case.results
+        results = function.evaluate(_bd, [], count, **f_kwargs) + _res
 
-    info = function.calculate(_case.backdoor, results, output=cell)
+    info = function.calculate(_bd, results, output=cell)
     _store[key] = results, info.value
 
     return results, info.value
@@ -104,14 +103,14 @@ def __extend(_case, _store):
 
 def __check(_case, _store):
     real_count = 2 ** len(_case.backdoor)
-    if len(_case.results) == real_count:
-        return _case.results, _case.value
+    c_res, c_val = _case.results, _case.value
 
-    eps = __eps([res.value for res in _case.results])
-    if eps > args.eps:
-        return __extend(_case, store)
-    else:
-        return _case.results, _case.value
+    for tr in range(args.tries):
+        if len(c_res) == real_count: break
+        if __eps([res.value for res in c_res]) <= args.eps: break
+        c_res, c_val = __extend(_case.backdoor, c_res, store)
+
+    return c_res, c_val
 
 
 iterations = []
@@ -125,6 +124,7 @@ store = {}
 best = iterations[0][0]
 cell.log('\n'.join('-- ' + s for s in '\n'.join(map(str, [
     'Algorithm: Post',
+    'Tries: %d' % args.tries,
     concurrency,
     inst,
     function,
