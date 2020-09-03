@@ -124,6 +124,9 @@ store = {}
 best = iterations[0][0]
 cell.log('\n'.join('-- ' + s for s in '\n'.join(map(str, [
     'Algorithm: Post',
+    'Run: %s' % args.run,
+    'Eps: %f' % args.eps,
+    'Count: %d' % args.count,
     'Tries: %d' % args.tries,
     concurrency,
     inst,

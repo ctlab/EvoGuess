@@ -29,7 +29,11 @@ class LogParser(Parser):
         iteration, i = self.parse_iteration(data, i + 1)
         while iteration is not None:
             iterations.append(iteration)
-            iteration, i = self.parse_iteration(data, i)
+            try:
+                iteration, i = self.parse_iteration(data, i)
+            except IndexError as e:
+                iteration = None
+                print('Parse error (iteration): %s' % e)
 
         return info, iterations
 
@@ -42,7 +46,11 @@ class LogParser(Parser):
             case, i = self.parse_case(data, i + 2)
             while case is not None:
                 cases.append(case)
-                case, i = self.parse_case(data, i)
+                try:
+                    case, i = self.parse_case(data, i)
+                except IndexError as e:
+                    case = None
+                    print('Parse error (case): %s' % e)
             return cases, i
         else:
             return None, i
