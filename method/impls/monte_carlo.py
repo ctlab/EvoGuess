@@ -40,9 +40,14 @@ class MonteCarlo(Method):
         if self.size > 1:
             self.output.debug(2, 1, 'Gathering cases from %d nodes...' % self.size)
             all_cases = []
-            # todo: deadlock
-            for i in range(0, len(cases), g_step):
-                g_cases = self.comm.gather(dumps(cases[i:i+g_step]), root=0)
+
+            g_count = self.comm.allgather(len(cases))
+            self.output.debug(2, 1, 'Gather counts: %s' % g_count)
+            g_sessions = max(len(range(0, count, g_step)) for count in g_count)
+
+            for i in range(g_sessions):
+                st = i * g_step
+                g_cases = self.comm.gather(dumps(cases[st:st + g_step]), root=0)
 
                 if self.rank == 0:
                     self.output.debug(2, 1, 'Been gathered cases from %d nodes' % self.size)
