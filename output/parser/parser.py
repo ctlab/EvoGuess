@@ -15,9 +15,7 @@ class Parser:
     def __read(path: str) -> str:
         with open(path) as f:
             lines = f.readlines()
-            data = [str(x).split('\n')[0] for x in lines]
-
-            return data
+            return [x[:-1] for x in lines]
 
 
 __all__ = [

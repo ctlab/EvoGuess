@@ -21,10 +21,10 @@ class Crafted(Instance):
 class SGEN(Instance):
     tag = 'sgen'
 
-    def __init__(self, v, n):
-        self.name = 'Instance: SGEN%d-%d' % (v, v * n)
+    def __init__(self, v, n, seed='5-1'):
+        self.name = 'Instance: SGEN%d-%d (seed: %s)' % (v, v * n, seed)
         if v == 6:
-            self.path = './templates/Crafted/sgen%d-%d-5-1.cnf' % (v, v * n)
+            self.path = './templates/Crafted/sgen%d-%d-%s.cnf' % (v, v * n, seed)
             super().__init__(secret_key=SecretKey(1, n))
         else:
             self.path = None
