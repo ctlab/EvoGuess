@@ -24,7 +24,8 @@ class Evolution(Algorithm):
         count = self.sampling.get_size(backdoor)
         self.log_it_header(0, 'base').log_delim()
         estimation = self.predict(backdoor, count)
-        best = root.set(estimation.value)
+        best = root.set(estimation.value, estimation.eps())
+        self.sampling.analyse([best])
         self.log_delim()
         self.output.ed_timer('Evolution_init')
 
@@ -46,13 +47,14 @@ class Evolution(Algorithm):
                 estimation = self.predict(backdoor, count)
                 if not estimation.from_cache:
                     self.limit.increase('predictions')
-                    individual.set(estimation.value)
+                    individual.set(estimation.value, estimation.eps())
 
                     if best > individual:
                         best = individual
                         self.limit.set('stagnation', -1)
                 self.log_delim()
             self.output.ed_timer('Evolution_evaluate')
+            self.sampling.analyse(offspring)
 
             pop = self.strategy.selection.select(population + offspring, len(offspring))
             population = [next(pop) for _ in range(len(offspring))]

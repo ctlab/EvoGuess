@@ -9,6 +9,8 @@ class Function(Sampling):
     def get_size(self, backdoor: Backdoor):
         return self.f(backdoor)
 
+    def analyse(self, population):
+        pass
 
 __all__ = [
     'Function'

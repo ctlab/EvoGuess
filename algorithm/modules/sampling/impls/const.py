@@ -9,6 +9,9 @@ class Const(Sampling):
     def get_size(self, backdoor: Backdoor):
         return self.count
 
+    def analyse(self, population):
+        pass
+
 
 __all__ = [
     'Const'

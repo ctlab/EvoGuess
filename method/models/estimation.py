@@ -6,14 +6,20 @@ class Estimation:
         self.value = value
         self.cases = cases
         self.from_cache = False
+        self.values = [case.value for case in self.cases]
+
+    def __ned(self, values):
+        n = len(values)
+        e = sum(values) / n
+        d = sum([(value - e) ** 2 for value in values]) / (n - 1)
+        return n, e, d
+
+    def eps(self, delta=0.05):
+        n, e, d = self.__ned(self.values)
+        return math.sqrt(d / (delta * n)) / e
 
     def value_sd(self):
-        n, e, e2 = len(self.cases), 0., 0.
-        for case in self.cases:
-            e += case.value
-            e2 += case.value ** 2
-
-        d = (e2 / n) - (e / n) ** 2
+        _, _, d = self.__ned(self.values)
         return math.sqrt(d)
 
     def __len__(self):

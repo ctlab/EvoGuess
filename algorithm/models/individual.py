@@ -6,11 +6,14 @@ from method.instance.models.var import Backdoor
 
 class Individual:
     def __init__(self, backdoor: Backdoor):
-        self.backdoor = backdoor
+        self.eps = float('inf')
         self.value = float('inf')
+        self.backdoor = backdoor
 
-    def set(self, value):
+    def set(self, value, eps=None):
         self.value = value
+        if eps is not None:
+            self.eps = eps
         return self
 
     def compare(self, other):

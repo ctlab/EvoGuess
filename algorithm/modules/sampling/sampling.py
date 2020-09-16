@@ -7,6 +7,9 @@ class Sampling:
     def get_size(self, backdoor: Backdoor):
         raise NotImplementedError
 
+    def analyse(self, population):
+        raise NotImplementedError
+
     def __str__(self):
         return self.name
 

@@ -111,7 +111,7 @@ algorithm = Evolution(
         limit.WallTime(args.walltime),
         limit.Stagnation(350),
     ),
-    sampling=sampling.Function(sampling_f),
+    sampling=sampling.Epsilon(args.sampling, args.sampling * 16, args.sampling, 0.1),
     stagnation_limit=args.stagnation,
     strategy=Strategy(
         mu=mu, lmbda=lmbda,
