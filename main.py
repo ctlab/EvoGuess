@@ -62,7 +62,7 @@ for i, alg_args in enumerate(alg_re):
 assert Strategy, "Unknown strategy"
 
 cell = Cell(
-    path=['output', '_new_logs', inst.tag],
+    path=['output', '_exp_logs', inst.tag],
     largs={},
     dargs={
         'dall': args.debug_all,
@@ -107,10 +107,7 @@ def sampling_f(backdoor):
 algorithm = Evolution(
     output=cell,
     method=method,
-    limit=limit.tools.Any(
-        limit.WallTime(args.walltime),
-        limit.Stagnation(350),
-    ),
+    limit=limit.WallTime(args.walltime),
     sampling=sampling.Epsilon(args.sampling, args.sampling * 16, args.sampling, 0.1),
     stagnation_limit=args.stagnation,
     strategy=Strategy(
