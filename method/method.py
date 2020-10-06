@@ -87,6 +87,7 @@ class Method:
             self._queue(backdoor, task_count, len(task_sample))
             return backdoor, None
 
+        task_sample = [task for task in task_sample if task is not None]
         value, time, statistic = self.function.calculate(backdoor, *task_sample)
         estimation = {
             'time': time,
