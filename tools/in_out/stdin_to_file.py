@@ -4,7 +4,7 @@ import os
 import subprocess
 
 if len(sys.argv) < 2:
-    print "USAGE: stdin_to_file.py <args>"
+    print("USAGE: stdin_to_file.py <args>")
     exit(1)
 
 in_file = tempfile.NamedTemporaryFile(prefix="cnf_").name

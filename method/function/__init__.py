@@ -1,16 +1,16 @@
-from .impls import *
-from .models import *
-from .modules import *
-from . import impls, modules
+from .impl import *
+from . import measure
 
 
-def get(name):
+def get_function(name):
     return {
         'gad': GuessAndDetermine,
         'ibs': InverseBackdoorSets
     }[name]
 
 
-__all__ = ['get']
-__all__.extend(impls.__all__)
-__all__.extend(modules.__all__)
+__all__ = [
+    'measure',
+    'get_function'
+]
+__all__.extend(impl.__all__)

@@ -1,128 +1,63 @@
-import re
 import argparse
+from os.path import join
 
 from numpy.random.mtrand import RandomState
-from pysat import solvers as slvs
 
-from output import *
-from method import *
-from algorithm import *
+import output
+import method
+import instance
+import algorithm
+import concurrency
 
-solvers = {
-    'cd': slvs.Cadical,
-    'g3': slvs.Glucose3,
-    'g4': slvs.Glucose4,
-    'lgl': slvs.Lingeling,
-    'mcb': slvs.MapleChrono,
-    'mcm': slvs.MapleCM,
-    'mpl': slvs.Maplesat,
-    'mc': slvs.Minicard,
-    'm22': slvs.Minisat22,
-    'mgh': slvs.MinisatGH,
-}
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='EvoGuess v2')
+    parser.add_argument('instance', type=str, help='instance of problem')
+    parser.add_argument('-o', '--output', metavar='str', type=str, default='main', help='output subdir')
+    parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
 
-parser = argparse.ArgumentParser(description='EvoGuess')
-parser.add_argument('instance', type=str, help='instance of problem')
-parser.add_argument('function', type=str, help='estimation function')
-parser.add_argument('-t', '--threads', metavar='1', type=int, default=1, help='concurrency threads')
-parser.add_argument('-d', '--description', metavar='str', type=str, default='', help='launch description')
-parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
-parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
-parser.add_argument('-i', '--incremental', action='store_true', help='incremental mode')
-parser.add_argument('-dall', '--debug_all', action='store_true', help='debug on all nodes')
+    parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
 
-parser.add_argument('-tl', metavar='5', type=int, default=5, help='time limit for ibs')
-parser.add_argument('-n', '--sampling', metavar='1000', type=int, default=1000, help='estimation sampling')
-parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
-parser.add_argument('-pr', '--propagator', metavar='str', type=str, default='', help='SAT-solver to propagate')
+    args, _ = parser.parse_known_args()
 
-parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1', help='optimization algorithm')
-parser.add_argument('-st', '--stagnation', metavar='300', type=int, default=300, help='stagnation limit')
+    _instance = instance.get_instance(args.instance)
+    assert _instance.check(), "Cnf is missing"
 
-args, _ = parser.parse_known_args()
+    path = ['output', '_%s_logs' % args.output, _instance.tag, _instance.type]
+    _output = output.Output(
+        dverb=args.verbosity,
+        path=join(*[dr for dr in path if dr is not None]),
+    ).open().touch()
 
-inst = instance.get(args.instance)
-assert inst.check(), "Cnf is missing"
-
-Function = function.get(args.function)
-assert Function, "Unknown function"
-
-solver = solvers[args.solver]
-propagator = solvers[args.propagator] if args.propagator else solver
-
-Strategy = None
-exps = [r'(\d+)(\+)(\d+)', r'(\d+)(,)(\d+)', r'(\d+)(\*)(\d+)', r'(\d+)(\^)(\d+)']
-alg_re = [re.findall(exp, args.algorithm) for exp in exps]
-for i, alg_args in enumerate(alg_re):
-    if len(alg_args):
-        mu, op, lmbda = alg_args[0]
-        Strategy = strategy.get(op)
-        mu, lmbda = map(int, (mu, lmbda))
-
-assert Strategy, "Unknown strategy"
-
-cell = Cell(
-    path=['output', '_exp_logs', inst.tag],
-    largs={},
-    dargs={
-        'dall': args.debug_all,
-        'verb': args.verbosity
-    },
-    targs={
-        'tall': args.debug_all,
-    },
-).open(description=args.description).touch()
-
-rs = RandomState()
-method = MonteCarlo(
-    rs=rs,
-    output=cell,
-    instance=inst,
-    function=Function(
-        time_limit=args.tl,
-        chunk_size=1000,
-        save_init=True,
-        reset_init=10,
-        corrector=function.corrector.Ruler(limiter=0.01),
-    ),
-    concurrency=concurrency.pysat.PebbleMap(
-        solver=solver,
-        propagator=propagator,
-        threads=args.threads,
-        incremental=args.incremental,
-        measure=concurrency.measure.Propagations(),
+    _concurrency = concurrency.MPIExecutor(
+        workload=0,
+        output=_output,
     )
-)
 
-
-def sampling_f(backdoor):
-    full = 2 ** len(backdoor)
-    if 1.05 * args.sampling >= full:
-        return full
-    if 2.1 * args.sampling >= full:
-        return full // 2
-    return args.sampling
-
-
-algorithm = Evolution(
-    output=cell,
-    method=method,
-    limit=limit.WallTime(args.walltime),
-    sampling=sampling.Epsilon(args.sampling, args.sampling * 16, args.sampling, 0.1),
-    stagnation_limit=args.stagnation,
-    strategy=Strategy(
-        mu=mu, lmbda=lmbda,
-        selection=selection.Best(),
-        mutation=mutation.Doer(beta=3),
-        # mutation=mutation.Uniform(),
-        # mutation=mutation.tools.Configurator(
-        #     {'?': lambda l: l['stagnation'] < 3, 'f': mutation.Doer(beta=3)},
-        #     {'?': lambda l: l['stagnation'] > 3, 'f': mutation.Doer(beta=2)}
-        # ),
-        crossover=crossover.Uniform(p=0.2)
+    random_state = RandomState()
+    _method = method.Method(
+        concurrency=_concurrency,
+        random_state=random_state,
+        sampling=method.sampling.Const(50),
+        function=method.function.GuessAndDetermine(
+            instance=_instance,
+            solver=method.solver.Glucose3(),
+            measure=method.function.measure.Propagations(),
+        ),
     )
-)
 
-points = algorithm.start(inst.secret_key.to_backdoor())
+    _algorithm = algorithm.evolution.MuPlusLambda(
+        mu=1, lmbda=1,
+        output=_output,
+        method=_method,
+        limit=algorithm.limit.WallTime('00:10:00'),
+        mutation=algorithm.evolution.mutation.Uniform(),
+        selection=algorithm.evolution.selection.Best(),
+    )
 
-cell.close()
+    backdoor = _instance.secret_key.to_backdoor()
+    points = _algorithm.start(backdoor)
+
+    for point in points:
+        print(point)
+
+    _output.close()

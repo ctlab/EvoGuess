@@ -1,39 +1,48 @@
-from .models import Info
-from ..concurrency import Result
-from ..instance.models.var import Backdoor
+from typing import Tuple, Dict, Iterable
 
-from typing import List, Dict
+from ..solver.types import Solver
+from instance.model import Backdoor
+from concurrency.concurrency import Task
+
+Result = Tuple[float, float, Dict[bool, int]]
+Case = Tuple[int, int, bool, Dict[str, int]]
+
+
+def encode_bits(bits):
+    return bits
+
+
+def decode_bits(data):
+    return data
 
 
 class Function:
     type = None
     name = 'Function'
 
-    def __init__(self, **kwargs):
-        self.chunk_size = kwargs['chunk_size']
+    def __init__(self, solver: Solver, instance, measure):
+        self.solver = solver
+        self.instance = instance
+        self.measure = measure
 
-    def evaluate(self, backdoor: Backdoor, cases: List[Result], count: int, **kwargs) -> List[Result]:
+    def get_tasks(self, backdoor: Backdoor, *dimension, **kwargs) -> Iterable[Task]:
         raise NotImplementedError
 
-    def calculate(self, backdoor: Backdoor, cases: List[Result], **kwargs) -> Info:
+    def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
         raise NotImplementedError
-
-    @staticmethod
-    def _count(results: List[Result]) -> Dict[str, int]:
-        ind = sum([result.status is None for result in results])
-        return {
-            'IND': ind,
-            'DET': len(results) - ind
-        }
 
     def __str__(self):
         return self.name
 
 
 __all__ = [
-    'List',
-    'Info',
+    'Task',
+    'Case',
     'Result',
-    'Function',
+    'Solver',
+    'Iterable',
     'Backdoor',
+    'Function',
+    'encode_bits',
+    'decode_bits'
 ]

@@ -1,13 +1,9 @@
-from .impls import *
-from .modules import *
-from . import impls, solver, modules, function, instance, concurrency
+from .method import Method
+from . import solver, function, sampling
 
 __all__ = [
+    'Method',
     'solver',
-    'instance',
     'function',
-    'concurrency'
+    'sampling'
 ]
-
-__all__.extend(impls.__all__)
-__all__.extend(modules.__all__)

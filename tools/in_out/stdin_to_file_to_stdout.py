@@ -4,7 +4,7 @@ import os
 import subprocess
 
 if len(sys.argv) < 2:
-    print "USAGE: stdin_to_file.py <args>"
+    print("USAGE: stdin_to_file.py <args>")
     exit(1)
 
 in_file = tempfile.NamedTemporaryFile(prefix="cnf_").name
@@ -16,7 +16,7 @@ l_args.extend([in_file, out_file])
 
 p = subprocess.Popen(l_args)
 p.wait()
-print open(out_file, 'r').read()
+print(open(out_file, 'r').read())
 
 if os.path.isfile(in_file):
     os.remove(in_file)
