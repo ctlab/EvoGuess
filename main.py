@@ -20,7 +20,7 @@ if __name__ == '__main__':
     args, _ = parser.parse_known_args()
 
     _instance = instance.get_instance(args.instance)
-    assert _instance.check(), "Cnf is missing"
+    assert _instance.check(), "Cnf is missing: %s" % _instance.path
 
     path = ['output', '_%s_logs' % args.output, _instance.tag, _instance.type]
     _output = output.Output(
