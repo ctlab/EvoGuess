@@ -4,6 +4,7 @@ from ..algorithm import *
 class Evolution(Algorithm):
     mu = None
     lmbda = None
+    name = 'Algorithm: Evolution'
 
     def __init__(self,
                  limit: Limit,
@@ -55,6 +56,16 @@ class Evolution(Algorithm):
 
     def join(self, parents: Population, children: Population):
         raise NotImplementedError
+
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.limit,
+            self.selection,
+            self.mutation,
+            '--------------------',
+            self.method,
+        ]))
 
 
 __all__ = [

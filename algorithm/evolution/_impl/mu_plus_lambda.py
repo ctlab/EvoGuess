@@ -12,6 +12,7 @@ class MuPlusLambda(Evolution):
                  selection
                  ):
         self.mu, self.lmbda = mu, lmbda
+        self.name = 'Algorithm: Evolution (%d + %d)' % (mu, lmbda)
         super().__init__(limit, method, output, mutation, selection)
 
     def tweak(self, selected: Population):

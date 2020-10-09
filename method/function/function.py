@@ -31,6 +31,9 @@ class Function:
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
         raise NotImplementedError
 
+    def get_values(self, *cases: Case) -> Iterable[float]:
+        return [self.measure.get(case[3]) for case in cases]
+
     def __str__(self):
         return self.name
 

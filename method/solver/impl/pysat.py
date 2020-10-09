@@ -95,6 +95,11 @@ class MapleCM(PySat):
     constructor = solvers.MapleCM
 
 
+class MapleSAT(PySat):
+    name = 'Solver: MapleSAT'
+    constructor = solvers.Maplesat
+
+
 class Minicard(PySat):
     name = 'Solver: Minicard'
     constructor = solvers.Minicard
@@ -110,7 +115,26 @@ class MinisatGH(PySat):
     constructor = solvers.MinisatGH
 
 
+solvers_dict = {
+    'cd': Cadical,
+    'g3': Glucose3,
+    'g4': Glucose4,
+    'lgl': Lingeling,
+    'mcb': MapleChrono,
+    'mcm': MapleCM,
+    'mpl': MapleSAT,
+    'mc': Minicard,
+    'm22': Minisat22,
+    'mgh': MinisatGH,
+}
+
+
+def get(key):
+    return solvers_dict[key]()
+
+
 __all__ = [
+    'get',
     'Cadical',
     'Glucose3',
     'Glucose4',

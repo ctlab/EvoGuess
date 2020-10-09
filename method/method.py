@@ -37,6 +37,7 @@ class Method:
     def _queue(self, backdoor, task_count, offset):
         bd_key, bd_size = str(backdoor), len(backdoor)
         # generate task_dimension for current backdoor
+        # todo: use self.sampling.get_max()
         if bd_size > 20:
             task_dimension = self.random_state.randint(2, size=(task_count, bd_size))
         else:
@@ -66,7 +67,8 @@ class Method:
         # check if backdoor already estimated
         if backdoor in self._backdoor_cache:
             task_sample, estimation = self._backdoor_cache[backdoor]
-            task_count = self.sampling.get_count(backdoor, sample=task_sample)
+            values = self.function.get_values(*task_sample)
+            task_count = self.sampling.get_count(backdoor, values=values)
 
             if task_count == 0:
                 return None, {**estimation, 'job_time': 0.}
@@ -84,7 +86,8 @@ class Method:
         task_sample, _ = self._backdoor_cache.get(backdoor, ([], {}))
         task_sample += self.concurrency.get(job_id)
 
-        task_count = self.sampling.get_count(backdoor, sample=task_sample)
+        values = self.function.get_values(*task_sample)
+        task_count = self.sampling.get_count(backdoor, values=values)
         if task_count > 0:
             self._backdoor_cache[backdoor] = task_sample, None
             self._queue(backdoor, task_count, len(task_sample))
@@ -115,6 +118,15 @@ class Method:
 
     def __len__(self):
         return len(self.concurrency)
+
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.function,
+            self.sampling,
+            '--------------------',
+            self.concurrency,
+        ]))
 
 
 __all__ = [

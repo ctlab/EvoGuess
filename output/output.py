@@ -99,7 +99,7 @@ class Output:
 
         info_path = join(self.path, 'INFO')
         with open(info_path, 'w+') as f:
-            f.writelines(lines=list(strings))
+            f.writelines(list(strings))
         return self
 
     def is_open(self):

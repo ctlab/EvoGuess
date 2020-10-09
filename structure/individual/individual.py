@@ -48,7 +48,7 @@ class Individual:
         return self.compare(other) >= 0
 
     def __str__(self):
-        return '%s by %.7g' % (self.backdoor, self.value)
+        return '%s by %.7g (%d samples)' % (self.backdoor, self.value, self.get('count'))
 
 
 Population = Iterable[Individual]

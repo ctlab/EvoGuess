@@ -1,10 +1,14 @@
+from typing import Tuple
 from structure.array import Backdoor
 
 
 class Sampling:
     name = 'Sampling'
 
-    def get_count(self, backdoor: Backdoor, sample=()):
+    def get_count(self, backdoor: Backdoor, values=()):
+        raise NotImplementedError
+
+    def get_max(self) -> Tuple[int, int]:
         raise NotImplementedError
 
     def __str__(self):
@@ -12,6 +16,7 @@ class Sampling:
 
 
 __all__ = [
+    'Tuple',
     'Backdoor',
     'Sampling'
 ]

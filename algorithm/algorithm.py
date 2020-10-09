@@ -30,6 +30,8 @@ class Algorithm:
         raise NotImplementedError
 
     def start(self, backdoor: Backdoor) -> Population:
+        self.output.info(self.__str__())
+
         st_timestamp = now()
         self.limit.set('iteration', 0)
         population = self.initialize(backdoor)
@@ -48,14 +50,11 @@ class Algorithm:
         return population
 
     def _log_iteration(self, it, population, time):
-        i_time = sum(i.get('job_time') for i in population)
-        ecf = i_time / time / len(self.method)
         self.output.log(
             'Iteration %d' % it,
             'Individuals (%d):' % len(population),
             *['-- %s' % str(i) for i in population],
             'Time: %.2f' % time,
-            'ECF: %.2f' % ecf,
             '----------------------------------------'
         )
 
@@ -63,6 +62,7 @@ class Algorithm:
         return '\n'.join(map(str, [
             self.name,
             self.limit,
+            '--------------------',
             self.method,
         ]))
 
