@@ -1,11 +1,11 @@
 from typing import Tuple, Dict, Iterable
 
 from ..solver.types import Solver
-from instance.model import Backdoor
+from structure.array import Backdoor
 from concurrency.concurrency import Task
 
-Result = Tuple[float, float, Dict[bool, int]]
 Case = Tuple[int, int, bool, Dict[str, int]]
+Result = Tuple[Dict[bool, int], Dict[str, int]]
 
 
 def encode_bits(bits):

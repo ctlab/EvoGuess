@@ -1,8 +1,10 @@
 from typing import List, Dict
 
-from .limit.types import *
-from algorithm.model import *
-from instance.model import Backdoor
+from method import Method
+from output import Output
+from .limit.types import Limit
+from structure.array import Backdoor
+from structure.individual import Individual, Population
 
 from time import time as now
 
@@ -14,8 +16,8 @@ class Algorithm:
 
     def __init__(self,
                  limit: Limit,
-                 method,
-                 output
+                 method: Method,
+                 output: Output
                  ):
         self.limit = limit
         self.method = method
@@ -28,21 +30,34 @@ class Algorithm:
         raise NotImplementedError
 
     def start(self, backdoor: Backdoor) -> Population:
-        timestamp = now()
+        st_timestamp = now()
         self.limit.set('iteration', 0)
         population = self.initialize(backdoor)
-        self.limit.set('time', now() - timestamp)
-        self.output.log('Iteration 0', *map(str, population))
+        self.limit.set('time', now() - st_timestamp)
+        self._log_iteration(0, population, now() - st_timestamp)
 
         i = 1
         while not self.limit.exhausted():
             self.limit.set('iteration', i)
+            it_timestamp = now()
             population = self.iteration(population)
-            self.output.log('\nIteration %d' % i, *map(str, population))
-            self.limit.set('time', now() - timestamp)
+            self._log_iteration(i, population, now() - it_timestamp)
+            self.limit.set('time', now() - st_timestamp)
             i += 1
 
         return population
+
+    def _log_iteration(self, it, population, time):
+        i_time = sum(i.get('job_time') for i in population)
+        ecf = i_time / time / len(self.method)
+        self.output.log(
+            'Iteration %d' % it,
+            'Individuals (%d):' % len(population),
+            *['-- %s' % str(i) for i in population],
+            'Time: %.2f' % time,
+            'ECF: %.2f' % ecf,
+            '----------------------------------------'
+        )
 
     def __str__(self):
         return '\n'.join(map(str, [

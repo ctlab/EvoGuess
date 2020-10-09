@@ -1,7 +1,10 @@
 from .cnf import *
-from .model import *
-
 from os.path import isfile, join
+from structure.array import Interval
+
+SecretKey = Interval
+PublicKey = Interval
+KeyStream = Interval
 
 
 class Instance:

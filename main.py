@@ -35,6 +35,7 @@ if __name__ == '__main__':
 
     random_state = RandomState()
     _method = method.Method(
+        output=_output,
         concurrency=_concurrency,
         random_state=random_state,
         sampling=method.sampling.Const(50),

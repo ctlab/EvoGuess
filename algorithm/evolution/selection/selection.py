@@ -1,6 +1,6 @@
 from typing import Iterable
-from algorithm.model import Population
 from numpy.random.mtrand import RandomState
+from structure.individual import Population
 
 
 class Selection:

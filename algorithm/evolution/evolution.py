@@ -21,8 +21,9 @@ class Evolution(Algorithm):
         _, estimation = self.method.queue(backdoor)
         if estimation is None:
             _, estimations = self.method.wait()  # ignore=True)
-            assert backdoor == estimations[0][0]
-            estimation = estimations[0][1]
+            estimation = list(estimations)[0]
+            assert backdoor == estimation[0]
+            estimation = estimation[1]
 
         best = root.set(**estimation)
         return [best]

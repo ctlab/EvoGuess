@@ -1,6 +1,6 @@
 from typing import Tuple
-from algorithm.model import Individual
 from numpy.random.mtrand import RandomState
+from structure.individual import Individual
 
 
 class Crossover:

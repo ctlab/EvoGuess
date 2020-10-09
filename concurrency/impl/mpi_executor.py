@@ -89,6 +89,9 @@ class MPIExecutor(Concurrency):
     def shutdown(self, wait=True):
         self.executor.shutdown(wait)
 
+    def __len__(self):
+        return self.mpi_size - 1
+
 
 __all__ = [
     'MPIExecutor'

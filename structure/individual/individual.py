@@ -1,5 +1,5 @@
 from typing import Iterable
-from instance.model import Backdoor
+from structure.array import Backdoor
 
 from numpy import sign
 

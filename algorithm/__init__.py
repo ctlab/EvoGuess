@@ -1,7 +1,6 @@
-from . import model, limit, evolution
+from . import limit, evolution
 
 __all__ = [
     'limit',
-    'model',
     'evolution'
 ]

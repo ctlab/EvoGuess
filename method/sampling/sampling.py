@@ -1,4 +1,4 @@
-from instance.model import Backdoor
+from structure.array import Backdoor
 
 
 class Sampling:

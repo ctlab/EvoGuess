@@ -1,9 +1,11 @@
 from typing import Tuple, Dict, Iterable
 
-from instance.model import Backdoor
 from method.function.types import Function
 from method.sampling.types import Sampling
 from numpy.random.mtrand import RandomState
+
+from structure.array import Backdoor
+from structure.data.backdoor_cache import BackdoorCache
 
 Estimation = Dict[str, float]
 
@@ -16,19 +18,21 @@ class Method:
     name = 'Method'
 
     def __init__(self,
+                 output,
                  function: Function,
                  sampling: Sampling,
                  concurrency,
                  random_state: RandomState
                  ):
+        self.output = output
         self.sampling = sampling
         self.function = function
         self.concurrency = concurrency
         self.random_state = random_state
 
         self._active_jobs = {}
-        self._backdoor_cache = {}
         self._permutation_cache = {}
+        self._backdoor_cache = BackdoorCache(output)
 
     def _queue(self, backdoor, task_count, offset):
         bd_key, bd_size = str(backdoor), len(backdoor)
@@ -60,12 +64,12 @@ class Method:
                 return -job_id, None
 
         # check if backdoor already estimated
-        if bd_key in self._backdoor_cache:
-            task_sample, estimation = self._backdoor_cache[bd_key]
+        if backdoor in self._backdoor_cache:
+            task_sample, estimation = self._backdoor_cache[backdoor]
             task_count = self.sampling.get_count(backdoor, sample=task_sample)
 
             if task_count == 0:
-                return None, estimation
+                return None, {**estimation, 'job_time': 0.}
         else:
             task_count, task_sample = self.sampling.get_count(backdoor), []
             if task_count == 0:
@@ -77,23 +81,20 @@ class Method:
         assert job_id in self._active_jobs
         backdoor = self._active_jobs.pop(job_id)
 
-        bd_key = str(backdoor)
-        task_sample, _ = self._backdoor_cache.get(bd_key, ([], {}))
+        task_sample, _ = self._backdoor_cache.get(backdoor, ([], {}))
         task_sample += self.concurrency.get(job_id)
 
         task_count = self.sampling.get_count(backdoor, sample=task_sample)
         if task_count > 0:
-            self._backdoor_cache[bd_key] = task_sample, None
+            self._backdoor_cache[backdoor] = task_sample, None
             self._queue(backdoor, task_count, len(task_sample))
             return backdoor, None
 
         task_sample = [task for task in task_sample if task is not None]
-        value, time, statistic = self.function.calculate(backdoor, *task_sample)
-        estimation = {
-            'time': time,
-            'value': value,
-        }
-        self._backdoor_cache[bd_key] = task_sample, estimation
+        statistic, estimation = self.function.calculate(backdoor, *task_sample)
+
+        self._backdoor_cache[backdoor] = task_sample, estimation
+        self._backdoor_cache.finalize(backdoor)
         return backdoor, estimation
 
     def wait(self, timeout=None) -> Tuple[bool, Iterable[Tuple[Backdoor, Estimation]]]:
@@ -111,6 +112,9 @@ class Method:
                 break
 
         return loading < 1., estimations
+
+    def __len__(self):
+        return len(self.concurrency)
 
 
 __all__ = [

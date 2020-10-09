@@ -46,11 +46,17 @@ class GuessAndDetermine(Function):
 
         count = 2 ** len(backdoor)
         if count == len(cases):
-            return value_sum, time_sum, statistic
+            return statistic, {
+                'job_time': time_sum,
+                'time': time_sum,
+                'value': value_sum
+            }
 
-        time = float(time_sum) / len(cases) * count
-        value = float(value_sum) / len(cases) * count
-        return value, time, statistic
+        return statistic, {
+            'job_time': time_sum,
+            'time': float(time_sum) / len(cases) * count,
+            'value': float(value_sum) / len(cases) * count,
+        }
 
 
 __all__ = [

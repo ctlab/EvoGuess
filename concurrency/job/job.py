@@ -27,6 +27,11 @@ class Job:
         self._results = [None] * length
         self._statuses = [False] * length
 
+    def _unresolved(self):
+        for i, status in enumerate(self._statuses):
+            if not status:
+                yield i
+
     def _cancel(self):
         raise NotImplementedError
 
@@ -65,6 +70,9 @@ class Job:
             return self._results, self._exceptions
         else:
             raise TimeoutError()
+
+    def partial_result(self):
+        pass
 
     def wait(self, count, timeout=None):
         raise NotImplementedError
@@ -106,6 +114,11 @@ class Job:
 
 __all__ = [
     'Job',
+
+    'RUNNING',
+    'CANCELLED',
+    'FINISHED',
+
     'TimeoutError',
-    'CancelledError'
+    'CancelledError',
 ]

@@ -44,6 +44,8 @@ class Output:
 
         self._log_path = None
         self._debug_path = None
+        self._extra_paths = []
+
         self._debug_verbosity = kwargs.get('dverb', 0)
 
     def _mkroot(self):
@@ -81,6 +83,15 @@ class Output:
         self.name = new_name
         self.status = CLOSED
         return self
+
+    def register(self, extra_path):
+        if self.status == CREATED:
+            raise NotOpenedError()
+
+        path = join(self.path, extra_path)
+        makedirs(path, exist_ok=True)
+        self._extra_paths.append(extra_path)
+        return len(self._extra_paths) - 1
 
     def info(self, *strings: Iterable[str]):
         if self.status == CREATED:
@@ -126,6 +137,15 @@ class Output:
             with open(self._debug_path, 'a') as f:
                 f.writelines(['%s %s\n' % (prefix_str, s) for s in strings])
         return self
+
+    def store(self, index, file, *strings):
+        if self.status == CREATED:
+            raise NotOpenedError()
+
+        extra_path = self._extra_paths[index]
+        store_path = join(self.path, extra_path, file)
+        with open(store_path, 'a') as f:
+            f.writelines(list('%s\n' % s for s in strings))
 
     def error(self, module, text, e):
         error_path = join(self.path, 'ERRORS')
