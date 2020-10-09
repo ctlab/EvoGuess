@@ -92,6 +92,14 @@ class MPIExecutor(Concurrency):
     def __len__(self):
         return self.mpi_size - 1
 
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            '-- Tick: %d' % self.tick,
+            '-- Workload: %d' % self.workload,
+            '-- MPI size: %d' % self.mpi_size,
+        ]))
+
 
 __all__ = [
     'MPIExecutor'
