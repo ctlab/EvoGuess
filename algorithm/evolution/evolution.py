@@ -1,21 +1,21 @@
 from ..algorithm import *
 
+from .mutation.mutation import Mutation
+from .selection.selection import Selection
+
 
 class Evolution(Algorithm):
-    mu = None
-    lmbda = None
+    population_size = None
     name = 'Algorithm: Evolution'
 
     def __init__(self,
-                 limit: Limit,
-                 method,
-                 output,
-                 mutation,
-                 selection
+                 mutation: Mutation,
+                 selection: Selection,
+                 *args, **kwargs
                  ):
         self.mutation = mutation
         self.selection = selection
-        super().__init__(limit, method, output)
+        super().__init__(*args, **kwargs)
 
     def initialize(self, backdoor: Backdoor) -> Population:
         root = Individual(backdoor)
@@ -30,7 +30,7 @@ class Evolution(Algorithm):
         return [best]
 
     def iteration(self, population: Population) -> Population:
-        selected = self.selection.breed(population, self.lmbda)
+        selected = self.selection.breed(population, self.population_size)
         children = self.tweak(selected)
 
         await_list = {}
@@ -69,7 +69,8 @@ class Evolution(Algorithm):
 
 
 __all__ = [
-    'Limit',
+    'Mutation',
+    'Selection',
     'Evolution',
     'Population'
 ]

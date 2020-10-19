@@ -2,18 +2,11 @@ from ..evolution import *
 
 
 class MuPlusLambda(Evolution):
-    def __init__(self,
-                 mu: int,
-                 lmbda: int,
-                 limit,
-                 method,
-                 output,
-                 mutation,
-                 selection
-                 ):
+    def __init__(self, mu, lmbda, *args, **kwargs):
+        self.population_size = lmbda
         self.mu, self.lmbda = mu, lmbda
         self.name = 'Algorithm: Evolution (%d + %d)' % (mu, lmbda)
-        super().__init__(limit, method, output, mutation, selection)
+        super().__init__(*args, **kwargs)
 
     def tweak(self, selected: Population):
         return list(map(self.mutation.mutate, selected))
