@@ -11,7 +11,10 @@ class BackdoorCache:
         self._cache = {}
         self._output = output
 
-        self.index = output.register('backdoors')
+        self.db = output.get_db('backdoors')
+        cursor = self.db.cursor()
+        cursor.execute('''create table backdoors (backdoor text, result text, time real, estimation real)''')
+        self.db.commit()
 
     def __contains__(self, backdoor):
         if not isinstance(backdoor, Backdoor):
@@ -45,13 +48,22 @@ class BackdoorCache:
         if not isinstance(backdoor, Backdoor):
             raise UnsupportedTypeError()
 
+        # key = str(backdoor)
+        # _, payload = self._cache[key]
+        # strings = [
+        #     'Backdoor: %s' % backdoor,
+        #     'Cases (%d): ' % len(payload[0]),
+        #     *map(str, payload[0]),
+        #     'Time: %.7g' % payload[1]['time'],
+        #     'Estimation: %.7g' % payload[1]['value']
+        # ]
+        # self._output.store(self.index, key, *strings)
+
         key = str(backdoor)
+        cursor = self.db.cursor()
         _, payload = self._cache[key]
-        strings = [
-            'Backdoor: %s' % backdoor,
-            'Cases (%d): ' % len(payload[0]),
-            *map(str, payload[0]),
-            'Time: %.7g' % payload[1]['time'],
-            'Estimation: %.7g' % payload[1]['value']
-        ]
-        self._output.store(self.index, key, *strings)
+
+        time, value = payload[1]['time'], payload[1]['value']
+        cases = [(key, str(case), time, value) for case in payload[0]]
+        cursor.executemany('''insert into backdoors values (?, ?, ?, ?)''', cases)
+        self.db.commit()

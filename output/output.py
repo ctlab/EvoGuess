@@ -1,3 +1,4 @@
+import sqlite3
 from time import sleep
 from os.path import join
 from datetime import datetime
@@ -138,6 +139,7 @@ class Output:
                 f.writelines(['%s %s\n' % (prefix_str, s) for s in strings])
         return self
 
+    # todo: remove?
     def store(self, index, file, *strings):
         if self.status == CREATED:
             raise NotOpenedError()
@@ -146,6 +148,13 @@ class Output:
         store_path = join(self.path, extra_path, file)
         with open(store_path, 'a') as f:
             f.writelines(list('%s\n' % s for s in strings))
+
+    def get_db(self, name):
+        if self.status == CREATED:
+            raise NotOpenedError()
+
+        db_path = join(self.path, '%s.db' % name)
+        return sqlite3.connect(db_path)
 
     def error(self, module, text, e):
         error_path = join(self.path, 'ERRORS')
