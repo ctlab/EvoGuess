@@ -36,9 +36,12 @@ class Evolution(Algorithm):
         await_list = {}
         for individual in children:
             backdoor = individual.backdoor
-            _, estimation = self.method.queue(backdoor)
+            job_id, estimation = self.method.queue(backdoor)
             if estimation is None:
-                await_list[str(backdoor)] = individual
+                bd_key = str(backdoor)
+                if bd_key not in await_list:
+                    await_list[bd_key] = []
+                await_list[bd_key].append(individual)
             else:
                 individual.set(**estimation)
 
@@ -46,8 +49,9 @@ class Evolution(Algorithm):
             _, estimations = self.method.wait()  # ignore=True)
             for backdoor, estimation in estimations:
                 bd_key = str(backdoor)
-                individual = await_list.pop(bd_key)
-                individual.set(**estimation)
+                individuals = await_list.pop(bd_key)
+                for individual in individuals:
+                    individual.set(**estimation)
 
         return self.join(population, children)
 
@@ -55,6 +59,10 @@ class Evolution(Algorithm):
         raise NotImplementedError
 
     def join(self, parents: Population, children: Population):
+        raise NotImplementedError
+
+    @staticmethod
+    def parse(params):
         raise NotImplementedError
 
     def __str__(self):
@@ -69,8 +77,6 @@ class Evolution(Algorithm):
 
 
 __all__ = [
-    'Mutation',
-    'Selection',
     'Evolution',
     'Population'
 ]

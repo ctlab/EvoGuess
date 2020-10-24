@@ -15,6 +15,7 @@ if __name__ == '__main__':
     parser.add_argument('-o', '--output', metavar='str', type=str, default='main', help='output subdir')
     parser.add_argument('-v', '--verbosity', metavar='3', type=int, default=3, help='debug [0-3] verbosity level')
     parser.add_argument('-wt', '--walltime', metavar='hh:mm:ss', type=str, default='24:00:00', help='wall time')
+    parser.add_argument('-a', '--algorithm', metavar='str', type=str, default='1+1', help='optimization algorithm')
 
     parser.add_argument('-s', '--solver', metavar='str', type=str, default='g3', help='SAT-solver to solve')
     parser.add_argument('-m', '--measure', metavar='str', type=str, default='props', help='measure of estimation')
@@ -47,14 +48,15 @@ if __name__ == '__main__':
             measure=method.function.measure.get(args.measure),
         )
     )
-
-    _algorithm = algorithm.evolution.MuPlusLambda(
-        mu=1, lmbda=1,
+    Algorithm, alg_kwargs = algorithm.get_algorithm(args.algorithm)
+    _algorithm = Algorithm(
+        **alg_kwargs,
         output=_output,
         method=_method,
         limit=algorithm.limit.WallTime(args.walltime),
         mutation=algorithm.evolution.mutation.Doer(),
         selection=algorithm.evolution.selection.Best(),
+        crossover=algorithm.evolution.crossover.Uniform(prob=0.2),
     )
 
     backdoor = _instance.secret_key.to_backdoor()

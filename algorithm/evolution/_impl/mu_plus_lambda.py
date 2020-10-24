@@ -1,4 +1,5 @@
 from ..evolution import *
+import re
 
 
 class MuPlusLambda(Evolution):
@@ -15,6 +16,14 @@ class MuPlusLambda(Evolution):
         mu_parents = sorted(parents)[:self.mu]
         lmbda_children = sorted(children)[:self.lmbda]
         return mu_parents + lmbda_children
+
+    @staticmethod
+    def parse(params):
+        args = re.findall(r'(\d+)\+(\d+)', params)
+        return {
+            'mu': int(args[0][0]),
+            'lmbda': int(args[0][1])
+        } if len(args) else None
 
 
 __all__ = [

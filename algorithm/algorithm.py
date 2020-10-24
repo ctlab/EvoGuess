@@ -58,6 +58,10 @@ class Algorithm:
             '----------------------------------------'
         )
 
+    @staticmethod
+    def parse(params):
+        raise NotImplementedError
+
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,

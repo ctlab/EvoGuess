@@ -1,4 +1,5 @@
 from ..evolution import *
+import re
 
 
 class MuCommaLambda(Evolution):
@@ -13,6 +14,14 @@ class MuCommaLambda(Evolution):
 
     def join(self, parents: Population, children: Population):
         return sorted(children)[:self.mu]
+
+    @staticmethod
+    def parse(params):
+        args = re.findall(r'(\d+),(\d+)', params)
+        return {
+            'mu': int(args[0][0]),
+            'lmbda': int(args[0][1])
+        } if len(args) else None
 
 
 __all__ = [

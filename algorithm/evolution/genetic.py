@@ -18,11 +18,23 @@ class Genetic(Evolution):
     def join(self, parents: Population, children: Population):
         raise NotImplementedError
 
+    @staticmethod
+    def parse(params):
+        raise NotImplementedError
+
+    def __str__(self):
+        return '\n'.join(map(str, [
+            self.name,
+            self.limit,
+            self.selection,
+            self.mutation,
+            self.crossover,
+            '--------------------',
+            self.method,
+        ]))
+
 
 __all__ = [
-    'Limit',
     'Genetic',
-    'Mutation',
-    'Selection',
     'Population',
 ]
