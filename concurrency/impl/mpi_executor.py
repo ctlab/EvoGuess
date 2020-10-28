@@ -76,8 +76,7 @@ class MPIExecutor(Concurrency):
         try:
             result, exceptions = job.result()
             for i, e in exceptions:
-                print(self.name, '- Exception from job %d of task %d: ' % (job_id, i), e)
-                # self.output.error(self.name, 'Exception from job %d of task %d' % (job_id, i), e)
+                self.output.error(self.name, 'Exception from job %d of task %d' % (job_id, i), e)
 
             return result
         except TimeoutError:

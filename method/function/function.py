@@ -35,7 +35,11 @@ class Function:
         return [self.measure.get(case[3]) for case in cases]
 
     def __str__(self):
-        return self.name
+        return '\n'.join(map(str, [
+            self.name,
+            self.solver,
+            self.measure,
+        ]))
 
 
 __all__ = [

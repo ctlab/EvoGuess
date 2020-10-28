@@ -52,6 +52,9 @@ class PySat(Solver):
 
         return status, statistics, solution, from_saved
 
+    def __str__(self):
+        return self.name
+
     @staticmethod
     def delete(key: str):
         if key in saved_solvers:

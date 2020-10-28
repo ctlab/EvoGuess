@@ -1,19 +1,20 @@
-from structure.array import Backdoor
 from ..parser import *
 
 from typing import List
+from structure.array import Backdoor
+from structure.individual import Individual
 import re
 
 
 class BaseParser(Parser):
     def __init__(self):
         self.bd_cache = None
-        self.bd = re.compile(r'[\[\]]')
-        self.ind = re.compile(r'Individuals \((\d+)\):')
+        self.popup = re.compile(r'Individuals \((\d+)\):')
+        self.ind = re.compile(r'-- \[([\d. ]*)\]\(\d+\) by ([\d.e+]*) \((\d*) samples\)')
 
-    def parse(self, data: str) -> List[Iteration]:
+    def parse_data(self, data: str) -> List[Iteration]:
         i, iterations = 0, []
-        iteration, i = self._parse_iteration(data, i + 1)
+        iteration, i = self._parse_iteration(data, i)
 
         while iteration is not None:
             iterations.append(iteration)
@@ -31,15 +32,16 @@ class BaseParser(Parser):
 
         if data[i].startswith('Iteration'):
             assert data[i + 1].startswith('Individuals')
-            ind_count = int(self.ind.findall(data[i + 1])[0])
+            ind_count = int(self.popup.findall(data[i + 1])[0])
             i, individuals = i + 2, []
             for j in range(ind_count):
-                ind_line = data[i].split(' ')
-                _, bd_str, _, value, _, _ = ind_line
+                bd_str, value, samples = self.ind.findall(data[i])[0]
 
                 value = float(value)
-                backdoor = Backdoor.parse(self.bd.split(bd_str)[1])
-                individuals.append((backdoor, value))
+                samples = int(samples)
+                backdoor = Backdoor.parse(bd_str)
+                individual = Individual(backdoor).set(value, count=samples)
+                individuals.append(individual)
                 i += 1
 
             assert data[i].startswith('Time')

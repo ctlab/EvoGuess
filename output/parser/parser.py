@@ -1,16 +1,26 @@
 from typing import List, Tuple
 
-from structure.array import Backdoor
+from os import listdir
+from os.path import join
+from structure.individual import Individual
 
-Estimation = Tuple[Backdoor, float]
-Iteration = List[Estimation]
+Iteration = List[Individual]
 
 
 class Parser:
-    def parse_file(self, path: str) -> List[Iteration]:
-        return self.parse(self._read(path))
+    def parse(self, path: str) -> List[Iteration]:
+        files = listdir(path)
+        log_files = [file for file in files if 'log' in file]
+        print('Found %d log files' % len(log_files))
 
-    def parse(self, data: str) -> List[Iteration]:
+        iterations = []
+        for log_file in sorted(log_files):
+            log_path = join(path, log_file)
+            data = self._read(log_path)
+            iterations.extend(self.parse_data(data))
+        return iterations
+
+    def parse_data(self, data: str) -> List[Iteration]:
         raise NotImplementedError
 
     @staticmethod
