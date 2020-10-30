@@ -37,8 +37,8 @@ class Method:
     def _queue(self, backdoor, task_count, offset):
         bd_key, bd_size = str(backdoor), len(backdoor)
         # generate task_dimension for current backdoor
-        # todo: use self.sampling.get_max()
-        if bd_size > 20:
+        _, max_size = self.sampling.get_max()
+        if bd_size > max_size:
             task_dimension = self.random_state.randint(2, size=(task_count, bd_size))
         else:
             if bd_key in self._permutation_cache:
