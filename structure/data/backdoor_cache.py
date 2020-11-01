@@ -59,8 +59,9 @@ class BackdoorCache:
             'Cases (%d): ' % len(payload[0]),
             *map(str, payload[0]),
             'Time: %.7g' % payload[1]['time'],
+            'Estimation: %.7g' % payload[1]['value'],
             'Job time: %f' % payload[1]['job_time'],
-            'Estimation: %.7g' % payload[1]['value']
+            'Process time: %f' % payload[1]['process_time'],
         ]
         self._output.store(self.index, info['uuid'], *strings)
         self._output.write('backdoors.list', str(info))

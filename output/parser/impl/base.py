@@ -3,6 +3,7 @@ from ..parser import *
 from typing import List
 from structure.array import Backdoor
 from structure.individual import Individual
+
 import re
 
 

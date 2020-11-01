@@ -1,6 +1,7 @@
 from ..function import *
 
 from os import getpid
+from time import time as now
 
 
 def bits_to_values(bits, variables):
@@ -9,6 +10,7 @@ def bits_to_values(bits, variables):
 
 
 def gad_task(i, solver, instance, data):
+    st_timestamp = now()
     bits = decode_bits(data)
     bd_vars = instance.secret_key.filter(bits[0])
     assumptions = bits_to_values(bits[1], bd_vars)
@@ -16,7 +18,7 @@ def gad_task(i, solver, instance, data):
         assumptions.extend(interval.values(bits[i + 2]))
 
     status, stats, _, _ = solver.solve(instance.clauses(), assumptions)
-    return i, getpid(), status, stats
+    return i, getpid(), status, stats, now() - st_timestamp
 
 
 class GuessAndDetermine(Function):
@@ -37,12 +39,13 @@ class GuessAndDetermine(Function):
         return [(gad_task, i, self.solver, self.instance, data) for i, data in enumerate(task_data)]
 
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
-        time_sum, value_sum = 0, 0
         statistic = {True: 0, False: 0, None: 0}
+        process_time, time_sum, value_sum = 0, 0, 0
         for case in cases:
+            statistic[case[2]] += 1
+            process_time += case[4]
             time_sum += case[3]['time']
             value_sum += self.measure.get(case[3])
-            statistic[case[2]] += 1
 
         count = 2 ** len(backdoor)
         if count == len(cases):
@@ -51,11 +54,13 @@ class GuessAndDetermine(Function):
                 'value': value_sum,
                 'count': len(cases),
                 'job_time': time_sum,
+                'process_time': process_time
             }
 
         return statistic, {
             'count': len(cases),
             'job_time': time_sum,
+            'process_time': process_time,
             'time': float(time_sum) / len(cases) * count,
             'value': float(value_sum) / len(cases) * count,
         }
