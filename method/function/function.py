@@ -26,7 +26,9 @@ def encode_bits(bits):
         numbers = []
         for i in range(0, len(array), BASIS):
             numbers.append(to_number(array[i:i + BASIS]))
-        data.append(numbers)
+        data.append(bytes(numbers))
+    # print(sum(sys.getsizeof(x) for x in bits))
+    # print(sum(sys.getsizeof(x) for x in data))
     # print([[1 if bit else 0 for bit in array] for array in bits])
     # print(decode_bits(data))
     # print('--')
