@@ -19,7 +19,8 @@ def gad_task(i, solver, instance, data):
         assumptions.extend(interval.values(bits[i + 2]))
 
     status, stats, _, _ = solver.solve(instance.clauses(), assumptions)
-    return i, getpid(), status, stats, now() - st_timestamp
+    result = (i, getpid(), status, stats, now() - st_timestamp)
+    return encode_result(result)
 
 
 class GuessAndDetermine(Function):

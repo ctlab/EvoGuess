@@ -84,7 +84,8 @@ class Method:
         backdoor = self._active_jobs.pop(job_id)
 
         task_sample, _ = self._backdoor_cache.get(backdoor, ([], {}))
-        task_sample += self.concurrency.get(job_id)
+        task_results = self.concurrency.get(job_id)
+        task_sample += self.function.decode_results(*task_results)
 
         values = self.function.get_values(*task_sample)
         task_count = self.sampling.get_count(backdoor, values=values)

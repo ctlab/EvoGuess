@@ -27,12 +27,7 @@ def encode_bits(bits):
         for i in range(0, len(array), BASIS):
             numbers.append(to_number(array[i:i + BASIS]))
         data.append(bytes(numbers))
-    # print(sum(sys.getsizeof(x) for x in bits))
-    # print(sum(sys.getsizeof(x) for x in data))
-    # print([[1 if bit else 0 for bit in array] for array in bits])
-    # print(decode_bits(data))
-    # print('--')
-    return data
+    return tuple(data)
 
 
 def decode_bits(data):
@@ -43,6 +38,22 @@ def decode_bits(data):
             array.extend(to_bits(number))
         bits.append(array)
     return bits
+
+
+def encode_result(result):
+    return result[0], result[1], result[2], result[3]['restarts'], result[3]['conflicts'], result[3]['decisions'], \
+           result[3]['propagations'], result[3]['learned_literals'], result[3]['time'], result[4]
+
+
+def decode_result(data):
+    return data[0], data[1], data[2], {
+        'restarts': data[3],
+        'conflicts': data[4],
+        'decisions': data[5],
+        'propagations': data[6],
+        'learned_literals': data[7],
+        'time': data[8],
+    }, data[9]
 
 
 class Function:
@@ -59,6 +70,9 @@ class Function:
 
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
         raise NotImplementedError
+
+    def decode_results(self, *results: Tuple) -> Iterable[Case]:
+        return [decode_result(result) for result in results]
 
     def get_values(self, *cases: Case) -> Iterable[float]:
         return [self.measure.get(case[3]) for case in cases]
@@ -80,5 +94,7 @@ __all__ = [
     'Backdoor',
     'Function',
     'encode_bits',
-    'decode_bits'
+    'decode_bits',
+    'encode_result',
+    'decode_result'
 ]
