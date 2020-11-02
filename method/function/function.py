@@ -7,20 +7,47 @@ from concurrency.concurrency import Task
 Case = Tuple[int, int, bool, Dict[str, int]]
 Result = Tuple[Dict[bool, int], Dict[str, int]]
 
+BASIS = 8
+
+
+def to_bits(number):
+    assert number < 1 << BASIS
+    return [1 if number & (1 << (BASIS - i - 1)) else 0 for i in range(BASIS)]
+
+
+def to_number(bits):
+    assert len(bits) <= BASIS
+    return sum([1 << (BASIS - i - 1) for i, bit in enumerate(bits) if bit])
+
 
 def encode_bits(bits):
-    return bits
+    data = []
+    for array in bits:
+        numbers = []
+        for i in range(0, len(array), BASIS):
+            numbers.append(to_number(array[i:i + BASIS]))
+        data.append(numbers)
+    # print([[1 if bit else 0 for bit in array] for array in bits])
+    # print(decode_bits(data))
+    # print('--')
+    return data
 
 
 def decode_bits(data):
-    return data
+    bits = []
+    for numbers in data:
+        array = []
+        for number in numbers:
+            array.extend(to_bits(number))
+        bits.append(array)
+    return bits
 
 
 class Function:
     type = None
     name = 'Function'
 
-    def __init__(self, solver: Solver, instance, measure):
+    def __init__(self, solver: Solver, instance, measure, *args, **kwargs):
         self.solver = solver
         self.instance = instance
         self.measure = measure

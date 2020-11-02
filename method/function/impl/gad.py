@@ -5,7 +5,7 @@ from time import time as now
 
 
 def bits_to_values(bits, variables):
-    assert len(bits) == len(variables)
+    assert len(bits) >= len(variables)
     return [x if bits[i] else -x for i, x in enumerate(variables)]
 
 
@@ -15,6 +15,7 @@ def gad_task(i, solver, instance, data):
     bd_vars = instance.secret_key.filter(bits[0])
     assumptions = bits_to_values(bits[1], bd_vars)
     for i, interval in enumerate(instance.intervals()):
+        # todo: inspect function
         assumptions.extend(interval.values(bits[i + 2]))
 
     status, stats, _, _ = solver.solve(instance.clauses(), assumptions)

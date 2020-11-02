@@ -8,9 +8,9 @@ def ibs_task(i, solver, instance, data, limit):
 
 
 class InverseBackdoorSets(Function):
-    def __init__(self, solver: Solver, instance, measure, limit, **kwargs):
+    def __init__(self, limit, *args, **kwargs):
         self.limit = limit
-        super().__init__(solver, instance, measure, **kwargs)
+        super().__init__(*args, **kwargs)
 
     type = 'gad'
     name = 'Function: Guess-and-Determine'
