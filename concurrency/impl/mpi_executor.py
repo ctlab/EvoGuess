@@ -14,6 +14,7 @@ class MPIExecutor(Concurrency):
         self.counter = 0
         self.tick = kwargs.get('tick', 0.1)
         self.workload = kwargs.get('workload', 0.9)
+        self.debug_ticks = kwargs.get('debug_ticks', 100)
 
         super().__init__(output)
         self.mpi_size = MPI.COMM_WORLD.Get_size()
@@ -42,7 +43,7 @@ class MPIExecutor(Concurrency):
         except KeyError:
             return None
 
-    def _update_jobs(self):
+    def _update_jobs(self, debug=False):
         ready, all_left = [], 0
         for job_id, job in self.jobs.items():
             job_left = job.update()
@@ -50,6 +51,8 @@ class MPIExecutor(Concurrency):
             if job_left == 0:
                 ready.append(job_id)
 
+        if debug:
+            self.output.debug(3, 1, 'Left %d task(s) of %d job(s)' % (all_left, len(self.jobs)))
         return ready, float(all_left) / self.mpi_size
 
     def wait(self, timeout: float = None) -> Info:
@@ -58,13 +61,14 @@ class MPIExecutor(Concurrency):
         else:
             wall_time = now() + max(timeout, self.tick)
 
-        ready, loading = self._update_jobs()
+        i, (ready, loading) = 0, self._update_jobs()
         while wall_time > now():
             if len(ready) > 0 or loading < self.workload:
                 break
 
             sleep(self.tick)
-            ready, loading = self._update_jobs()
+            i = (i + 1) % self.debug_ticks
+            ready, loading = self._update_jobs(debug=(i == 0))
 
         return loading, ready
 

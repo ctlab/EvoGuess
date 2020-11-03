@@ -158,7 +158,7 @@ class Output:
     def debug(self, verbosity: int, level: int, *strings: Iterable[str]):
         if self._debug_verbosity >= verbosity:
             prefix = '%s --%s' % (dt_now(), '--' * level)
-            strs = ['%s %s\n' % (prefix, s) for s in strings]
+            strs = ['%s %s' % (prefix, s) for s in strings]
             return self.write(self._debug_file, *strs)
         return self
 
