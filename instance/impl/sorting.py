@@ -6,7 +6,7 @@ class BubbleVsInsert(Instance):
 
     def __init__(self, size, count):
         self.type = '%dx%d' % (size, count)
-        self.name = 'Instance: Bubble Vs Insert %dx%d' % (size, count)
+        self.name = 'Instance: Bubble Vs Insert (%d, %d)' % (size, count)
         self.path = self.build_path('sorting', self.tag, '%s_%d_%d' % (self.tag, count, size))
         super().__init__(secret_key=SecretKey(1, count * size))
 
@@ -16,7 +16,7 @@ class BubbleVsSelection(Instance):
 
     def __init__(self, size, count):
         self.type = '%dx%d' % (size, count)
-        self.name = 'Instance: Bubble Vs Selection %dx%d' % (size, count)
+        self.name = 'Instance: Bubble Vs Selection (%d, %d)' % (size, count)
         self.path = self.build_path('sorting', self.tag, '%s_%d_%d' % (self.tag, count, size))
         super().__init__(secret_key=SecretKey(1, count * size))
 
@@ -26,7 +26,7 @@ class BubbleVsPancake(Instance):
 
     def __init__(self, size, count):
         self.type = '%dx%d' % (size, count)
-        self.name = 'Instance: Bubble Vs Pancake %dx%d' % (size, count)
+        self.name = 'Instance: Bubble Vs Pancake (%d, %d)' % (size, count)
         self.path = self.build_path('sorting', self.tag, '%s_%d_%d' % (self.tag, count, size))
         super().__init__(secret_key=SecretKey(1, count * size))
 
@@ -36,7 +36,7 @@ class PancakeVsSelection(Instance):
 
     def __init__(self, size, count):
         self.type = '%dx%d' % (size, count)
-        self.name = 'Instance: Pancake Vs Selection %dx%d' % (size, count)
+        self.name = 'Instance: Pancake Vs Selection (%d, %d)' % (size, count)
         self.path = self.build_path('sorting', self.tag, '%s_%d_%d' % (self.tag, count, size))
         super().__init__(secret_key=SecretKey(1, count * size))
 

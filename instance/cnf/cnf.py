@@ -58,7 +58,7 @@ class CNF:
         if tag is not None and tag in cnfs:
             return cnfs[tag]
 
-        print('parse cnf...')
+        print('parse cnf... (%s)' % tag)
         with open(path) as f:
             cnf = CNF()
             fst = re.compile('^[-0-9]')

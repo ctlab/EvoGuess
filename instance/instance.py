@@ -22,7 +22,8 @@ class Instance:
         return self.name
 
     def cnf(self):
-        return CNF.parse(self.path, self.tag)
+        tag = self.tag if self.type is None else '%s_%s' % (self.tag, self.type)
+        return CNF.parse(self.path, tag)
 
     def clauses(self):
         return self.cnf().clauses
