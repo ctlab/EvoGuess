@@ -44,9 +44,8 @@ def check():
 
     k = 0
     for instance_key in instances:
+        _instance = instance.get_instance(instance_key)
         for solver_key in solvers:
-            _instance = instance.get_instance(instance_key)
-
             res = pool.apply_async(worker_f, (k, _instance, solver_key))
             res_list.append((k, instance_key, solver_key, res))
             k += 1
@@ -72,11 +71,13 @@ def check():
                         slv_key: task_result
                     }
 
-            sleep(tick)
-            j = (j + 1) % debug_ticks
-            if j == 0:
-                with open('single.info', 'a+') as f:
-                    f.write("[INFO] Left %d task(s)\n" % len(res_list))
+            i += 1
+
+        sleep(tick)
+        j = (j + 1) % debug_ticks
+        if j == 0:
+            with open('single.info', 'a+') as f:
+                f.write("[INFO] Left %d task(s)\n" % len(res_list))
 
     for inst_key, inst_res in results.items():
         print("\nResults for %s:" % instance.get_instance(inst_key))
