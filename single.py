@@ -51,7 +51,7 @@ def check():
             res_list.append((k, instance_key, solver_key, res))
             k += 1
 
-    j, tick, debug_ticks = 0, 1.0, 10
+    j, tick, debug_ticks = 0, 1.0, 1000
     while len(res_list) > 0:
         i = 0
         while i < len(res_list):
@@ -75,7 +75,8 @@ def check():
             sleep(tick)
             j = (j + 1) % debug_ticks
             if j == 0:
-                print("[INFO] Left %d task(s)" % len(res_list))
+                with open('single.info', 'a+') as f:
+                    f.write("[INFO] Left %d task(s)\n" % len(res_list))
 
     for inst_key, inst_res in results.items():
         print("\nResults for %s:" % instance.get_instance(inst_key))
