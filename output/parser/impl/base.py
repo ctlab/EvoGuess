@@ -15,6 +15,11 @@ class BaseParser(Parser):
 
     def parse_data(self, data: str) -> List[Iteration]:
         i, iterations = 0, []
+        st_timestamp, end_timestamp = None, None
+        if data[i].startswith('Algorithm start on'):
+            st_timestamp = float(data[i].split(' ')[3])
+            i += 1
+
         iteration, i = self._parse_iteration(data, i)
 
         while iteration is not None:
@@ -25,7 +30,10 @@ class BaseParser(Parser):
                 iteration = None
                 print('Parse error (iteration): %s' % e)
 
-        return iterations
+        if data[i].startswith('Algorithm end on'):
+            end_timestamp = float(data[i].split(' ')[3])
+
+        return iterations, (st_timestamp, end_timestamp)
 
     def _parse_iteration(self, data, i):
         if len(data) <= i:

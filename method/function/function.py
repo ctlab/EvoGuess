@@ -4,8 +4,8 @@ from ..solver.types import Solver
 from structure.array import Backdoor
 from concurrency.concurrency import Task
 
-Case = Tuple[int, int, bool, Dict[str, int]]
 Result = Tuple[Dict[bool, int], Dict[str, int]]
+Case = Tuple[int, int, bool, Dict[str, int], Tuple[float, float]]
 
 BASIS = 8
 
@@ -42,7 +42,7 @@ def decode_bits(data):
 
 def encode_result(result):
     return result[0], result[1], result[2], result[3]['restarts'], result[3]['conflicts'], result[3]['decisions'], \
-           result[3]['propagations'], result[3]['learned_literals'], result[3]['time'], result[4]
+           result[3]['propagations'], result[3]['learned_literals'], result[3]['time'], result[4][0], result[4][1]
 
 
 def decode_result(data):
@@ -53,7 +53,11 @@ def decode_result(data):
         'propagations': data[6],
         'learned_literals': data[7],
         'time': data[8],
-    }, data[9]
+    }, (data[9], data[10])
+
+
+def save_apply(f, arg):
+    return None if arg is None else f(arg)
 
 
 class Function:
@@ -72,10 +76,10 @@ class Function:
         raise NotImplementedError
 
     def decode_results(self, *results: Tuple) -> Iterable[Case]:
-        return [decode_result(result) for result in results]
+        return [save_apply(decode_result, result) for result in results]
 
     def get_values(self, *cases: Case) -> Iterable[float]:
-        return [self.measure.get(case[3]) for case in cases]
+        return [save_apply(lambda x: self.measure.get(x[3]), case) for case in cases]
 
     def __str__(self):
         return '\n'.join(map(str, [
@@ -93,6 +97,7 @@ __all__ = [
     'Iterable',
     'Backdoor',
     'Function',
+    'save_apply',
     'encode_bits',
     'decode_bits',
     'encode_result',

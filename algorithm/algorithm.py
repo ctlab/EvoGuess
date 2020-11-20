@@ -34,6 +34,10 @@ class Algorithm:
         self.output.info(self.__str__())
 
         st_timestamp = now()
+        self.output.log(
+            'Algorithm start on %f' % st_timestamp,
+            '----------------------------------------'
+        )
         self.limit.set('iteration', 0)
         population = self.initialize(backdoor)
         it_time = now() - st_timestamp
@@ -51,6 +55,7 @@ class Algorithm:
             self._log_iteration(i, population, it_time, full_time)
             i += 1
 
+        self.output.log('Algorithm end on %f' % now())
         return population
 
     def _log_iteration(self, it, population, time, full_time):
