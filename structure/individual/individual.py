@@ -6,20 +6,30 @@ from numpy import sign
 
 class Individual:
     def __init__(self, backdoor: Backdoor):
-        self.kwargs = {}
+        self._getter = None
         self.value = float('inf')
         self.backdoor = backdoor
 
     def set(self, value, **kwargs):
         self.value = value
-        self.kwargs = kwargs
+        self._getter = kwargs.get
+        return self
+
+    def lazy_set(self, value, cache):
+        self.value = value
+
+        def getter(key):
+            kwargs = cache.load(str(self.backdoor))
+            return kwargs and kwargs.get(key)
+
+        self._getter = getter
         return self
 
     def get(self, key=None):
         if key is None:
             return self.value
         else:
-            return self.kwargs.get(key)
+            return self._getter(key)
 
     def compare(self, other):
         try:

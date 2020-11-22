@@ -1,3 +1,4 @@
+import json
 from uuid import uuid4
 from collections import namedtuple
 from structure.array import Backdoor
@@ -10,6 +11,7 @@ class UnsupportedTypeError(Exception):
 
 class BackdoorCache:
     def __init__(self, output):
+        self._best = None
         self._cache = {}
         self._output = output
 
@@ -43,7 +45,7 @@ class BackdoorCache:
             return self.__getitem__(backdoor)
         return default
 
-    def finalize(self, backdoor: Backdoor):
+    def dumps(self, backdoor: Backdoor):
         if not isinstance(backdoor, Backdoor):
             raise UnsupportedTypeError()
 
@@ -53,15 +55,17 @@ class BackdoorCache:
         }
         _, payload = self._cache[info['key']]
         info['count'] = len(payload[0])
-        strings = [
-            # 'UUID: %s' % info['uuid'],
-            'Backdoor: %s' % backdoor,
-            'Cases (%d): ' % len(payload[0]),
-            *map(str, payload[0]),
-            'Time: %.7g' % payload[1]['time'],
-            'Estimation: %.7g' % payload[1]['value'],
-            'Job time: %f' % payload[1]['job_time'],
-            'Process time: %f' % payload[1]['process_time'],
-        ]
-        self._output.store(self.index, info['uuid'], *strings)
-        self._output.write('backdoors.list', str(info))
+
+        string = json.dumps({
+            'backdoor': str(backdoor),
+            'count': len(payload[0]),
+            'time': payload[1]['time'],
+            'value': payload[1]['value'],
+            'job_time': payload[1]['job_time'],
+            'process_time': payload[1]['process_time'],
+            'cases': payload[0],
+        }, indent=2)
+        self._output.store(self.index, info['uuid'], string)
+        self._output.write('backdoors.list', json.dumps(info))
+
+        # if self._best[1]
