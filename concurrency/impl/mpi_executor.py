@@ -20,7 +20,7 @@ class MPIExecutor(Concurrency):
         self.mpi_size = MPI.COMM_WORLD.Get_size()
         self.executor = ProcessPoolExecutor(self.mpi_size - 1)
 
-    def submit(self, *tasks: Task) -> int:
+    def submit(self, *tasks: Task, auditor=None) -> int:
         if len(tasks) == 0:
             return None
 
@@ -33,26 +33,34 @@ class MPIExecutor(Concurrency):
             future = self.executor.submit(task[0], *task[1:])
             futures.append(future)
 
-        self.jobs[job_id] = Job(futures)
+        self.jobs[job_id] = Job(futures), auditor
         return job_id
 
     def cancel(self, job_id: int) -> bool:
         try:
-            job = self.jobs.pop(job_id)
+            job, _ = self.jobs.pop(job_id)
             return job.cancel()
         except KeyError:
             return None
 
     def _update_jobs(self, debug=False):
         ready, all_left = [], 0
-        for job_id, job in self.jobs.items():
+        for job_id, (job, auditor) in self.jobs.items():
             job_left = job.update()
-            all_left += job_left
             if job_left == 0:
                 ready.append(job_id)
+                continue
+
+            if auditor and not auditor(job):
+                if self.cancel(job_id) is not None:
+                    ready.append(job_id)
+                    continue
+
+            all_left += job_left
 
         if debug:
             self.output.debug(3, 1, 'Left %d task(s) of %d job(s)' % (all_left, len(self.jobs)))
+
         return ready, float(all_left) / self.mpi_size
 
     def wait(self, timeout: float = None) -> Info:
@@ -61,7 +69,8 @@ class MPIExecutor(Concurrency):
         else:
             wall_time = now() + max(timeout, self.tick)
 
-        i, (ready, loading) = 0, self._update_jobs()
+        i = 0
+        ready, loading = self._update_jobs()
         while wall_time > now():
             if len(ready) > 0 or loading < self.workload:
                 break
@@ -76,18 +85,20 @@ class MPIExecutor(Concurrency):
         if job_id not in self.jobs:
             raise KeyError
 
-        job = self.jobs.pop(job_id)
+        job, auditor = self.jobs.pop(job_id)
         try:
             result, exceptions = job.result()
             for i, e in exceptions:
                 self.output.error(self.name, 'Exception from job %d of task %d' % (job_id, i), e)
 
-            return result
+            return True, result
         except TimeoutError:
-            self.jobs[job_id] = job
-            return None
-        except CancelledError:
-            raise KeyError
+            self.jobs[job_id] = job, auditor
+            return None, None
+        except CancelledError as e:
+            percent = 100.0 * e.ready / len(e.results)
+            self.output.debug(1, 1, 'Job %d has been canceled (%d%%)' % (job_id, percent))
+            return False, e.results
 
     def shutdown(self, wait=True):
         self.executor.shutdown(wait)

@@ -52,7 +52,7 @@ class Method:
 
         # create new job for current backdoor with task_dimension
         tasks = self.function.get_tasks(backdoor, *task_dimension, random_state=self.random_state)
-        job_id = self.concurrency.submit(*tasks)
+        job_id = self.concurrency.submit(*tasks, auditor=None)
         self._active_jobs[job_id] = backdoor
 
         return job_id
@@ -66,9 +66,11 @@ class Method:
 
         # check if backdoor already estimated
         if backdoor in self._backdoor_cache:
+            task_count = 0
             task_sample, estimation = self._backdoor_cache[backdoor]
-            values = self.function.get_values(*task_sample)
-            task_count = self.sampling.get_count(backdoor, values=values)
+            if not estimation.get('canceled', False):
+                values = self.function.get_values(*task_sample)
+                task_count = self.sampling.get_count(backdoor, values=values)
 
             if task_count == 0:
                 return None, {**estimation, 'job_time': 0.}
@@ -84,21 +86,28 @@ class Method:
         backdoor = self._active_jobs.pop(job_id)
 
         task_sample, _ = self._backdoor_cache.get(backdoor, ([], {}))
-        task_results = self.concurrency.get(job_id)
-        task_sample += self.function.decode_results(*task_results)
-
-        values = self.function.get_values(*task_sample)
-        task_count = self.sampling.get_count(backdoor, values=values)
-        if task_count > 0:
-            self._backdoor_cache[backdoor] = task_sample, None
-            self._queue(backdoor, task_count, len(task_sample))
+        task_status, task_results = self.concurrency.get(job_id)
+        if task_status is None:
             return backdoor, None
 
-        task_sample = [task for task in task_sample if task is not None]
-        statistic, estimation = self.function.calculate(backdoor, *task_sample)
+        task_sample += self.function.decode_results(*task_results)
+        if task_status:
+            values = self.function.get_values(*task_sample)
+            task_count = self.sampling.get_count(backdoor, values=values)
+            if task_count > 0:
+                self._backdoor_cache[backdoor] = task_sample, None
+                self._queue(backdoor, task_count, len(task_sample))
+                return backdoor, None
+
+            task_sample = [task for task in task_sample if task is not None]
+            statistic, estimation = self.function.calculate(backdoor, *task_sample)
+        else:
+            task_sample = [task for task in task_sample if task is not None]
+            statistic, estimation = self.function.calculate(backdoor, *task_sample)
+            estimation['canceled'] = True
 
         self._backdoor_cache[backdoor] = task_sample, estimation
-        self._backdoor_cache.finalize(backdoor)
+        self._backdoor_cache.dumps(backdoor)
         return backdoor, estimation
 
     def wait(self, timeout=None) -> Tuple[bool, Iterable[Tuple[Backdoor, Estimation]]]:

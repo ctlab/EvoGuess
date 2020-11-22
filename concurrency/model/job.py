@@ -10,7 +10,10 @@ CANCELLED_ERROR = 'CancelledError'
 
 class CancelledError(Exception):
     """The Job was cancelled."""
-    pass
+
+    def __init__(self, ready, results):
+        self.ready = ready
+        self.results = results
 
 
 class TimeoutError(Exception):
@@ -21,6 +24,7 @@ class TimeoutError(Exception):
 # todo: create FutureJob and ResultJob
 class Job:
     def __init__(self, futures):
+        self._ready = 0
         self._state = RUNNING
         self._futures = futures
         self._length = len(futures)
@@ -47,21 +51,24 @@ class Job:
 
     def result(self, timeout=0.):
         if self._state == CANCELLED:
-            raise CancelledError()
+            raise CancelledError(self._results, self._exceptions)
         if self._state == FINISHED:
             return self._results, self._exceptions
 
-        left = self._update(timeout)
+        left = self._length - self._update(timeout)
         if left == 0:
             self._state = FINISHED
             return self._results, self._exceptions
         else:
             raise TimeoutError()
 
+    def partial_result(self):
+        return self._results, self._exceptions
+
     def update(self):
         if self._state in [CANCELLED, FINISHED]:
             return 0
-        return self._update()
+        return self._length - self._update()
 
     def _set(self, i, result):
         self._results[i] = result
@@ -95,7 +102,8 @@ class Job:
                 if name != CANCELLED_ERROR:
                     self._exceptions.append((i, e))
 
-        return self._length - sum(self._statuses)
+        self._ready = sum(self._statuses)
+        return self._ready
 
 
 __all__ = [
