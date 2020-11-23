@@ -51,8 +51,8 @@ class Method:
             task_dimension = [number_to_bits(number, bd_size) for number in task_numbers]
 
         # create new job for current backdoor with task_dimension
-        tasks = self.function.get_tasks(backdoor, *task_dimension, random_state=self.random_state)
-        job_id = self.concurrency.submit(*tasks, auditor=None)
+        job_f, job_tasks = self.function.get_job(backdoor, *task_dimension, random_state=self.random_state)
+        job_id = self.concurrency.submit(job_f, *job_tasks, auditor=None)
         self._active_jobs[job_id] = backdoor
 
         return job_id

@@ -27,7 +27,7 @@ class GuessAndDetermine(Function):
     type = 'gad'
     name = 'Function: Guess-and-Determine'
 
-    def get_tasks(self, backdoor: Backdoor, *dimension, **kwargs) -> Iterable[Task]:
+    def get_job(self, backdoor: Backdoor, *dimension, **kwargs) -> Job:
         ad_bits = []
         if self.instance.has_intervals():
             clauses = self.instance.clauses()
@@ -38,7 +38,7 @@ class GuessAndDetermine(Function):
 
         bd_bits = backdoor.get_mask()
         task_data = [encode_bits([bd_bits, bits, *ad_bits]) for bits in dimension]
-        return [(gad_task, i, self.solver, self.instance, data) for i, data in enumerate(task_data)]
+        return gad_task, [(i, self.solver, self.instance, data) for i, data in enumerate(task_data)]
 
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
         statistic = {True: 0, False: 0, None: 0}

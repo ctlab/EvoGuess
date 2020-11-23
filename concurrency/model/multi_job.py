@@ -22,15 +22,16 @@ class TimeoutError(Exception):
 
 
 # todo: create FutureJob and ResultJob
-class Job:
-    def __init__(self, futures):
+class MultiJob:
+    def __init__(self, futures, future_index):
         self._ready = 0
         self._state = RUNNING
         self._futures = futures
-        self._length = len(futures)
+        self._future_index = future_index
+        self._length = sum(map(len, future_index))
+
         self._results = [None] * self._length
         self._statuses = [False] * self._length
-
         self._exceptions = []
 
     def cancel(self):
@@ -67,35 +68,43 @@ class Job:
             return 0
         return self._length - self._update()
 
-    def _set(self, i, result):
-        self._results[i] = result
-        self._statuses[i] = True
-
-    def _unresolved(self):
-        return [i for i, status in enumerate(self._statuses) if not status]
+    def _set(self, index, result):
+        for i, j in enumerate(index):
+            if result is not None:
+                self._results[j] = result[i]
+                self._statuses[j] = True
+            else:
+                self._results[j] = None
+                self._statuses[j] = False
 
     def _update(self, timeout=0.):
-        wall_time = now() + timeout
-        for i in self._unresolved():
-            future = self._futures[i]
+        i, wall_time = 0, now() + timeout
+        while i < len(self._futures):
+            future, index = self._futures[i], self._future_index[i]
             if future.cancelled():
-                self._set(i, None)
+                self._set(index, None)
                 continue
 
             try:
                 job_timeout = wall_time - now()
                 if future.done():
-                    self._set(i, future.result())
+                    self._set(index, future.result())
                 elif job_timeout > 0:
-                    self._set(i, future.result(job_timeout))
+                    self._set(index, future.result(job_timeout))
                 else:
                     break
+
+                self._futures.pop(i)
+                self._future_index.pop(i)
             except Exception as e:
                 name = type(e).__name__
                 if name == TIMEOUT_ERROR:
                     break
 
-                self._set(i, None)
+                self._set(index, None)
+                self._futures.pop(i)
+                self._future_index.pop(i)
+
                 if name != CANCELLED_ERROR:
                     self._exceptions.append((i, e))
 
@@ -104,7 +113,7 @@ class Job:
 
 
 __all__ = [
-    'Job',
+    'MultiJob',
     'TimeoutError',
     'CancelledError'
 ]

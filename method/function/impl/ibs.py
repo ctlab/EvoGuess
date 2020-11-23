@@ -15,8 +15,8 @@ class InverseBackdoorSets(Function):
     type = 'gad'
     name = 'Function: Guess-and-Determine'
 
-    def get_tasks(self, backdoor: Backdoor, *dimension) -> Iterable[Task]:
-        return []
+    def get_job(self, backdoor: Backdoor, *dimension) -> Job:
+        return None, []
 
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
         return 0., 0., {}

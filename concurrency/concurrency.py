@@ -1,8 +1,8 @@
 from typing import Iterable, Tuple, Any, Callable
 
+Task = Iterable[Any]
 Result = Iterable[Any]
 Info = Tuple[int, Iterable[int]]
-Task = Tuple[Callable, Iterable[Any]]
 
 
 class Concurrency:
@@ -11,7 +11,7 @@ class Concurrency:
     def __init__(self, output):
         self.output = output
 
-    def submit(self, *tasks: Task) -> int:
+    def submit(self, f: Callable, *tasks: Task) -> int:
         raise NotImplementedError
 
     def cancel(self, job_id: int) -> bool:
@@ -34,6 +34,7 @@ __all__ = [
     'Info',
     'Task',
     'Result',
+    'Callable',
     'Concurrency'
 ]
 

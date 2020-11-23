@@ -31,12 +31,13 @@ if __name__ == '__main__':
         path=join(*[f for f in path if f is not None]),
     ).open().touch()
 
+    random_state = RandomState()
     _concurrency = concurrency.MPIExecutor(
         workload=0,
         output=_output,
+        random_state=random_state,
     )
 
-    random_state = RandomState()
     _method = method.Method(
         output=_output,
         concurrency=_concurrency,

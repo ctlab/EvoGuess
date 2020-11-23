@@ -1,26 +1,37 @@
 from ..concurrency import *
-from ..model.job import *
+from ..model.multi_job import *
 
 from mpi4py import MPI
 from time import time as now, sleep
+from numpy.random.mtrand import RandomState
 from mpi4py.futures import ProcessPoolExecutor
+
+
+def multi_f(f, tasks):
+    return [f(*args) for args in tasks]
 
 
 class MPIExecutor(Concurrency):
     name = "Concurrency: MPIExecutor"
 
-    def __init__(self, output, **kwargs):
+    def __init__(self,
+                 output,
+                 random_state: RandomState,
+                 **kwargs
+                 ):
         self.jobs = {}
         self.counter = 0
+        self.random_state = random_state
         self.tick = kwargs.get('tick', 0.1)
         self.workload = kwargs.get('workload', 0.9)
+        self.multi_rate = kwargs.get('multi_rate', 4)
         self.debug_ticks = kwargs.get('debug_ticks', 100)
 
         super().__init__(output)
         self.mpi_size = MPI.COMM_WORLD.Get_size()
         self.executor = ProcessPoolExecutor(self.mpi_size - 1)
 
-    def submit(self, *tasks: Task, auditor=None) -> int:
+    def submit(self, f: Callable, *tasks: Task, auditor=None) -> int:
         if len(tasks) == 0:
             return None
 
@@ -28,12 +39,27 @@ class MPIExecutor(Concurrency):
         job_id = self.counter
         assert job_id not in self.jobs
 
-        futures = []
-        for task in tasks:
-            future = self.executor.submit(task[0], *task[1:])
-            futures.append(future)
+        # futures = []
+        # for args in tasks:
+        #     future = self.executor.submit(f, *args)
+        #     futures.append(future)
+        #
+        # self.jobs[job_id] = Job(futures), auditor
+        # return job_id
 
-        self.jobs[job_id] = Job(futures), auditor
+        count = len(tasks)
+        futures, future_index = [], []
+        task_permutation = self.random_state.permutation(count)
+        size = max(1, int(count // (self.multi_rate * (self.mpi_size - 1))))
+        for i in range(0, count, size):
+            index = task_permutation[i:i + size]
+            multi_tasks = tuple(tasks[j] for j in index)
+            future = self.executor.submit(multi_f, f, multi_tasks)
+
+            futures.append(future)
+            future_index.append(index)
+
+        self.jobs[job_id] = MultiJob(futures, future_index), auditor
         return job_id
 
     def cancel(self, job_id: int) -> bool:

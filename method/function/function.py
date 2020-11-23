@@ -1,9 +1,11 @@
-from typing import Tuple, Dict, Iterable
+from typing import Tuple, Dict, Iterable, Callable
 
 from ..solver.types import Solver
 from structure.array import Backdoor
 from concurrency.concurrency import Task
 
+# todo: make named tuples
+Job = Tuple[Callable, Iterable[Task]]
 Result = Tuple[Dict[bool, int], Dict[str, int]]
 Case = Tuple[int, int, bool, Dict[str, int], Tuple[float, float]]
 
@@ -69,7 +71,7 @@ class Function:
         self.instance = instance
         self.measure = measure
 
-    def get_tasks(self, backdoor: Backdoor, *dimension, **kwargs) -> Iterable[Task]:
+    def get_job(self, backdoor: Backdoor, *dimension, **kwargs) -> Job:
         raise NotImplementedError
 
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
@@ -90,13 +92,13 @@ class Function:
 
 
 __all__ = [
-    'Task',
+    'Job',
     'Case',
     'Result',
-    'Solver',
     'Iterable',
     'Backdoor',
     'Function',
+    # utils
     'save_apply',
     'encode_bits',
     'decode_bits',
