@@ -14,20 +14,15 @@ def multi_f(f, tasks):
 class MPIExecutor(Concurrency):
     name = "Concurrency: MPIExecutor"
 
-    def __init__(self,
-                 output,
-                 random_state: RandomState,
-                 **kwargs
-                 ):
+    def __init__(self, *args, **kwargs):
         self.jobs = {}
         self.counter = 0
-        self.random_state = random_state
         self.tick = kwargs.get('tick', 0.1)
         self.workload = kwargs.get('workload', 0.9)
         self.multi_rate = kwargs.get('multi_rate', 4)
         self.debug_ticks = kwargs.get('debug_ticks', 100)
 
-        super().__init__(output)
+        super().__init__(*args, **kwargs)
         self.mpi_size = MPI.COMM_WORLD.Get_size()
         self.executor = ProcessPoolExecutor(self.mpi_size - 1)
 
@@ -135,8 +130,9 @@ class MPIExecutor(Concurrency):
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
-            '-- Tick: %d' % self.tick,
-            '-- Workload: %d' % self.workload,
+            '-- Seed: %d' % self.random_seed,
+            '-- Tick: %.2f' % self.tick,
+            '-- Workload: %.2f' % self.workload,
             '-- MPI size: %d' % self.mpi_size,
         ]))
 

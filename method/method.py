@@ -21,18 +21,19 @@ class Method:
                  output,
                  function: Function,
                  sampling: Sampling,
+                 random_seed: int,
                  concurrency,
-                 random_state: RandomState
                  ):
         self.output = output
         self.sampling = sampling
         self.function = function
         self.concurrency = concurrency
-        self.random_state = random_state
+        self.random_seed = random_seed
 
         self._active_jobs = {}
         self._permutation_cache = {}
         self._backdoor_cache = BackdoorCache(output)
+        self.random_state = RandomState(seed=random_seed)
 
     def _queue(self, backdoor, task_count, offset):
         bd_key, bd_size = str(backdoor), len(backdoor)
@@ -133,6 +134,7 @@ class Method:
         return '\n'.join(map(str, [
             self.name,
             self.sampling,
+            '-- Seed: %d' % self.random_seed,
             '--------------------',
             self.function,
             '--------------------',
