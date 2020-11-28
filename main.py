@@ -47,7 +47,7 @@ if __name__ == '__main__':
         output=_output,
         random_seed=method_seed,
         concurrency=_concurrency,
-        sampling=method.sampling.Epsilon(50, 200, 50, 0.1),
+        sampling=method.sampling.Epsilon(5000, 20000, 5000, 0.1),
         function=method.function.GuessAndDetermine(
             instance=_instance,
             solver=method.solver.pysat.get(args.solver),
