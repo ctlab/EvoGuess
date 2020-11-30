@@ -41,7 +41,7 @@ class Doer(Mutation):
         return Individual(i.backdoor.get_copy(v))
 
     def __str__(self):
-        return '%s (beta: %d, seed: %d)' % (self.name, self.beta, self.seed)
+        return '%s (beta: %d, seed: %s)' % (self.name, self.beta, self.seed)
 
 
 __all__ = ['Doer']

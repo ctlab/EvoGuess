@@ -16,7 +16,7 @@ class Best(Selection):
         return selected
 
     def __str__(self):
-        return '%s (nob: %d, seed: %d)' % (self.name, self.number_of_bests, self.seed)
+        return '%s (nob: %d, seed: %s)' % (self.name, self.number_of_bests, self.seed)
 
 
 __all__ = [

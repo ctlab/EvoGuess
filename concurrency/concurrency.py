@@ -25,7 +25,7 @@ class Concurrency:
     def cancel(self, job_id: int) -> bool:
         raise NotImplementedError
 
-    def wait(self, timeout: float) -> Info:
+    def wait(self, job_ids, timeout: float) -> Info:
         raise NotImplementedError
 
     def get(self, job_id: int) -> Result:

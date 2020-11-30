@@ -3,7 +3,6 @@ from ..model.multi_job import *
 
 from mpi4py import MPI
 from time import time as now, sleep
-from numpy.random.mtrand import RandomState
 from mpi4py.futures import ProcessPoolExecutor
 
 
@@ -64,9 +63,12 @@ class MPIExecutor(Concurrency):
         except KeyError:
             return None
 
-    def _update_jobs(self, debug=False):
+    def _update_jobs(self, job_ids, debug=False):
         ready, all_left = [], 0
         for job_id, (job, auditor) in self.jobs.items():
+            if job_id not in job_ids:
+                continue
+
             job_left = job.update()
             if job_left == 0:
                 ready.append(job_id)
@@ -84,21 +86,21 @@ class MPIExecutor(Concurrency):
 
         return ready, float(all_left) / self.mpi_size
 
-    def wait(self, timeout: float = None) -> Info:
+    def wait(self, job_ids, timeout: float = None) -> Info:
         if timeout is None:
             wall_time = float('inf')
         else:
             wall_time = now() + max(timeout, self.tick)
 
         i = 0
-        ready, loading = self._update_jobs()
+        ready, loading = self._update_jobs(job_ids)
         while wall_time > now():
             if len(ready) > 0 or loading < self.workload:
                 break
 
             sleep(self.tick)
             i = (i + 1) % self.debug_ticks
-            ready, loading = self._update_jobs(debug=(i == 0))
+            ready, loading = self._update_jobs(job_ids, debug=(i == 0))
 
         return loading, ready
 
@@ -130,7 +132,7 @@ class MPIExecutor(Concurrency):
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
-            '-- Seed: %d' % self.random_seed,
+            '-- Seed: %s' % self.random_seed,
             '-- Tick: %.2f' % self.tick,
             '-- Workload: %.2f' % self.workload,
             '-- MPI size: %d' % self.mpi_size,

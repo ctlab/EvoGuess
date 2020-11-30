@@ -17,7 +17,7 @@ class Selection:
         pass
 
     def __str__(self):
-        return '%s (seed: %d)' % (self.name, self.seed)
+        return '%s (seed: %s)' % (self.name, self.seed)
 
 
 __all__ = [

@@ -114,7 +114,8 @@ class Method:
     def wait(self, timeout=None) -> Tuple[bool, Iterable[Tuple[Backdoor, Estimation]]]:
         while True:
             requeue, estimations = False, []
-            loading, completed_jobs = self.concurrency.wait(timeout)
+            job_ids = self._active_jobs.keys()
+            loading, completed_jobs = self.concurrency.wait(job_ids, timeout)
             for job_id in completed_jobs:
                 backdoor, estimation = self._handle_job(job_id)
                 if estimation is not None:
@@ -134,7 +135,7 @@ class Method:
         return '\n'.join(map(str, [
             self.name,
             self.sampling,
-            '-- Seed: %d' % self.random_seed,
+            '-- Seed: %s' % self.random_seed,
             '--------------------',
             self.function,
             '--------------------',
