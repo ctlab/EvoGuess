@@ -1,4 +1,5 @@
 import argparse
+import random
 from concurrent.futures.thread import ThreadPoolExecutor
 from os.path import join
 from time import sleep
@@ -23,7 +24,7 @@ if __name__ == '__main__':
     args, _ = parser.parse_known_args()
 
     # seeds
-    # concurrency_seed, method_seed = 3665729543, 4294967295
+    concurrency_seed, method_seed = 3665729543, 4294967295
     # m_seed, c_seed, s_seed = 4294967295, 4294967295, 4294967295
 
     # instance
@@ -47,14 +48,14 @@ if __name__ == '__main__':
     _concurrency = concurrency.MPIExecutor(
         workload=0,
         output=outputs[0],
-        random_seed=None,
+        random_seed=concurrency_seed,
     )
 
     executor = ThreadPoolExecutor(max_workers=alg_count)
     for i in range(alg_count):
         _method = method.Method(
             output=outputs[i],
-            random_seed=None,
+            random_seed=random.randrange(4294967295),
             concurrency=_concurrency,
             sampling=method.sampling.Epsilon(5000, 20000, 5000, 0.1),
             function=method.function.GuessAndDetermine(
@@ -70,9 +71,9 @@ if __name__ == '__main__':
             output=outputs[i],
             method=_method,
             limit=algorithm.limit.WallTime(args.walltime),
-            mutation=algorithm.evolution.mutation.Doer(),
-            selection=algorithm.evolution.selection.Best(),
-            crossover=algorithm.evolution.crossover.Uniform(prob=0.2),
+            mutation=algorithm.evolution.mutation.Doer(seed=random.randrange(4294967295)),
+            selection=algorithm.evolution.selection.Best(seed=random.randrange(4294967295)),
+            crossover=algorithm.evolution.crossover.Uniform(prob=0.2, seed=random.randrange(4294967295)),
         )
 
         backdoor = _instance.secret_key.to_backdoor()
