@@ -1,14 +1,11 @@
-from typing import List, Dict
+from typing import List
+from time import time as now
 
 from method import Method
 from output import Output
 from .limit.types import Limit
 from structure.array import Backdoor
 from structure.individual import Individual, Population
-
-from time import time as now
-
-State = Dict[str, int]
 
 
 class Algorithm:

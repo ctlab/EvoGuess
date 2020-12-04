@@ -22,7 +22,6 @@ class MPIExecutor(Concurrency):
         self.workload = kwargs.get('workload', 0.9)
         self.multi_rate = kwargs.get('multi_rate', 4)
         self.debug_ticks = kwargs.get('debug_ticks', 100)
-        self.lock = threading.Lock()
 
         super().__init__(*args, **kwargs)
         self.mpi_size = MPI.COMM_WORLD.Get_size()
@@ -66,10 +65,10 @@ class MPIExecutor(Concurrency):
         except KeyError:
             return None
 
-    def _update_jobs(self, job_ids, debug=False):
+    def _update_jobs(self, jobs, debug=False):
         ready, all_left = [], 0
-        for job_id, (job, auditor) in self.jobs.items():
-            if job_id not in job_ids:
+        for job_id, (job, auditor) in jobs.items():
+            if job is None:
                 continue
 
             job_left = job.update()
@@ -84,6 +83,9 @@ class MPIExecutor(Concurrency):
 
             all_left += job_left
 
+        for job_id in ready:
+            jobs[job_id] = (None, None)
+
         if debug:
             self.output.debug(3, 1, 'Left %d task(s) of %d job(s)' % (all_left, len(self.jobs)))
 
@@ -95,17 +97,16 @@ class MPIExecutor(Concurrency):
         else:
             wall_time = now() + max(timeout, self.tick)
 
-        self.lock.acquire()
         i = 0
-        ready, loading = self._update_jobs(job_ids)
-        self.lock.release()
+        jobs = {key: self.jobs.get(key, (None, None)) for key in job_ids}
+        ready, loading = self._update_jobs(jobs)
         while wall_time > now():
             if len(ready) > 0 or loading < self.workload:
                 break
 
             sleep(self.tick)
             i = (i + 1) % self.debug_ticks
-            ready, loading = self._update_jobs(job_ids, debug=(i == 0))
+            ready, loading = self._update_jobs(jobs, debug=(i == 0))
 
         return loading, ready
 
@@ -113,7 +114,6 @@ class MPIExecutor(Concurrency):
         if job_id not in self.jobs:
             raise KeyError
 
-        self.lock.acquire()
         job, auditor = self.jobs.pop(job_id)
         try:
             result, exceptions = job.result()
@@ -128,8 +128,6 @@ class MPIExecutor(Concurrency):
             percent = 100.0 * e.ready / len(e.results)
             self.output.debug(1, 1, 'Job %d has been canceled (%d%%)' % (job_id, percent))
             return False, e.results
-        finally:
-            self.lock.release()
 
     def shutdown(self, wait=True):
         self.executor.shutdown(wait)
