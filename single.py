@@ -9,26 +9,14 @@ THREADS = 36
 
 solvers = ['cd', 'g3', 'g4']
 instances = [
-    'sgen:6_200_5-1',
-    'sgen:6_150_100',
-    'sgen:6_150_200',
-    'sgen:6_150_300',
-    'sgen:6_150_1001',
+    'sgen:6_200_1',
+    'sgen:6_200_201',
+    'pvs:5_7',
+    'pvs:6_7',
+    'pvs:7_7',
+    'pvs:8_7',
+    'pvs:4_8',
 ]
-instances.extend(['bvi:%d_8' % i for i in range(3, 9)])
-instances.extend(['bvi:8_16', 'bvi:8_64'])
-
-for j in range(4, 11):
-    instances.extend(['bvp:%d_%d' % (i, j) for i in range(3, 9)])
-
-for j in range(5, 9):
-    instances.extend(['bvs:%d_%d' % (i, j) for i in range(3, 9)])
-for j in range(12, 16):
-    instances.extend(['bvs:%d_%d' % (i, j) for i in range(3, 6)])
-instances.extend(['bvs:8_4', 'bvs:4_9'])
-
-for j in range(4, 11):
-    instances.extend(['pvs:%d_%d' % (i, j) for i in range(3, 9)])
 
 
 def worker_f(k, inst, solver_key):
