@@ -2,11 +2,12 @@ from ..instance import *
 
 
 class Bivium(StreamCipher):
+    base = 2
     tag = 'bivium'
     name = 'Cipher: Bivium'
 
     def __init__(self):
-        self.path = self.build_path('trivium', self.tag)
+        self.cnf_path = self.build_cnf_path('trivium', self.tag)
         super().__init__(
             secret_key=SecretKey(1, 177),
             key_stream=KeyStream(443, 200)

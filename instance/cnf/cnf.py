@@ -54,11 +54,11 @@ class CNF:
         return copy_cnf
 
     @staticmethod
-    def parse(path, tag=None):
-        if tag is not None and tag in cnfs:
-            return cnfs[tag]
+    def parse(path, key=None):
+        if key is not None and key in cnfs:
+            return cnfs[key]
 
-        print('parse cnf... (%s)' % tag)
+        print('parse cnf... (%s)' % key)
         with open(path) as f:
             cnf = CNF()
             fst = re.compile('^[-0-9]')
@@ -73,8 +73,8 @@ class CNF:
 
                 line = f.readline().strip()
 
-            if tag is not None:
-                cnfs[tag] = cnf
+            if key is not None:
+                cnfs[key] = cnf
             return cnf
 
 

@@ -5,6 +5,9 @@ from structure.array import Backdoor
 class Sampling:
     name = 'Sampling'
 
+    def __init__(self, instance):
+        self.base = instance.base
+
     def get_count(self, backdoor: Backdoor, values=()):
         raise NotImplementedError
 

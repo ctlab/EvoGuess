@@ -18,6 +18,7 @@ from .volfram import *
 
 from .php import *
 from .sgen import *
+from .domain import *
 
 
 def try_int(c):
@@ -50,6 +51,7 @@ def get_instance(name):
         # crafted
         'php': PHP,
         'sgen': SGEN,
+        'domain': Domain,
         # hash
         'md4': MD4,
         # trash

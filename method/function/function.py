@@ -66,10 +66,15 @@ class Function:
     type = None
     name = 'Function'
 
-    def __init__(self, solver: Solver, instance, measure, *args, **kwargs):
+    def __init__(self,
+                 solver: Solver,
+                 instance,
+                 measure,
+                 *args, **kwargs
+                 ):
         self.solver = solver
-        self.instance = instance
         self.measure = measure
+        self.instance = instance
 
     def get_job(self, backdoor: Backdoor, *dimension, **kwargs) -> Job:
         raise NotImplementedError

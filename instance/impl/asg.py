@@ -8,12 +8,13 @@ ks_st = {
 
 
 class ASG(StreamCipher):
+    base = 2
     tag = 'asg'
 
     def __init__(self, sk, ks):
         self.type = '%d_%d' % (sk, ks)
         self.name = 'Cipher: ASG %d/%d' % (sk, ks)
-        self.path = self.build_path(self.tag, 'asg_%d_%d' % (sk, ks))
+        self.cnf_path = self.build_cnf_path(self.tag, 'asg_%d_%d' % (sk, ks))
         super().__init__(
             secret_key=SecretKey(1, sk),
             key_stream=KeyStream(ks_st[(sk, ks)], ks)

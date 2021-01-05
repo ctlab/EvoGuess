@@ -1,6 +1,8 @@
 import warnings
 
 from copy import copy
+from math import log2, ceil
+
 from numpy import count_nonzero
 from numpy.random.mtrand import RandomState
 
@@ -33,8 +35,8 @@ class Backdoor:
             if len(_list) != self.length:
                 warnings.warn('Repeating variables in backdoor', Warning)
 
-            if self.min <= 0:
-                raise Exception('Backdoor contains negative numbers or zero')
+            if self.min < 0:
+                raise Exception('Backdoor contains negative numbers')
 
     def __str__(self):
         if len(self) == 0:
@@ -87,8 +89,8 @@ class Backdoor:
         self._set_mask([True] * self.length)
 
     # main
-    def values(self, **kwargs):
-        return get_values(self.snapshot(), **kwargs)
+    # def values(self, **kwargs):
+    #     return get_values(self.snapshot(), **kwargs)
 
     def snapshot(self):
         return [x for (i, x) in enumerate(self.list) if self.mask[i]]

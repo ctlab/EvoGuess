@@ -1,0 +1,1 @@
+mpiexec -n 5 --oversubscribe python3 -m mpi4py.futures main.py bvs:4_6 -wt 00:05:00 -o test

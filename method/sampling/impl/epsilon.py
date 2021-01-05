@@ -1,13 +1,14 @@
 from ..sampling import *
-from math import log2, sqrt, floor
+from math import log, sqrt, ceil
 
 
 class Epsilon(Sampling):
-    def __init__(self, mn, mx, step, eps, delta=0.05):
+    def __init__(self, instance, mn, mx, step, eps, delta=0.05):
         self.delta = delta
         self.min, self.max = mn, mx
         self.step, self.eps = step, eps
         self.name = 'Sampling: Epsilon (%d..%d, eps: %.2f, delta: %.2f)' % (mn, mx, eps, delta)
+        super().__init__(instance)
 
     def _n_e_d(self, values):
         n = len(values)
@@ -21,7 +22,7 @@ class Epsilon(Sampling):
 
     def get_count(self, backdoor: Backdoor, values=()):
         count = len(values)
-        bd_count = 2 ** len(backdoor)
+        bd_count = self.base ** len(backdoor)
         if count == 0:
             return min(self.min, bd_count)
         elif count < bd_count and count < self.max:
@@ -31,7 +32,7 @@ class Epsilon(Sampling):
         return 0
 
     def get_max(self) -> Tuple[int, int]:
-        return self.max, floor(log2(self.max))
+        return self.max, ceil(log(self.max) / log(self.base))
 
 
 __all__ = [

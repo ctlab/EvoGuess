@@ -10,8 +10,13 @@ from structure.data.backdoor_cache import BackdoorCache
 Estimation = Dict[str, float]
 
 
-def number_to_bits(number, size):
-    return [1 if number & (1 << (size - 1 - i)) else 0 for i in range(size)]
+def decimal_to_base(number, base, size):
+    values = []
+    while number > 0:
+        number, value = divmod(number, base)
+        values.insert(0, value)
+
+    return [0] * (size - len(values)) + values
 
 
 class Method:
@@ -36,26 +41,26 @@ class Method:
         self.random_state = RandomState(seed=random_seed)
 
     def _queue(self, backdoor, task_count, offset):
+        base = self.sampling.base
         bd_key, bd_size = str(backdoor), len(backdoor)
         # generate task_dimension for current backdoor
         _, max_size = self.sampling.get_max()
         if bd_size > max_size:
-            task_dimension = self.random_state.randint(2, size=(task_count, bd_size))
+            task_dimension = self.random_state.randint(base, size=(task_count, bd_size))
         else:
             if bd_key in self._permutation_cache:
                 task_permutation = self._permutation_cache[bd_key]
             else:
-                task_permutation = self.random_state.permutation(2 ** bd_size)
+                task_permutation = self.random_state.permutation(base ** bd_size)
                 self._permutation_cache[bd_key] = task_permutation
 
             task_numbers = task_permutation[offset:offset + task_count]
-            task_dimension = [number_to_bits(number, bd_size) for number in task_numbers]
+            task_dimension = [decimal_to_base(base, number, bd_size) for number in task_numbers]
 
         # create new job for current backdoor with task_dimension
         job_f, job_tasks = self.function.get_job(backdoor, *task_dimension, random_state=self.random_state)
         job_id = self.concurrency.submit(job_f, *job_tasks, auditor=None)
         self._active_jobs[job_id] = backdoor
-
         return job_id
 
     def queue(self, backdoor: Backdoor) -> Tuple[int, Estimation]:

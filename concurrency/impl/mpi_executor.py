@@ -25,7 +25,7 @@ class MPIExecutor(Concurrency):
 
         super().__init__(*args, **kwargs)
         self.mpi_size = MPI.COMM_WORLD.Get_size()
-        self.executor = ProcessPoolExecutor(self.mpi_size - 1)
+        self.executor = ProcessPoolExecutor(len(self))
 
     def submit(self, f: Callable, *tasks: Task, auditor=None) -> int:
         if len(tasks) == 0:
@@ -46,7 +46,7 @@ class MPIExecutor(Concurrency):
         count = len(tasks)
         futures, future_index = [], []
         task_permutation = self.random_state.permutation(count)
-        size = max(1, int(count // (self.multi_rate * (self.mpi_size - 1))))
+        size = max(1, int(count // (self.multi_rate * len(self))))
         for i in range(0, count, size):
             index = task_permutation[i:i + size]
             multi_tasks = tuple(tasks[j] for j in index)
@@ -89,7 +89,7 @@ class MPIExecutor(Concurrency):
         if debug:
             self.output.debug(3, 1, 'Left %d task(s) of %d job(s)' % (all_left, len(self.jobs)))
 
-        return ready, float(all_left) / self.mpi_size
+        return ready, float(all_left) / len(self)
 
     def wait(self, job_ids, timeout: float = None) -> Info:
         if timeout is None:
@@ -133,7 +133,7 @@ class MPIExecutor(Concurrency):
         self.executor.shutdown(wait)
 
     def __len__(self):
-        return self.mpi_size - 1
+        return max(1, self.mpi_size - 1)
 
     def __str__(self):
         return '\n'.join(map(str, [

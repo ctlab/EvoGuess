@@ -1,8 +1,6 @@
 import argparse
 from os.path import join
 
-from numpy.random.mtrand import RandomState
-
 import output
 import method
 import instance
@@ -28,7 +26,7 @@ if __name__ == '__main__':
 
     # instance
     _instance = instance.get_instance(args.instance)
-    assert _instance.check(), "Cnf is missing: %s" % _instance.path
+    assert _instance.check(), "Cnf is missing: %s" % _instance.cnf_path
 
     # output
     path = ['output', '_%s_logs' % args.output, _instance.tag, _instance.type]
@@ -47,7 +45,7 @@ if __name__ == '__main__':
         output=_output,
         random_seed=method_seed,
         concurrency=_concurrency,
-        sampling=method.sampling.Epsilon(5000, 20000, 5000, 0.1),
+        sampling=method.sampling.Epsilon(_instance, 50, 200, 50, 0.1),
         function=method.function.GuessAndDetermine(
             instance=_instance,
             solver=method.solver.pysat.get(args.solver),

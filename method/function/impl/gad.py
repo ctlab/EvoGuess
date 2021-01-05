@@ -2,21 +2,14 @@ from ..function import *
 
 from os import getpid
 from time import time as now
-
-
-def bits_to_values(bits, variables):
-    assert len(bits) >= len(variables)
-    return [x if bits[i] else -x for i, x in enumerate(variables)]
+from utils.array import concat
+from utils import numeral_system as ns
 
 
 def gad_task(i, solver, instance, data):
     st_timestamp = now()
-    bits = decode_bits(data)
-    bd_vars = instance.secret_key.filter(bits[0])
-    assumptions = bits_to_values(bits[1], bd_vars)
-    for i, interval in enumerate(instance.intervals()):
-        # todo: inspect function
-        assumptions.extend(interval.values(bits[i + 2]))
+    assumptions = instance.get_assumptions(decode_bits(data))
+    print(i, data, assumptions)
 
     status, stats, _, _ = solver.solve(instance.clauses(), assumptions)
     result = (i, getpid(), status, stats, (st_timestamp, now()))
@@ -28,17 +21,23 @@ class GuessAndDetermine(Function):
     name = 'Function: Guess-and-Determine'
 
     def get_job(self, backdoor: Backdoor, *dimension, **kwargs) -> Job:
-        ad_bits = []
+        tasks, bd_bits, ad_bits = [], backdoor.get_mask(), []
         if self.instance.has_intervals():
             clauses = self.instance.clauses()
             assumptions = self.instance.secret_key.values(rs=kwargs['random_state'])
             _, _, solution, _ = self.solver.solve(clauses, assumptions, ignore_key=True)
+
+            # todo: consider base for ad_bits
             for i, interval in enumerate(self.instance.intervals()):
                 ad_bits.append(interval.get_bits(solution=solution))
 
-        bd_bits = backdoor.get_mask()
-        task_data = [encode_bits([bd_bits, bits, *ad_bits]) for bits in dimension]
-        return gad_task, [(i, self.solver, self.instance, data) for i, data in enumerate(task_data)]
+        for i, values in enumerate(dimension):
+            bits = concat(*ns.base_to_binary(self.instance.base, *values))
+            task_data = encode_bits([bd_bits, bits, *ad_bits])
+            print(i, values, bits, task_data)
+            tasks.append((i, self.solver, self.instance, task_data))
+
+        return gad_task, tasks
 
     def calculate(self, backdoor: Backdoor, *cases: Case) -> Result:
         statistic = {True: 0, False: 0, None: 0}

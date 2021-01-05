@@ -6,8 +6,8 @@ class Interval:
         self.st, self.end = st, st + length
         self.list = list(range(st, self.end))
 
-        if self.st <= 0:
-            raise Exception('Interval contains negative numbers or zero')
+        if self.st < 0:
+            raise Exception('Interval contains negative numbers')
 
     def __len__(self):
         return self.end - self.st

@@ -2,11 +2,12 @@ from ..instance import *
 
 
 class Salsa20(StreamCipher):
+    base = 2
     tag = 'salsa20'
     name = 'Cipher: Salsa 20'
 
     def __init__(self):
-        self.path = self.build_path(self.tag)
+        self.cnf_path = self.build_cnf_path(self.tag)
         super().__init__(
             secret_key=SecretKey(1, 512),
             key_stream=KeyStream(26465, 512)
