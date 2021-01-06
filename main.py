@@ -21,8 +21,10 @@ if __name__ == '__main__':
     args, _ = parser.parse_known_args()
 
     # seeds
-    concurrency_seed, method_seed = 3665729543, 4294967295
-    m_seed, c_seed, s_seed = 4294967295, 4294967295, 4294967295
+    # concurrency_seed, method_seed = 3665729543, 4294967295
+    # m_seed, c_seed, s_seed = 4294967295, 4294967295, 4294967295
+    concurrency_seed, method_seed = None, None
+    m_seed, c_seed, s_seed = None, None, None
 
     # instance
     _instance = instance.get_instance(args.instance)
@@ -45,7 +47,7 @@ if __name__ == '__main__':
         output=_output,
         random_seed=method_seed,
         concurrency=_concurrency,
-        sampling=method.sampling.Epsilon(_instance, 50, 200, 50, 0.1),
+        sampling=method.sampling.Epsilon(_instance, 500, 2000, 500, 0.1),
         function=method.function.GuessAndDetermine(
             instance=_instance,
             solver=method.solver.pysat.get(args.solver),
