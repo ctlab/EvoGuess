@@ -9,7 +9,6 @@ from utils import numeral_system as ns
 def gad_task(i, solver, instance, data):
     st_timestamp = now()
     assumptions = instance.get_assumptions(decode_bits(data))
-    print(i, data, assumptions)
 
     status, stats, _, _ = solver.solve(instance.clauses(), assumptions)
     result = (i, getpid(), status, stats, (st_timestamp, now()))
@@ -34,7 +33,6 @@ class GuessAndDetermine(Function):
         for i, values in enumerate(dimension):
             bits = concat(*ns.base_to_binary(self.instance.base, *values))
             task_data = encode_bits([bd_bits, bits, *ad_bits])
-            print(i, values, bits, task_data)
             tasks.append((i, self.solver, self.instance, task_data))
 
         return gad_task, tasks

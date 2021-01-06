@@ -41,11 +41,11 @@ class Instance:
         variables = self.secret_key.filter(bits[0])
         values = ns.binary_to_base(self.base, bits[1])
         # todo: convert bits[2:] to base values
-        assert len(variables) == len(values)
+        assert len(values) >= len(variables)
 
         if self.base > 2:
             x_map = XMAP.parse(self.x_path, self.key)
-            assumptions = map(x_map.get_cnf_var, variables, values)
+            assumptions = list(map(x_map.get_cnf_var, variables, values))
         else:
             assumptions = [x if values[i] else -x for i, x in enumerate(variables)]
 

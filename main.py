@@ -64,7 +64,7 @@ if __name__ == '__main__':
         crossover=algorithm.evolution.crossover.Uniform(prob=0.2, seed=c_seed),
     )
 
-    backdoor = _instance.secret_key.to_backdoor()
+    backdoor = _instance.secret_key.to_backdoor([1] * 50)
     points = _algorithm.start(backdoor)
     map(print, points)
 

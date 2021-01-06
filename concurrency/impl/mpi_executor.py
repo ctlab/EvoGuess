@@ -1,5 +1,3 @@
-import threading
-
 from ..concurrency import *
 from ..model.multi_job import *
 
