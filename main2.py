@@ -38,7 +38,7 @@ if __name__ == '__main__':
         path=join(*[f for f in path if f is not None]),
     ).open().touch()
 
-    _concurrency = concurrency.ThreadExecutor(
+    _concurrency = concurrency.ProcessExecutor(
         workload=0,
         output=_output,
         threads=args.threads,
@@ -49,7 +49,7 @@ if __name__ == '__main__':
         output=_output,
         random_seed=method_seed,
         concurrency=_concurrency,
-        sampling=method.sampling.Epsilon(_instance, 50, 200, 50, 0.1),
+        sampling=method.sampling.Epsilon(_instance, 500, 2000, 500, 0.1),
         function=method.function.GuessAndDetermine(
             instance=_instance,
             solver=method.solver.pysat.get(args.solver),

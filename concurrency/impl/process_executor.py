@@ -1,15 +1,15 @@
 from .executor import *
 
-from concurrent.futures.thread import ThreadPoolExecutor
+from concurrent.futures.process import ProcessPoolExecutor
 
 
-class ThreadExecutor(Executor):
-    name = "Concurrency: Thread Executor"
+class ProcessExecutor(Executor):
+    name = "Concurrency: Process Executor"
 
     def __init__(self, threads, *args, **kwargs):
         self.threads = threads
         super().__init__(*args, **kwargs)
-        self.executor = ThreadPoolExecutor(max_workers=threads)
+        self.executor = ProcessPoolExecutor(max_workers=threads)
 
     def __len__(self):
         return self.threads
@@ -25,5 +25,5 @@ class ThreadExecutor(Executor):
 
 
 __all__ = [
-    'ThreadExecutor'
+    'ProcessExecutor'
 ]
