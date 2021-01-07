@@ -1,9 +1,13 @@
 from ..concurrency import *
 from ..model.multi_job import *
 
-from mpi4py import MPI
+try:
+    from mpi4py import MPI
+    from mpi4py.futures import ProcessPoolExecutor
+except ModuleNotFoundError:
+    pass
+
 from time import time as now, sleep
-from mpi4py.futures import ProcessPoolExecutor
 
 
 def multi_f(f, tasks):
