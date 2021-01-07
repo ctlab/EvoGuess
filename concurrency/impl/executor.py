@@ -1,29 +1,24 @@
 from ..concurrency import *
 from ..model.multi_job import *
 
-from mpi4py import MPI
 from time import time as now, sleep
-from mpi4py.futures import ProcessPoolExecutor
 
 
 def multi_f(f, tasks):
     return [f(*args) for args in tasks]
 
 
-class MPIExecutor(Concurrency):
-    name = "Concurrency: MPI Executor"
+class Executor(Concurrency):
+    executor = None
+    name = "Concurrency: Executor"
 
     def __init__(self, *args, **kwargs):
-        self.jobs = {}
-        self.counter = 0
+        self.counter, self.jobs = 0, {}
         self.tick = kwargs.get('tick', 0.1)
         self.workload = kwargs.get('workload', 0.9)
         self.multi_rate = kwargs.get('multi_rate', 4)
         self.debug_ticks = kwargs.get('debug_ticks', 100)
-
         super().__init__(*args, **kwargs)
-        self.mpi_size = MPI.COMM_WORLD.Get_size()
-        self.executor = ProcessPoolExecutor(len(self))
 
     def submit(self, f: Callable, *tasks: Task, auditor=None) -> Optional[int]:
         if len(tasks) == 0:
@@ -32,14 +27,6 @@ class MPIExecutor(Concurrency):
         self.counter += 1
         job_id = self.counter
         assert job_id not in self.jobs
-
-        # futures = []
-        # for args in tasks:
-        #     future = self.executor.submit(f, *args)
-        #     futures.append(future)
-        #
-        # self.jobs[job_id] = Job(futures), auditor
-        # return job_id
 
         count = len(tasks)
         futures, future_index = [], []
@@ -131,12 +118,11 @@ class MPIExecutor(Concurrency):
         self.executor.shutdown(wait)
 
     def __len__(self):
-        return max(1, self.mpi_size - 1)
+        raise NotImplementedError
 
     def __str__(self):
         return '\n'.join(map(str, [
             self.name,
-            '-- MPI size: %d' % self.mpi_size,
             '-- Seed: %s' % self.random_seed,
             '-- Tick: %.2f' % self.tick,
             '-- Workload: %.2f' % self.workload,
@@ -144,5 +130,5 @@ class MPIExecutor(Concurrency):
 
 
 __all__ = [
-    'MPIExecutor'
+    'Executor'
 ]

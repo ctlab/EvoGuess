@@ -1,10 +1,10 @@
-from typing import Iterable, Tuple, Any, Callable
+from typing import Iterable, Tuple, Any, Callable, Optional
 
 from numpy.random.mtrand import RandomState
 
 Task = Iterable[Any]
 Result = Iterable[Any]
-Info = Tuple[int, Iterable[int]]
+Info = Tuple[float, Iterable[int]]
 
 
 class Concurrency:
@@ -19,10 +19,10 @@ class Concurrency:
         self.random_seed = random_seed
         self.random_state = RandomState(seed=random_seed)
 
-    def submit(self, f: Callable, *tasks: Task) -> int:
+    def submit(self, f: Callable, *tasks: Task) -> Optional[int]:
         raise NotImplementedError
 
-    def cancel(self, job_id: int) -> bool:
+    def cancel(self, job_id: int) -> Optional[bool]:
         raise NotImplementedError
 
     def wait(self, job_ids, timeout: float) -> Info:
@@ -42,6 +42,7 @@ __all__ = [
     'Info',
     'Task',
     'Result',
+    'Optional',
     'Callable',
     'Concurrency'
 ]

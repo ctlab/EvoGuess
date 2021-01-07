@@ -1,10 +1,12 @@
 import re
+import threading
 
 from copy import copy
 from _operator import add
 from functools import reduce
 
 cnfs = {}
+lock = threading.Lock()
 
 
 class CNF:
@@ -55,7 +57,9 @@ class CNF:
 
     @staticmethod
     def parse(path, key=None):
+        lock.acquire()
         if key is not None and key in cnfs:
+            lock.release()
             return cnfs[key]
 
         print('parse cnf... (%s)' % key)
@@ -75,6 +79,8 @@ class CNF:
 
             if key is not None:
                 cnfs[key] = cnf
+
+            lock.release()
             return cnf
 
 
