@@ -43,19 +43,25 @@ def decode_bits(data):
 
 
 def encode_result(result):
-    return result[0], result[1], result[2], result[3]['restarts'], result[3]['conflicts'], result[3]['decisions'], \
-           result[3]['propagations'], result[3]['learned_literals'], result[3]['time'], result[4][0], result[4][1]
+    if 'learned_literals' in result[3]:
+        return result[0], result[1], result[2], result[3]['restarts'], result[3]['conflicts'], result[3]['decisions'], \
+               result[3]['propagations'], result[3]['time'], result[4][0], result[4][1], result[3]['learned_literals']
+    else:
+        return result[0], result[1], result[2], result[3]['restarts'], result[3]['conflicts'], result[3]['decisions'], \
+               result[3]['propagations'], result[3]['time'], result[4][0], result[4][1]
 
 
 def decode_result(data):
-    return data[0], data[1], data[2], {
+    stats = {
         'restarts': data[3],
         'conflicts': data[4],
         'decisions': data[5],
         'propagations': data[6],
-        'learned_literals': data[7],
-        'time': data[8],
-    }, (data[9], data[10])
+        'time': data[7],
+    }
+    if len(data) > 10:
+        stats['learned_literals'] = data[10]
+    return data[0], data[1], data[2], stats, (data[8], data[9])
 
 
 def save_apply(f, arg):
