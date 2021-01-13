@@ -10,7 +10,7 @@ class QAP(Instance):
         self.name = 'Instance: QAP (base: %d)' % base
         self.x_path = self.build_x_map_path(self.tag, self.type)
         self.cnf_path = self.build_cnf_path(self.tag, self.type)
-        super().__init__(secret_key=SecretKey(0, base * base))
+        super().__init__(secret_key=SecretKey(0, base))
 
 
 __all__ = [
