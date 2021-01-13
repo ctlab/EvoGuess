@@ -70,12 +70,8 @@ class MultiJob:
 
     def _set(self, index, result):
         for i, j in enumerate(index):
-            if result is not None:
-                self._results[j] = result[i]
-                self._statuses[j] = True
-            else:
-                self._results[j] = None
-                self._statuses[j] = False
+            self._statuses[j] = True
+            self._results[j] = None if result is None else result[i]
 
     def _update(self, timeout=0.):
         i, wall_time = 0, now() + timeout
