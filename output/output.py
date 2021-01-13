@@ -1,6 +1,6 @@
 import os
 import tarfile
-import sqlite3
+# import sqlite3
 from time import sleep
 from datetime import datetime
 from os.path import join, abspath
@@ -183,7 +183,7 @@ class Output:
             raise NotOpenedError()
 
         db_path = join(self.path, '%s.db' % name)
-        return sqlite3.connect(db_path)
+        return None  # sqlite3.connect(db_path)
 
     def error(self, module, text, e):
         string = '%s: %s (%s)' % (module, text, e)
