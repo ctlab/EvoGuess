@@ -17,6 +17,7 @@ from .geffe import *
 from .volfram import *
 
 from .php import *
+from .qap import *
 from .sgen import *
 from .domain import *
 
@@ -50,6 +51,7 @@ def get_instance(name):
         'pvs': PancakeVsSelection,
         # crafted
         'php': PHP,
+        'qap': QAP,
         'sgen': SGEN,
         'domain': Domain,
         # hash

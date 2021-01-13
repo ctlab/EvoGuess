@@ -47,7 +47,7 @@ class GuessAndDetermine(Function):
             process_time += case[4][1] - case[4][0]
 
         time, value, = None, None
-        count = 2 ** len(backdoor)
+        count = self.instance.base ** len(backdoor)
         if count == len(cases):
             time, value = time_sum, value_sum
         elif len(cases) > 0:
