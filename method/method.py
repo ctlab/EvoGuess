@@ -55,7 +55,7 @@ class Method:
                 self._permutation_cache[bd_key] = task_permutation
 
             task_numbers = task_permutation[offset:offset + task_count]
-            task_dimension = [decimal_to_base(base, number, bd_size) for number in task_numbers]
+            task_dimension = [decimal_to_base(number, base, bd_size) for number in task_numbers]
 
         # create new job for current backdoor with task_dimension
         job_f, job_tasks = self.function.get_job(backdoor, *task_dimension, random_state=self.random_state)
