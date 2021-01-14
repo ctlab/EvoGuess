@@ -1,5 +1,5 @@
 from ..sampling import *
-from math import log, sqrt, ceil
+from math import log, sqrt, floor
 
 
 class Epsilon(Sampling):
@@ -32,7 +32,7 @@ class Epsilon(Sampling):
         return 0
 
     def get_max(self) -> Tuple[int, int]:
-        return self.max, ceil(log(self.max) / log(self.base))
+        return self.max, floor(log(self.max) / log(self.base))
 
 
 __all__ = [

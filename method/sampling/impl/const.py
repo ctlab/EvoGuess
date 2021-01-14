@@ -1,5 +1,5 @@
 from ..sampling import *
-from math import log, ceil
+from math import log, floor
 
 
 class Const(Sampling):
@@ -13,7 +13,7 @@ class Const(Sampling):
         return max(0, count - len(values))
 
     def get_max(self) -> Tuple[int, int]:
-        return self.count, ceil(log(self.count) / log(self.base))
+        return self.count, floor(log(self.count) / log(self.base))
 
 
 __all__ = [
