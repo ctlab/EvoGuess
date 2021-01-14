@@ -186,7 +186,7 @@ class Output:
         return None  # sqlite3.connect(db_path)
 
     def error(self, module, text, e):
-        string = '%s: %s (%s)' % (module, text, e)
+        string = '%s: %s (%s)' % (module, text, repr(e))
         return self.write('ERRORS', string)
 
 
