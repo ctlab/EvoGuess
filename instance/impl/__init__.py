@@ -54,6 +54,7 @@ def get_instance(name):
         'qap': QAP,
         'sgen': SGEN,
         'domain': Domain,
+        'mphp': MatrixPHP,
         # hash
         'md4': MD4,
         # trash
