@@ -1,4 +1,6 @@
 from ..sampling import *
+
+import re
 from math import log, floor
 
 
@@ -14,6 +16,13 @@ class Const(Sampling):
 
     def get_max(self) -> Tuple[int, int]:
         return self.count, floor(log(self.count) / log(self.base))
+
+    @staticmethod
+    def parse(params):
+        args = re.findall(r'^(\d+)$', params)
+        return {
+            'count': int(args[0])
+        } if len(args) else None
 
 
 __all__ = [

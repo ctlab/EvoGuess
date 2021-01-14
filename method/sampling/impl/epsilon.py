@@ -1,4 +1,6 @@
 from ..sampling import *
+
+import re
 from math import log, sqrt, floor
 
 
@@ -33,6 +35,20 @@ class Epsilon(Sampling):
 
     def get_max(self) -> Tuple[int, int]:
         return self.max, floor(log(self.max) / log(self.base))
+
+    @staticmethod
+    def parse(params):
+        args = re.findall(r'^(\d+):(\d+):(\d+)@((?:[0-9]*[.])?[0-9]+)(?:d((?:[0-9]*[.])?[0-9]+))?$', params)
+        if len(args) > 0:
+            kwargs = {
+                'mn': int(args[0][0]),
+                'mx': int(args[0][1]),
+                'step': int(args[0][2]),
+                'eps': float(args[0][3]),
+            }
+            if len(args[0][4]) > 0:
+                kwargs['delta'] = float(args[0][4])
+            return kwargs
 
 
 __all__ = [
