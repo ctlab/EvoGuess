@@ -49,6 +49,7 @@ class PySat(Solver):
         if can_save:
             if from_saved:
                 new_stats = {}
+                # first_stats, last_stats
                 fs, ls = saved_stats[key]
                 for measure in statistics.keys():
                     new_stats[measure] = statistics[measure] + fs[measure] - ls[measure]
