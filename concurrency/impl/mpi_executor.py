@@ -1,5 +1,6 @@
 from ..concurrency import *
 from ..model.multi_job import *
+from method.solver.impl.pysat import PySat
 
 try:
     from mpi4py import MPI
@@ -10,8 +11,11 @@ except ModuleNotFoundError:
 from time import time as now, sleep
 
 
-def multi_f(f, tasks):
-    return [f(*args) for args in tasks]
+def multi_f(f, tasks, ids):
+    job_id, max_id = ids
+    if max_id is not None:
+        PySat.clear(max_id)
+    return [f(*args, key=job_id) for args in tasks]
 
 
 class MPIExecutor(Concurrency):
@@ -29,7 +33,7 @@ class MPIExecutor(Concurrency):
         self.mpi_size = MPI.COMM_WORLD.Get_size()
         self.executor = ProcessPoolExecutor(len(self))
 
-    def submit(self, f: Callable, *tasks: Task, auditor=None) -> Optional[int]:
+    def submit(self, f: Callable, *tasks: Task, auditor=None, max_id=None) -> Optional[int]:
         if len(tasks) == 0:
             return None
 
@@ -52,7 +56,7 @@ class MPIExecutor(Concurrency):
         for i in range(0, count, size):
             index = task_permutation[i:i + size]
             multi_tasks = tuple(tasks[j] for j in index)
-            future = self.executor.submit(multi_f, f, multi_tasks)
+            future = self.executor.submit(multi_f, f, multi_tasks, (job_id, max_id))
 
             futures.append(future)
             future_index.append(index)

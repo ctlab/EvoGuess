@@ -19,7 +19,7 @@ class Concurrency:
         self.random_seed = random_seed
         self.random_state = RandomState(seed=random_seed)
 
-    def submit(self, f: Callable, *tasks: Task) -> Optional[int]:
+    def submit(self, f: Callable, *tasks: Task, **kwargs) -> Optional[int]:
         raise NotImplementedError
 
     def cancel(self, job_id: int) -> Optional[bool]:

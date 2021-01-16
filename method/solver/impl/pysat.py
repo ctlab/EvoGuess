@@ -4,6 +4,7 @@ from pysat import solvers
 from threading import Timer
 from time import time as now
 
+saved_stats = {}
 saved_solvers = {}
 
 
@@ -11,20 +12,19 @@ class PySat(Solver):
     name = 'Solver'
     constructor = None
 
-    def __init__(self, key=None):
-        self._key = key
+    def __init__(self, use_keys=False):
+        self.use_keys = use_keys
 
-    def solve(self, clauses, assumptions, limit=0, ignore_key=False):
-        saved = not ignore_key and self._key is not None
-        if saved and self._key in saved_solvers:
-            solver = saved_solvers[self._key]
+    def solve(self, clauses, assumptions, limit=0, key=None):
+        can_save = self.use_keys and key is not None
+        if can_save and key in saved_solvers:
             from_saved = True
+            solver = saved_solvers[key]
         else:
-            solver = self.constructor(bootstrap_with=clauses, use_timer=True)
             from_saved = False
-
-            if saved:
-                saved_solvers[self._key] = solver
+            solver = self.constructor(bootstrap_with=clauses, use_timer=True)
+            if can_save:
+                saved_solvers[key] = solver
 
         if limit > 0:
             timer = Timer(limit, solver.interrupt, ())
@@ -46,8 +46,21 @@ class PySat(Solver):
         solution = solver.get_model() if status else None
         statistics = solver.accum_stats()
 
+        if can_save:
+            if from_saved:
+                new_stats = {}
+                fs, ls = saved_stats[key]
+                for measure in statistics.keys():
+                    new_stats[measure] = statistics[measure] + fs[measure] - ls[measure]
+
+                saved_stats[key] = (fs, statistics)
+                statistics = new_stats
+            else:
+                saved_stats[key] = (statistics, statistics)
+
+        # todo: do something with time
         statistics['time'] = time
-        if self._key is None:
+        if not can_save:
             solver.delete()
 
         return status, statistics, solution, from_saved
@@ -56,17 +69,27 @@ class PySat(Solver):
         return self.name
 
     @staticmethod
-    def delete(key: str):
-        if key in saved_solvers:
-            del saved_solvers[key]
-            return True
+    def clear(max_key: int):
+        cleared, errors = 0, 0
+        for _key in list(saved_solvers.keys()):
+            if _key <= max_key:
+                try:
+                    saved_solvers[_key].delete()
+                    cleared += 1
+                except Exception:
+                    errors += 1
+                finally:
+                    del saved_solvers[_key]
+                    if _key in saved_stats:
+                        del saved_stats[_key]
 
-        return False
+        return cleared, errors
 
 
 #
 # ----------------------------------------------------------------
 #
+
 
 class Cadical(PySat):
     name = 'Solver: Cadical'
@@ -132,8 +155,8 @@ solvers_dict = {
 }
 
 
-def get(key):
-    return solvers_dict[key]()
+def get(key, *args, **kwargs):
+    return solvers_dict[key](*args, **kwargs)
 
 
 __all__ = [

@@ -99,6 +99,7 @@ class Function:
             self.name,
             self.solver,
             self.measure,
+            self.instance
         ]))
 
 

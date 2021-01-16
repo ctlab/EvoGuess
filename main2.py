@@ -53,7 +53,7 @@ if __name__ == '__main__':
         sampling=method.sampling.get_sampling(_instance, args.sampling),
         function=method.function.GuessAndDetermine(
             instance=_instance,
-            solver=method.solver.pysat.get(args.solver),
+            solver=method.solver.pysat.get(args.solver, use_keys=True),
             measure=method.function.measure.get(args.measure),
         )
     )

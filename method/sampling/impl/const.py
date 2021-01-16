@@ -11,7 +11,7 @@ class Const(Sampling):
         super().__init__(instance)
 
     def get_count(self, backdoor: Backdoor, values=()):
-        count = min(self.count, 2 ** len(backdoor))
+        count = min(self.count, self.base ** len(backdoor))
         return max(0, count - len(values))
 
     def get_max(self) -> Tuple[int, int]:

@@ -40,6 +40,8 @@ class Method:
         self._backdoor_cache = BackdoorCache(output)
         self.random_state = RandomState(seed=random_seed)
 
+        self._max_completed_job_id = None
+
     def _queue(self, backdoor, task_count, offset):
         base = self.sampling.base
         bd_key, bd_size = str(backdoor), len(backdoor)
@@ -59,7 +61,7 @@ class Method:
 
         # create new job for current backdoor with task_dimension
         job_f, job_tasks = self.function.get_job(backdoor, *task_dimension, random_state=self.random_state)
-        job_id = self.concurrency.submit(job_f, *job_tasks, auditor=None)
+        job_id = self.concurrency.submit(job_f, *job_tasks, auditor=None, max_id=self._max_completed_job_id)
 
         self.output.debug(
             4, 2,
@@ -128,6 +130,7 @@ class Method:
         while True:
             requeue, estimations = False, []
             job_ids = self._active_jobs.keys()
+            self._max_completed_job_id = min(job_ids) - 1
             loading, completed_jobs = self.concurrency.wait(job_ids, timeout)
             for job_id in completed_jobs:
                 backdoor, estimation = self._handle_job(job_id)

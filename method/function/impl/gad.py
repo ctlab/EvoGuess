@@ -6,11 +6,11 @@ from utils.array import concat
 from utils import numeral_system as ns
 
 
-def gad_task(i, solver, instance, data):
+def gad_task(i, solver, instance, data, key=None):
     st_timestamp = now()
     assumptions = instance.get_assumptions(decode_bits(data))
 
-    status, stats, _, _ = solver.solve(instance.clauses(), assumptions)
+    status, stats, _, _ = solver.solve(instance.clauses(), assumptions, key=key)
     result = (i, getpid(), status, stats, (st_timestamp, now()))
     return encode_result(result)
 
@@ -23,8 +23,9 @@ class GuessAndDetermine(Function):
         tasks, bd_bits, ad_bits = [], backdoor.get_mask(), []
         if self.instance.has_intervals():
             clauses = self.instance.clauses()
+            # todo: fix for domain variables
             assumptions = self.instance.secret_key.values(rs=kwargs['random_state'])
-            _, _, solution, _ = self.solver.solve(clauses, assumptions, ignore_key=True)
+            _, _, solution, _ = self.solver.solve(clauses, assumptions)
 
             # todo: consider base for ad_bits
             for i, interval in enumerate(self.instance.intervals()):

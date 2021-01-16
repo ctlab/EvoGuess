@@ -1,11 +1,15 @@
 from ..concurrency import *
 from ..model.multi_job import *
+from method.solver.impl.pysat import PySat
 
 from time import time as now, sleep
 
 
-def multi_f(f, tasks):
-    return [f(*args) for args in tasks]
+def multi_f(f, tasks, ids):
+    job_id, max_id = ids
+    if max_id is not None:
+        PySat.clear(max_id)
+    return [f(*args, key=job_id) for args in tasks]
 
 
 class Executor(Concurrency):
@@ -16,11 +20,11 @@ class Executor(Concurrency):
         self.counter, self.jobs = 0, {}
         self.tick = kwargs.get('tick', 0.1)
         self.workload = kwargs.get('workload', 0.9)
-        self.multi_rate = kwargs.get('multi_rate', 4)
+        self.multi_rate = kwargs.get('multi_rate', 1)
         self.debug_ticks = kwargs.get('debug_ticks', 100)
         super().__init__(*args, **kwargs)
 
-    def submit(self, f: Callable, *tasks: Task, auditor=None) -> Optional[int]:
+    def submit(self, f: Callable, *tasks: Task, auditor=None, max_id=None) -> Optional[int]:
         if len(tasks) == 0:
             return None
 
@@ -35,11 +39,12 @@ class Executor(Concurrency):
         for i in range(0, count, size):
             index = task_permutation[i:i + size]
             multi_tasks = tuple(tasks[j] for j in index)
-            future = self.executor.submit(multi_f, f, multi_tasks)
+            future = self.executor.submit(multi_f, f, multi_tasks, (job_id, max_id))
 
             futures.append(future)
             future_index.append(index)
 
+        print(job_id, 'with', len(futures), 'futures')
         self.jobs[job_id] = MultiJob(futures, future_index), auditor
         return job_id
 
@@ -61,7 +66,7 @@ class Executor(Concurrency):
                 ready.append(job_id)
                 continue
 
-            if auditor and not auditor(job):
+            if auditor and not auditor.audit(job_id, job):
                 if self.cancel(job_id) is not None:
                     ready.append(job_id)
                     continue
